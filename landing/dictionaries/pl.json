@@ -94,6 +94,9 @@
   "pricing": {
     "title": "Prosty, Przejrzysty Cennik",
     "subtitle": "Zacznij za darmo, rozszerzaj w miarę wzrostu. Żadnych ukrytych opłat.",
+    "period": "/mies",
+    "mostPopular": "Najpopularniejszy",
+    "currencyNote": "Ceny w USD. Twój bank automatycznie przelicza na PLN przy płatności.",
     "starter": {
       "name": "Starter",
       "desc": "Idealny na start.",
@@ -109,6 +112,7 @@
     "enterprise": {
       "name": "Enterprise",
       "desc": "Dla dużych katalogów i potrzeb niestandardowych.",
+      "price": "Indywidualnie",
       "cta": "Skontaktuj się z Działem Sprzedaży",
       "features": ["Nielimitowane Wgrania", "Dostęp do API", "Rozwiązanie White-label", "Dedykowany Opiekun Klienta", "Gwarancja SLA"]
     }

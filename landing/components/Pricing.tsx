@@ -5,7 +5,7 @@ export default function Pricing({ dict }: { dict: any }) {
     {
       name: dict.pricing.starter.name,
       price: "$0",
-      period: "/month",
+      period: dict.pricing.period,
       description: dict.pricing.starter.desc,
       features: dict.pricing.starter.features,
       cta: dict.pricing.starter.cta,
@@ -14,7 +14,7 @@ export default function Pricing({ dict }: { dict: any }) {
     {
       name: dict.pricing.growth.name,
       price: "$49",
-      period: "/month",
+      period: dict.pricing.period,
       description: dict.pricing.growth.desc,
       features: dict.pricing.growth.features,
       cta: dict.pricing.growth.cta,
@@ -22,7 +22,7 @@ export default function Pricing({ dict }: { dict: any }) {
     },
     {
       name: dict.pricing.enterprise.name,
-      price: "Custom",
+      price: dict.pricing.enterprise.price,
       period: "",
       description: dict.pricing.enterprise.desc,
       features: dict.pricing.enterprise.features,
@@ -46,7 +46,7 @@ export default function Pricing({ dict }: { dict: any }) {
             <div key={index} className={`relative rounded-2xl p-8 border ${plan.highlighted ? 'border-secondary shadow-xl scale-105 z-10' : 'border-gray-200 shadow-sm'} bg-white flex flex-col`}>
               {plan.highlighted && (
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-secondary text-white px-4 py-1 rounded-full text-sm font-bold shadow-md">
-                  Most Popular
+                  {dict.pricing.mostPopular}
                 </div>
               )}
               <div className="mb-6">
@@ -71,6 +71,15 @@ export default function Pricing({ dict }: { dict: any }) {
             </div>
           ))}
         </div>
+
+        {/* Currency Note */}
+        {dict.pricing.currencyNote && (
+          <div className="text-center mt-8">
+            <p className="text-sm text-gray-500">
+              {dict.pricing.currencyNote}
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );
