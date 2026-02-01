@@ -5,10 +5,12 @@ import { createClient } from '@/utils/supabase/client'
 import { createGeneration } from '../actions'
 import { UploadCloud, Loader2, FileIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
 
 export const dynamic = 'force-dynamic'
 
 export default function CreatePage() {
+  const { dict } = useDashboardLanguage()
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -17,7 +19,10 @@ export default function CreatePage() {
   // Product Name State
   const [productName, setProductName] = useState('')
 
-  // Dimensions State
+  // Unit system state (metric or imperial)
+  const [unitSystem, setUnitSystem] = useState<'metric' | 'imperial'>('metric')
+
+  // Dimensions State (stores the raw input values as user types)
   const [dimensions, setDimensions] = useState({
     width: '',
     height: '',
@@ -26,6 +31,27 @@ export default function CreatePage() {
 
   const router = useRouter()
   const supabase = createClient()
+
+  // Conversion functions
+  const inchesToCm = (inches: number) => inches * 2.54
+  const cmToInches = (cm: number) => cm / 2.54
+
+  // Get dimensions in cm for upload
+  const getDimensionsInCm = () => {
+    const width = parseFloat(dimensions.width)
+    const height = parseFloat(dimensions.height)
+    const depth = parseFloat(dimensions.depth)
+
+    if (unitSystem === 'imperial') {
+      return {
+        width: inchesToCm(width).toString(),
+        height: inchesToCm(height).toString(),
+        depth: inchesToCm(depth).toString()
+      }
+    }
+
+    return dimensions
+  }
 
   const handleFileChange = (selectedFile: File) => {
     setFile(selectedFile)
@@ -63,14 +89,38 @@ export default function CreatePage() {
     setDimensions(prev => ({ ...prev, [name]: value }))
   }
 
+  const toggleUnitSystem = () => {
+    setUnitSystem(prev => {
+      const newSystem = prev === 'metric' ? 'imperial' : 'metric'
+
+      // Convert existing values when switching units
+      const newDimensions = { ...dimensions }
+      if (dimensions.width) {
+        const width = parseFloat(dimensions.width)
+        newDimensions.width = (newSystem === 'imperial' ? cmToInches(width) : inchesToCm(width)).toFixed(2)
+      }
+      if (dimensions.height) {
+        const height = parseFloat(dimensions.height)
+        newDimensions.height = (newSystem === 'imperial' ? cmToInches(height) : inchesToCm(height)).toFixed(2)
+      }
+      if (dimensions.depth) {
+        const depth = parseFloat(dimensions.depth)
+        newDimensions.depth = (newSystem === 'imperial' ? cmToInches(depth) : inchesToCm(depth)).toFixed(2)
+      }
+
+      setDimensions(newDimensions)
+      return newSystem
+    })
+  }
+
   const handleUpload = async () => {
     if (!file) return
     if (!productName.trim()) {
-        alert("Please enter a product name")
+        alert(dict.create.enterProductName)
         return
     }
     if (!dimensions.width || !dimensions.height || !dimensions.depth) {
-        alert("Please enter all dimensions")
+        alert(dict.create.enterDimensions)
         return
     }
 
@@ -86,14 +136,16 @@ export default function CreatePage() {
 
       if (uploadError) throw uploadError
 
-      await createGeneration(filePath, dimensions, productName)
+      // Convert dimensions to cm before sending to API
+      const dimensionsInCm = getDimensionsInCm()
+      await createGeneration(filePath, dimensionsInCm, productName)
     } catch (error: any) {
       // Ignore Next.js Redirect errors
       if (error.message === 'NEXT_REDIRECT' || error.digest?.includes('NEXT_REDIRECT')) {
         throw error
       }
       console.error('Error uploading:', error)
-      alert('Error uploading file')
+      alert(dict.create.errorUploading)
       setIsUploading(false)
     }
   }
@@ -101,8 +153,8 @@ export default function CreatePage() {
   return (
     <div className="max-w-4xl mx-auto pb-20">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Create New Model</h1>
-        <p className="text-slate-400">Upload a photo and specify dimensions to generate your AR asset.</p>
+        <h1 className="text-3xl font-bold mb-2">{dict.create.title}</h1>
+        <p className="text-slate-400">{dict.create.subtitle}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -129,8 +181,8 @@ export default function CreatePage() {
             {isUploading ? (
             <div className="text-center z-10">
                 <Loader2 className="w-16 h-16 text-[#00f0ff] animate-spin mb-4 mx-auto" />
-                <p className="text-xl font-medium text-[#00f0ff]">Uploading & Processing...</p>
-                <p className="text-slate-400 mt-2">Initiating quantum scan protocol</p>
+                <p className="text-xl font-medium text-[#00f0ff]">{dict.create.uploadingProcessing}</p>
+                <p className="text-slate-400 mt-2">{dict.create.quantumScan}</p>
             </div>
             ) : file && previewUrl ? (
             <div className="text-center z-10 flex flex-col items-center w-full h-full py-4">
@@ -150,7 +202,7 @@ export default function CreatePage() {
                     <button
                     className="px-6 py-2 bg-[#1e293b] text-slate-300 rounded-full text-xs border border-slate-700 hover:border-[#00f0ff]/50 hover:text-[#00f0ff] transition-all"
                     >
-                    Change Image
+                    {dict.create.changeImage}
                     </button>
                 </div>
             </div>
@@ -160,13 +212,13 @@ export default function CreatePage() {
                 <UploadCloud className="w-10 h-10 text-slate-400 group-hover:text-[#00f0ff]" />
                 </div>
                 <h3 className="text-xl font-medium text-white mb-2">
-                Drag & Drop your image
+                {dict.create.dragDrop}
                 </h3>
                 <p className="text-slate-400 mb-6 max-w-sm mx-auto">
-                Supports JPG, PNG. High contrast images work best.
+                {dict.create.supports}
                 </p>
                 <span className="px-6 py-3 bg-[#00f0ff] text-[#050a14] font-bold rounded-lg hover:bg-[#00f0ff]/90 transition-colors uppercase tracking-wide text-sm">
-                Browse Files
+                {dict.create.browseFiles}
                 </span>
             </div>
             )}
@@ -177,17 +229,17 @@ export default function CreatePage() {
             <div className="bg-[#0f172a]/50 p-6 rounded-2xl border border-[#1e293b]">
                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                     <span className="w-1 h-6 bg-[#00f0ff] rounded-full"></span>
-                    Product Details
+                    {dict.create.productDetails}
                 </h3>
 
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Product Name</label>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{dict.create.productName}</label>
                         <input
                             type="text"
                             value={productName}
                             onChange={(e) => setProductName(e.target.value)}
-                            placeholder="e.g. Modern Leather Sofa"
+                            placeholder={dict.create.productNamePlaceholder}
                             className="w-full bg-[#0a0f1c] border border-[#1e293b] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#00f0ff] transition-colors"
                         />
                     </div>
@@ -195,45 +247,66 @@ export default function CreatePage() {
             </div>
 
             <div className="bg-[#0f172a]/50 p-6 rounded-2xl border border-[#1e293b]">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <span className="w-1 h-6 bg-[#00f0ff] rounded-full"></span>
-                    Physical Dimensions (cm)
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <span className="w-1 h-6 bg-[#00f0ff] rounded-full"></span>
+                        {dict.create.dimensions}
+                    </h3>
+                    {/* Unit Toggle */}
+                    <button
+                        onClick={toggleUnitSystem}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-[#1e293b] hover:bg-[#2d3b55] border border-[#00f0ff]/20 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                        type="button"
+                    >
+                        <span className={unitSystem === 'metric' ? 'text-[#00f0ff]' : 'text-slate-500'}>cm</span>
+                        <span className="text-slate-600">/</span>
+                        <span className={unitSystem === 'imperial' ? 'text-[#00f0ff]' : 'text-slate-500'}>in</span>
+                    </button>
+                </div>
                 <p className="text-slate-400 text-sm mb-6">
-                    Enter the exact real-world dimensions of the object. The AI will scale the generated model to match these bounds.
+                    {dict.create.dimensionsDesc}
                 </p>
 
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Width (cm)</label>
-                        <input 
-                            type="number" 
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            {dict.create.width} ({unitSystem === 'metric' ? 'cm' : 'inches'})
+                        </label>
+                        <input
+                            type="number"
                             name="width"
                             value={dimensions.width}
                             onChange={handleDimensionChange}
-                            placeholder="e.g. 200"
+                            placeholder={unitSystem === 'metric' ? dict.create.widthPlaceholder : 'e.g. 78.7'}
+                            step="0.01"
                             className="w-full bg-[#0a0f1c] border border-[#1e293b] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#00f0ff] transition-colors"
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Height (cm)</label>
-                        <input 
-                            type="number" 
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            {dict.create.height} ({unitSystem === 'metric' ? 'cm' : 'inches'})
+                        </label>
+                        <input
+                            type="number"
                             name="height"
                             value={dimensions.height}
                             onChange={handleDimensionChange}
-                            placeholder="e.g. 85"
+                            placeholder={unitSystem === 'metric' ? dict.create.heightPlaceholder : 'e.g. 33.5'}
+                            step="0.01"
                             className="w-full bg-[#0a0f1c] border border-[#1e293b] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#00f0ff] transition-colors"
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Depth (cm)</label>
-                        <input 
-                            type="number" 
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            {dict.create.depth} ({unitSystem === 'metric' ? 'cm' : 'inches'})
+                        </label>
+                        <input
+                            type="number"
                             name="depth"
                             value={dimensions.depth}
                             onChange={handleDimensionChange}
-                            placeholder="e.g. 95"
+                            placeholder={unitSystem === 'metric' ? dict.create.depthPlaceholder : 'e.g. 37.4'}
+                            step="0.01"
                             className="w-full bg-[#0a0f1c] border border-[#1e293b] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#00f0ff] transition-colors"
                         />
                     </div>
@@ -249,12 +322,12 @@ export default function CreatePage() {
                     {isUploading ? (
                         <>
                             <Loader2 className="w-5 h-5 animate-spin" />
-                            Processing...
+                            {dict.create.processing}
                         </>
                     ) : (
                         <>
                             <UploadCloud className="w-5 h-5" />
-                            Generate AR Model
+                            {dict.create.generateAR}
                         </>
                     )}
                 </button>
