@@ -121,10 +121,11 @@ export default function PrivacyPage() {
               <li><strong>Opt-out:</strong> Unsubscribe from marketing communications</li>
             </ul>
             <p className="text-gray-700 leading-relaxed mt-4">
-              To exercise these rights, contact us at{' '}
-              <a href="mailto:privacy@spacecheck.app" className="text-secondary hover:underline">
-                privacy@spacecheck.app
-              </a>
+              To exercise these rights, please{' '}
+              <Link href="/contact" className="text-secondary hover:underline">
+                contact us
+              </Link>
+              .
             </p>
           </section>
 
@@ -191,19 +192,16 @@ export default function PrivacyPage() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-primary mb-4">14. Contact Us</h2>
-            <p className="text-gray-700 leading-relaxed">
-              If you have questions about this Privacy Policy, please contact us at:
+            <p className="text-gray-700 leading-relaxed mb-4">
+              If you have questions about this Privacy Policy, please contact us.
             </p>
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <p className="text-gray-700">
-                <strong>Email:</strong>{' '}
-                <a href="mailto:privacy@spacecheck.app" className="text-secondary hover:underline">
-                  privacy@spacecheck.app
-                </a>
-              </p>
-              <p className="text-gray-700 mt-2">
-                <strong>Address:</strong> SpaceCheck Inc., [Your Business Address]
-              </p>
+            <div className="mt-4">
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 bg-secondary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary/90 transition-all"
+              >
+                Contact Us
+              </Link>
             </div>
           </section>
 

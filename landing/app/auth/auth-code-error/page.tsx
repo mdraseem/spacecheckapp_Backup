@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { AlertCircle, ArrowLeft } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default function AuthCodeErrorPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#050a14] text-white overflow-hidden relative">
@@ -45,9 +47,9 @@ export default function AuthCodeErrorPage() {
 
           <p className="text-center text-xs text-slate-500">
             Need help?{' '}
-            <a href="mailto:support@spacecheck.app" className="text-[#00f0ff] hover:underline">
+            <Link href="/contact" className="text-[#00f0ff] hover:underline">
               Contact Support
-            </a>
+            </Link>
           </p>
         </div>
       </div>

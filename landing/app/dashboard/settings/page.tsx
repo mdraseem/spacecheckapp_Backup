@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { User, Mail, Calendar, Shield, Loader2 } from 'lucide-react'
 import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
@@ -119,12 +120,15 @@ export default function SettingsPage() {
 
       {/* Info Box */}
       <div className="mt-6 p-4 bg-[#00f0ff]/5 border border-[#00f0ff]/20 rounded-lg">
-        <p className="text-slate-300 text-sm">
-          {dict.settings.supportNote}{' '}
-          <a href="mailto:support@spacecheck.app" className="text-[#00f0ff] hover:underline">
-            support@spacecheck.app
-          </a>
+        <p className="text-slate-300 text-sm mb-3">
+          {dict.settings.supportNote}
         </p>
+        <Link
+          href="/contact"
+          className="inline-flex items-center gap-2 bg-[#00f0ff] text-[#050a14] px-4 py-2 rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-all text-sm"
+        >
+          Contact Support
+        </Link>
       </div>
     </div>
   )

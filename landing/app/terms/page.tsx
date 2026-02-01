@@ -150,12 +150,15 @@ export default function TermsPage() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-primary mb-4">12. Contact</h2>
-            <p className="text-gray-700 leading-relaxed">
-              For questions about these Terms, contact us at:{' '}
-              <a href="mailto:legal@spacecheck.app" className="text-secondary hover:underline">
-                legal@spacecheck.app
-              </a>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              For questions about these Terms, please contact us.
             </p>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 bg-secondary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary/90 transition-all"
+            >
+              Contact Us
+            </Link>
           </section>
 
           <div className="mt-12 pt-8 border-t border-gray-200">
