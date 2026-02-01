@@ -1,0 +1,62 @@
+{
+  "login": {
+    "title": "SpaceCheck",
+    "subtitle": "Enter the AR Dimension",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "pilot@spacecheck.io",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "loginButton": "Login",
+    "signUpButton": "Sign Up",
+    "forgotPassword": "Forgot password?",
+    "checkEmail": "Check your email to confirm your account",
+    "termsText": "By accessing the system, you agree to our Terms of Service."
+  },
+  "forgotPassword": {
+    "title": "Reset Password",
+    "subtitle": "Enter your email to receive a reset link",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "pilot@spacecheck.io",
+    "sendResetButton": "Send Reset Link",
+    "backToLogin": "Back to Login",
+    "checkEmailMessage": "Check your email for a password reset link"
+  },
+  "resetPassword": {
+    "title": "Set New Password",
+    "subtitle": "Enter your new password below",
+    "newPasswordLabel": "New Password",
+    "confirmPasswordLabel": "Confirm Password",
+    "passwordPlaceholder": "••••••••",
+    "minCharacters": "Minimum 6 characters",
+    "updateButton": "Update Password",
+    "successTitle": "Password Updated!",
+    "successMessage": "Your password has been successfully reset. Redirecting to dashboard...",
+    "rememberPassword": "Remember your password?",
+    "backToLogin": "Back to Login",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "errorOccurred": "An unexpected error occurred"
+  },
+  "authError": {
+    "title": "Authentication Error",
+    "subtitle": "Something went wrong during sign in",
+    "message": "The authentication link is invalid or has expired. This can happen if:",
+    "reason1": "The link was already used",
+    "reason2": "The link has expired (links expire after 1 hour)",
+    "reason3": "There was a network error",
+    "backToLogin": "Back to Login",
+    "needHelp": "Need help?",
+    "contactSupport": "Contact Support"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "message": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Go Home",
+    "dashboard": "Dashboard",
+    "lookingFor": "Looking for something specific?",
+    "features": "Features",
+    "pricing": "Pricing",
+    "demo": "Demo",
+    "login": "Login"
+  }
+}

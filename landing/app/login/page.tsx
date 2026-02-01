@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -47,11 +48,11 @@ export default function LoginPage() {
     setIsLoading(true)
     setError(null)
     setMessage(null)
-    
+
     // We need to get values from the form inputs manually since this is a button click
     const emailInput = document.getElementById('email') as HTMLInputElement
     const passwordInput = document.getElementById('password') as HTMLInputElement
-    
+
     if (!emailInput.value || !passwordInput.value) {
         setError("Please enter both email and password")
         setIsLoading(false)
@@ -71,6 +72,38 @@ export default function LoginPage() {
         setError(error.message)
       } else {
         setMessage('Check your email to confirm your account')
+      }
+    } catch (err) {
+      setError('An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError(null)
+    setMessage(null)
+
+    const emailInput = document.getElementById('email') as HTMLInputElement
+
+    if (!emailInput.value) {
+      setError('Please enter your email address')
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(emailInput.value, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      })
+
+      if (error) {
+        setError(error.message)
+      } else {
+        setMessage('Check your email for a password reset link')
+        setShowForgotPassword(false)
       }
     } catch (err) {
       setError('An unexpected error occurred')
@@ -110,7 +143,46 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        {showForgotPassword ? (
+          <form onSubmit={handleForgotPassword} className="space-y-6">
+            <div className="text-center mb-4">
+              <h2 className="text-xl font-bold text-white mb-2">Reset Password</h2>
+              <p className="text-slate-400 text-sm">Enter your email to receive a reset link</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium uppercase tracking-widest text-[#00f0ff]" htmlFor="email">
+                Email Address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                className="w-full bg-[#0a0f1c] border border-[#1e293b] rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] transition-all placeholder-slate-600 text-white"
+                placeholder="pilot@spacecheck.io"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] font-bold py-3 px-4 rounded-lg transition-colors text-sm uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+              >
+                {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Send Reset Link'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(false)}
+                className="w-full bg-transparent border border-[#1e293b] hover:bg-[#1e293b] text-slate-400 hover:text-white font-medium py-3 px-4 rounded-lg transition-colors text-sm"
+              >
+                Back to Login
+              </button>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
             <label className="text-xs font-medium uppercase tracking-widest text-[#00f0ff]" htmlFor="email">
               Email Address
@@ -156,7 +228,18 @@ export default function LoginPage() {
               Sign Up
             </button>
           </div>
+
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={() => setShowForgotPassword(true)}
+              className="text-sm text-[#00f0ff] hover:text-[#00f0ff]/80 transition-colors"
+            >
+              Forgot password?
+            </button>
+          </div>
         </form>
+        )}
 
         <div className="mt-8 text-center text-xs text-slate-500">
           By accessing the system, you agree to our Terms of Service.

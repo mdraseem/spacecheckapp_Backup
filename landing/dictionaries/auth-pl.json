@@ -1,0 +1,62 @@
+{
+  "login": {
+    "title": "SpaceCheck",
+    "subtitle": "Wejdź do Wymiaru AR",
+    "emailLabel": "Adres Email",
+    "emailPlaceholder": "pilot@spacecheck.io",
+    "passwordLabel": "Hasło",
+    "passwordPlaceholder": "••••••••",
+    "loginButton": "Zaloguj",
+    "signUpButton": "Zarejestruj",
+    "forgotPassword": "Zapomniałeś hasła?",
+    "checkEmail": "Sprawdź swój email, aby potwierdzić konto",
+    "termsText": "Korzystając z systemu, akceptujesz nasze Warunki Świadczenia Usług."
+  },
+  "forgotPassword": {
+    "title": "Resetuj Hasło",
+    "subtitle": "Wprowadź swój email, aby otrzymać link resetujący",
+    "emailLabel": "Adres Email",
+    "emailPlaceholder": "pilot@spacecheck.io",
+    "sendResetButton": "Wyślij Link Resetujący",
+    "backToLogin": "Wróć do Logowania",
+    "checkEmailMessage": "Sprawdź swój email, aby otrzymać link resetujący hasło"
+  },
+  "resetPassword": {
+    "title": "Ustaw Nowe Hasło",
+    "subtitle": "Wprowadź nowe hasło poniżej",
+    "newPasswordLabel": "Nowe Hasło",
+    "confirmPasswordLabel": "Potwierdź Hasło",
+    "passwordPlaceholder": "••••••••",
+    "minCharacters": "Minimum 6 znaków",
+    "updateButton": "Zaktualizuj Hasło",
+    "successTitle": "Hasło Zaktualizowane!",
+    "successMessage": "Twoje hasło zostało pomyślnie zresetowane. Przekierowywanie do panelu...",
+    "rememberPassword": "Pamiętasz hasło?",
+    "backToLogin": "Wróć do Logowania",
+    "passwordTooShort": "Hasło musi mieć co najmniej 6 znaków",
+    "passwordsDoNotMatch": "Hasła nie pasują do siebie",
+    "errorOccurred": "Wystąpił nieoczekiwany błąd"
+  },
+  "authError": {
+    "title": "Błąd Uwierzytelniania",
+    "subtitle": "Coś poszło nie tak podczas logowania",
+    "message": "Link uwierzytelniający jest nieprawidłowy lub wygasł. Może się to zdarzyć, jeśli:",
+    "reason1": "Link został już użyty",
+    "reason2": "Link wygasł (linki wygasają po 1 godzinie)",
+    "reason3": "Wystąpił błąd sieci",
+    "backToLogin": "Wróć do Logowania",
+    "needHelp": "Potrzebujesz pomocy?",
+    "contactSupport": "Skontaktuj się z Pomocą"
+  },
+  "notFound": {
+    "title": "Strona Nie Znaleziona",
+    "message": "Strona, której szukasz, nie istnieje lub została przeniesiona.",
+    "goHome": "Strona Główna",
+    "dashboard": "Panel",
+    "lookingFor": "Szukasz czegoś konkretnego?",
+    "features": "Funkcje",
+    "pricing": "Cennik",
+    "demo": "Demo",
+    "login": "Logowanie"
+  }
+}
