@@ -70,7 +70,7 @@ export default function DemoSection({ dict }: { dict: any }) {
                      </div>
                 </div>
 
-                <a href="https://ar.spacecheck.app/viewer.html?model=table-bach.glb" target="_blank" rel="noopener noreferrer" className="w-full bg-secondary text-white py-3 rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2">
+                <a href={`/viewer.html?model=${encodeURIComponent('kler/bach.glb')}&name=${encodeURIComponent('Stół Bach')}`} target="_blank" rel="noopener noreferrer" className="w-full bg-secondary text-white py-3 rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2">
                     {dict.demo.mobileBtn} <ArrowRight size={18} />
                 </a>
             </div>

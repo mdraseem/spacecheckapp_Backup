@@ -27,7 +27,10 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
   const [posterFooter, setPosterFooter] = useState('AR Visualization')
   const [buttonText, setButtonText] = useState('View in AR')
 
-  const viewerUrl = `${window.location.origin}/viewer.html?modelUrl=${encodeURIComponent(modelUrl)}`
+  // Extract model path from URL (e.g., "kler/bach.glb" from full URL)
+  const urlParts = modelUrl.split('/')
+  const modelPath = urlParts.slice(-2).join('/')
+  const viewerUrl = `${window.location.origin}/viewer.html?model=${encodeURIComponent(modelPath)}&name=${encodeURIComponent(modelName)}`
 
   // Reset customization when modal opens with new model
   useEffect(() => {

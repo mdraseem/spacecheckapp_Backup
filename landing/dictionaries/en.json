@@ -25,8 +25,8 @@
     "subtitle": "Built for performance, conversion, and ease of use.",
     "items": {
       "instant": {
-        "title": "Instant Processing",
-        "desc": "Get production-ready AR models in under 2 minutes. Scale your catalog digitization effortlessly."
+        "title": "Fast Processing",
+        "desc": "Get production-ready AR models quickly. Scale your catalog digitization effortlessly."
       },
       "universal": {
         "title": "Universal Compatibility",
@@ -59,12 +59,12 @@
         "desc": "Simply upload your existing high-quality product images. No complex 3D scanning equipment required."
       },
       "2": {
-        "title": "2. AI Generates 3D Model",
-        "desc": "Our advanced AI analyzes geometry and textures to reconstruct a photorealistic 3D model in seconds."
+        "title": "2. AI Generates 3D Model & Poster",
+        "desc": "Our advanced AI analyzes geometry and textures to reconstruct a photorealistic 3D model. Plus, get a ready-to-print QR poster to place on furniture in your showroom."
       },
       "3": {
-        "title": "3. Embed AR Viewer",
-        "desc": "Copy a simple code snippet to your product page. Customers can now view the item in their room instantly."
+        "title": "3. Embed AR Viewer & Use In-Store",
+        "desc": "Copy a simple code snippet to your product page for online customers. Use the printed QR posters in your physical store so customers can visualize products at home before buying."
       }
     }
   },

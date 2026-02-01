@@ -25,8 +25,8 @@
     "subtitle": "Stworzony dla wydajności, konwersji i łatwości użytkowania.",
     "items": {
       "instant": {
-        "title": "Błyskawiczne Przetwarzanie",
-        "desc": "Otrzymaj gotowe modele AR w mniej niż 2 minuty. Skaluj cyfryzację katalogu bez wysiłku."
+        "title": "Szybkie Przetwarzanie",
+        "desc": "Otrzymaj gotowe modele AR szybko. Skaluj cyfryzację katalogu bez wysiłku."
       },
       "universal": {
         "title": "Uniwersalna Kompatybilność",
@@ -59,12 +59,12 @@
         "desc": "Po prostu wgraj swoje istniejące zdjęcia wysokiej jakości. Nie potrzeba skomplikowanego sprzętu skanującego."
       },
       "2": {
-        "title": "2. AI Generuje Model 3D",
-        "desc": "Nasze zaawansowane AI analizuje geometrię i tekstury, aby zrekonstruować fotorealistyczny model 3D w sekundy."
+        "title": "2. AI Generuje Model 3D i Plakat",
+        "desc": "Nasze zaawansowane AI analizuje geometrię i tekstury, aby zrekonstruować fotorealistyczny model 3D. Dodatkowo otrzymujesz gotowy do druku plakat QR, który możesz umieścić na meblach w swoim salonie."
       },
       "3": {
-        "title": "3. Osadź Przeglądarkę AR",
-        "desc": "Skopiuj prosty kod na stronę produktu. Klienci mogą natychmiast zobaczyć przedmiot w swoim pokoju."
+        "title": "3. Osadź Przeglądarkę AR i Użyj w Sklepie",
+        "desc": "Skopiuj prosty kod na stronę produktu dla klientów online. Użyj wydrukowanych plakatów QR w swoim sklepie stacjonarnym, aby klienci mogli zwizualizować produkty w domu przed zakupem."
       }
     }
   },

@@ -57,7 +57,13 @@ export function ModelCard({ model }: { model: Generation }) {
 
   const handleViewInAR = () => {
     if (model.glb_url) {
-      const viewerUrl = `/viewer.html?modelUrl=${encodeURIComponent(model.glb_url)}`
+      // Extract model path from URL (e.g., "kler/bach.glb" from full URL)
+      const urlParts = model.glb_url.split('/')
+      const modelPath = urlParts.slice(-2).join('/')
+
+      // Build viewer URL with model path and optional name
+      const displayName = model.name || `Generation #${model.id.slice(0, 6)}`
+      const viewerUrl = `/viewer.html?model=${encodeURIComponent(modelPath)}&name=${encodeURIComponent(displayName)}`
       window.open(viewerUrl, '_blank')
     }
   }
