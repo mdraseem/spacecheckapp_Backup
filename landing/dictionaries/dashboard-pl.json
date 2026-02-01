@@ -55,5 +55,23 @@
     "enterProductName": "Proszę wprowadzić nazwę produktu",
     "enterDimensions": "Proszę wprowadzić wszystkie wymiary",
     "errorUploading": "Błąd podczas przesyłania pliku"
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "subtitle": "Zarządzaj ustawieniami konta i preferencjami.",
+    "accountInfo": "Informacje o Koncie",
+    "email": "Email",
+    "memberSince": "Członek Od",
+    "userId": "ID Użytkownika",
+    "preferences": "Preferencje",
+    "language": "Język",
+    "languageDesc": "Język interfejsu panelu",
+    "languageNote": "Zarządzane w pasku bocznym",
+    "emailVerified": "Email Zweryfikowany",
+    "emailVerifiedDesc": "Status weryfikacji Twojego emaila",
+    "verified": "Zweryfikowany",
+    "notVerified": "Niezweryfikowany",
+    "supportNote": "Potrzebujesz zmienić email lub hasło? Skontaktuj się z nami na",
+    "loading": "Ładowanie..."
   }
 }

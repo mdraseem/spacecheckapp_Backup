@@ -55,5 +55,23 @@
     "enterProductName": "Please enter a product name",
     "enterDimensions": "Please enter all dimensions",
     "errorUploading": "Error uploading file"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account settings and preferences.",
+    "accountInfo": "Account Information",
+    "email": "Email",
+    "memberSince": "Member Since",
+    "userId": "User ID",
+    "preferences": "Preferences",
+    "language": "Language",
+    "languageDesc": "Dashboard interface language",
+    "languageNote": "Managed in sidebar",
+    "emailVerified": "Email Verified",
+    "emailVerifiedDesc": "Your email verification status",
+    "verified": "Verified",
+    "notVerified": "Not Verified",
+    "supportNote": "Need to update your email or password? Please contact support at",
+    "loading": "Loading..."
   }
 }
