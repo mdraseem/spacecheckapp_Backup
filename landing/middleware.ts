@@ -29,12 +29,15 @@ export async function middleware(request: NextRequest) {
   // 2. Exclusions
   // Exclude static files, images, icons, api, and protected routes from localization
   if (
-    pathname.includes('.') || 
+    pathname.includes('.') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
-    pathname.startsWith('/dashboard') || 
+    pathname.startsWith('/dashboard') ||
     pathname.startsWith('/auth') ||
-    pathname.startsWith('/login')
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/terms') ||
+    pathname.startsWith('/privacy') ||
+    pathname.startsWith('/contact')
   ) {
     return supabaseResponse;
   }

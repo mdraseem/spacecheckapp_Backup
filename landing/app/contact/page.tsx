@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Send, CheckCircle, Mail, MessageSquare, User, Loader2 } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: '',
