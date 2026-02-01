@@ -10,7 +10,9 @@
       "Bash(git push:*)",
       "Bash(lsof:*)",
       "Bash(xargs kill:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(find:*)",
+      "Bash(git check-ignore:*)"
     ],
     "deny": [],
     "ask": []
