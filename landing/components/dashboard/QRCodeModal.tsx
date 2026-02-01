@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { X, Download, Copy, Check, Code } from 'lucide-react'
 import * as QRCode from 'qrcode'
+import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
 
 interface QRCodeModalProps {
   isOpen: boolean
@@ -14,6 +15,7 @@ interface QRCodeModalProps {
 type TabType = 'poster' | 'embed'
 
 export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModalProps) {
+  const { dict } = useDashboardLanguage()
   const qrCanvasRef = useRef<HTMLCanvasElement>(null)
   const posterCanvasRef = useRef<HTMLCanvasElement>(null)
   const [copied, setCopied] = useState(false)
@@ -27,10 +29,8 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
   const [posterFooter, setPosterFooter] = useState('AR Visualization')
   const [buttonText, setButtonText] = useState('View in AR')
 
-  // Extract model path from URL (e.g., "kler/bach.glb" from full URL)
-  const urlParts = modelUrl.split('/')
-  const modelPath = urlParts.slice(-2).join('/')
-  const viewerUrl = `${window.location.origin}/viewer.html?model=${encodeURIComponent(modelPath)}&name=${encodeURIComponent(modelName)}`
+  // Use full URL for QR codes
+  const viewerUrl = `${window.location.origin}/viewer.html?modelUrl=${encodeURIComponent(modelUrl)}&name=${encodeURIComponent(modelName)}`
 
   // Reset customization when modal opens with new model
   useEffect(() => {
@@ -201,7 +201,7 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
             <X size={24} />
           </button>
 
-          <h2 className="text-2xl font-bold text-white mb-2">Share AR Experience</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">{dict.qrModal.title}</h2>
           <p className="text-slate-400 text-sm mb-4">{modelName}</p>
 
           {/* Tabs */}
@@ -215,7 +215,7 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
               }`}
             >
               <Download size={16} />
-              QR Poster
+              {dict.qrModal.qrPoster}
             </button>
             <button
               onClick={() => setActiveTab('embed')}
@@ -226,7 +226,7 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
               }`}
             >
               <Code size={16} />
-              HTML Embed
+              {dict.qrModal.htmlEmbed}
             </button>
           </div>
         </div>
@@ -239,23 +239,23 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
             <div className="space-y-6">
               {/* Customization Options */}
               <div className="bg-[#0a0f1c] border border-[#1e293b] rounded-xl p-4 space-y-3">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Customize Poster Text</h3>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">{dict.qrModal.customizePoster}</h3>
 
                 <div>
                   <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">
-                    Display Name <span className="text-slate-600 normal-case">(for poster only)</span>
+                    {dict.qrModal.displayName} <span className="text-slate-600 normal-case">{dict.qrModal.displayNameNote}</span>
                   </label>
                   <input
                     type="text"
                     value={customName}
                     onChange={(e) => setCustomName(e.target.value)}
                     className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
-                    placeholder="Product name on poster"
+                    placeholder={dict.qrModal.displayNamePlaceholder}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Title</label>
+                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.title}</label>
                   <input
                     type="text"
                     value={posterTitle}
@@ -265,7 +265,7 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Subtitle</label>
+                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.subtitle}</label>
                   <input
                     type="text"
                     value={posterSubtitle}
@@ -275,7 +275,7 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Footer Text</label>
+                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.footerText}</label>
                   <input
                     type="text"
                     value={posterFooter}
@@ -287,7 +287,7 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
 
               <div className="text-center">
                 <p className="text-slate-400 text-sm mb-4">
-                  Professional marketing poster with QR code - perfect for printing and displaying on furniture
+                  {dict.qrModal.posterDescription}
                 </p>
 
                 {/* Poster preview */}
@@ -298,7 +298,7 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
 
               <div className="space-y-3">
                 <div className="bg-[#0a0f1c] border border-[#1e293b] rounded-lg p-3">
-                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">AR Viewer URL</p>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.arViewerUrl}</p>
                   <p className="text-sm text-slate-300 break-all">{viewerUrl}</p>
                 </div>
 
@@ -308,14 +308,14 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
                     className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white rounded-lg transition-colors text-sm font-medium"
                   >
                     {copied ? <Check size={16} /> : <Copy size={16} />}
-                    {copied ? 'Copied!' : 'Copy URL'}
+                    {copied ? dict.qrModal.copied : dict.qrModal.copyUrl}
                   </button>
                   <button
                     onClick={handleDownloadPoster}
                     className="flex items-center justify-center gap-2 px-4 py-3 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] rounded-lg transition-colors text-sm font-medium"
                   >
                     <Download size={16} />
-                    Download Poster
+                    {dict.qrModal.downloadPoster}
                   </button>
                 </div>
               </div>
@@ -324,41 +324,41 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
             <div className="space-y-6">
               {/* Customization Options */}
               <div className="bg-[#0a0f1c] border border-[#1e293b] rounded-xl p-4 space-y-3">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Customize Button</h3>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">{dict.qrModal.customizeButton}</h3>
 
                 <div>
                   <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">
-                    Display Name <span className="text-slate-600 normal-case">(for button only)</span>
+                    {dict.qrModal.displayName} <span className="text-slate-600 normal-case">{dict.qrModal.displayNameButton}</span>
                   </label>
                   <input
                     type="text"
                     value={customName}
                     onChange={(e) => setCustomName(e.target.value)}
                     className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
-                    placeholder="Product name in button text"
+                    placeholder={dict.qrModal.displayNameButtonPlaceholder}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Button Label</label>
+                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.buttonLabel}</label>
                   <input
                     type="text"
                     value={buttonText}
                     onChange={(e) => setButtonText(e.target.value)}
                     className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
-                    placeholder="e.g., View in AR, See in 3D, Try in Your Space"
+                    placeholder={dict.qrModal.buttonLabelPlaceholder}
                   />
                 </div>
               </div>
 
               <div>
                 <p className="text-slate-400 text-sm mb-4">
-                  Copy this HTML code to embed an AR button on your website
+                  {dict.qrModal.embedDescription}
                 </p>
 
                 {/* Button Preview */}
                 <div className="bg-[#0a0f1c] border border-[#1e293b] rounded-xl p-8 mb-4">
-                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-4">Preview:</p>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-4">{dict.qrModal.preview}</p>
                   <div className="flex justify-center">
                     <a
                       href={viewerUrl}
@@ -378,13 +378,13 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
                 {/* HTML Code */}
                 <div className="bg-[#0a0f1c] border border-[#1e293b] rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs text-slate-500 uppercase tracking-wider">HTML Code</p>
+                    <p className="text-xs text-slate-500 uppercase tracking-wider">{dict.qrModal.htmlCode}</p>
                     <button
                       onClick={handleCopyEmbed}
                       className="text-xs text-[#00f0ff] hover:text-[#00f0ff]/80 flex items-center gap-1"
                     >
                       {copied ? <Check size={12} /> : <Copy size={12} />}
-                      {copied ? 'Copied!' : 'Copy'}
+                      {copied ? dict.qrModal.copied : dict.qrModal.copy}
                     </button>
                   </div>
                   <pre className="text-xs text-slate-300 overflow-x-auto whitespace-pre-wrap break-all">
@@ -394,12 +394,12 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
               </div>
 
               <div className="bg-[#1e293b]/50 border border-[#1e293b] rounded-lg p-4">
-                <h4 className="text-sm font-bold text-white mb-2">How to use:</h4>
+                <h4 className="text-sm font-bold text-white mb-2">{dict.qrModal.howToUse}</h4>
                 <ol className="text-xs text-slate-400 space-y-1 list-decimal list-inside">
-                  <li>Copy the HTML code above</li>
-                  <li>Paste it into your website's HTML</li>
-                  <li>The button will link directly to the AR viewer</li>
-                  <li>Works on all devices - mobile users get full AR experience</li>
+                  <li>{dict.qrModal.step1}</li>
+                  <li>{dict.qrModal.step2}</li>
+                  <li>{dict.qrModal.step3}</li>
+                  <li>{dict.qrModal.step4}</li>
                 </ol>
               </div>
             </div>

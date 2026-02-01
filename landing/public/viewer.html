@@ -212,24 +212,25 @@
         // 1. Get Model from URL
         const params = new URLSearchParams(window.location.search);
 
-        // Support both full URL (modelUrl) and filename (model) parameters
-        let modelPath = params.get('modelUrl'); // Full URL
-        let modelName = 'model.glb';
+        // Support both full URL (modelUrl) and simple path (model) parameters
+        let modelPath = params.get('modelUrl'); // Full URL - e.g., https://...supabase.co/.../model.glb
+        let modelName = params.get('name') || 'model.glb'; // Get name from URL parameter if provided
 
         if (!modelPath) {
-            // Fallback to filename-based approach for backwards compatibility
-            modelName = params.get('model') || 'model.glb';
+            // Fallback to model parameter for simple paths like "kler/bach.glb"
+            const simpleModelPath = params.get('model');
 
-            // REPLACE 'YOUR_PROJECT_ID' with your actual Supabase Project ID
-            const SUPABASE_PROJECT_ID = 'hdrizsefokumrfambict';
-
-            // Construct the remote URL
-            modelPath = `https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/models/${modelName}`;
-        } else {
-            // Extract folder/filename from full URL for analytics (e.g., "kler/bach.glb")
-            const urlParts = modelPath.split('/');
-            const lastTwoParts = urlParts.slice(-2);
-            modelName = lastTwoParts.join('/');
+            if (simpleModelPath) {
+                // Use the simple path (e.g., "kler/bach.glb")
+                const SUPABASE_PROJECT_ID = 'hdrizsefokumrfambict';
+                modelPath = `https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/models/${simpleModelPath}`;
+                modelName = simpleModelPath; // Use path as name for analytics
+            } else {
+                // Ultimate fallback
+                modelName = 'model.glb';
+                const SUPABASE_PROJECT_ID = 'hdrizsefokumrfambict';
+                modelPath = `https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/models/${modelName}`;
+            }
         }
 
         // --- UI Elements (Defined early for availability) ---

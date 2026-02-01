@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from 'react'
 import { QRCodeModal } from './QRCodeModal'
 import { ModelAnalyticsModal } from './ModelAnalyticsModal'
 import { useQueryClient } from '@tanstack/react-query'
+import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
 
 interface Generation {
   id: string
@@ -19,6 +20,7 @@ interface Generation {
 }
 
 export function ModelCard({ model }: { model: Generation }) {
+  const { dict } = useDashboardLanguage()
   const queryClient = useQueryClient()
   const [isRetrying, setIsRetrying] = useState(false)
   const [showQRModal, setShowQRModal] = useState(false)
@@ -31,7 +33,7 @@ export function ModelCard({ model }: { model: Generation }) {
   // Check if model is in an active processing state
   const isProcessing = model.status === 'processing'
 
-  const progressMessage = 'Generating 3D model...'
+  const progressMessage = dict.modelCard.generatingModel
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -57,13 +59,9 @@ export function ModelCard({ model }: { model: Generation }) {
 
   const handleViewInAR = () => {
     if (model.glb_url) {
-      // Extract model path from URL (e.g., "kler/bach.glb" from full URL)
-      const urlParts = model.glb_url.split('/')
-      const modelPath = urlParts.slice(-2).join('/')
-
-      // Build viewer URL with model path and optional name
+      // Use full URL for dashboard models
       const displayName = model.name || `Generation #${model.id.slice(0, 6)}`
-      const viewerUrl = `/viewer.html?model=${encodeURIComponent(modelPath)}&name=${encodeURIComponent(displayName)}`
+      const viewerUrl = `/viewer.html?modelUrl=${encodeURIComponent(model.glb_url)}&name=${encodeURIComponent(displayName)}`
       window.open(viewerUrl, '_blank')
     }
   }
@@ -93,7 +91,7 @@ export function ModelCard({ model }: { model: Generation }) {
 
   const handleDelete = async () => {
     const displayName = model.name || `Generation #${model.id.slice(0, 6)}`
-    if (!confirm(`Are you sure you want to delete "${displayName}"?`)) {
+    if (!confirm(`${dict.modelCard.deleteConfirm} "${displayName}"?`)) {
       return
     }
 
@@ -114,7 +112,7 @@ export function ModelCard({ model }: { model: Generation }) {
       queryClient.invalidateQueries({ queryKey: ['generations'] })
     } catch (error) {
       console.error('Failed to delete:', error)
-      alert('Failed to delete model')
+      alert(dict.modelCard.failedToDelete)
     }
     setShowMenu(false)
   }
@@ -150,13 +148,13 @@ export function ModelCard({ model }: { model: Generation }) {
           {model.status === 'failed' && !isRetrying && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-900/20 backdrop-blur-sm">
               <AlertCircle className="w-10 h-10 text-red-400 mb-2" />
-              <span className="text-red-400 text-sm font-medium">Generation Failed</span>
+              <span className="text-red-400 text-sm font-medium">{dict.modelCard.generationFailed}</span>
             </div>
           )}
 
           {model.status === 'completed' && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="bg-[#00f0ff] text-[#050a14] text-xs font-bold px-2 py-1 rounded">READY</span>
+              <span className="bg-[#00f0ff] text-[#050a14] text-xs font-bold px-2 py-1 rounded">{dict.modelCard.ready}</span>
             </div>
           )}
         </div>
@@ -210,14 +208,14 @@ export function ModelCard({ model }: { model: Generation }) {
                     className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-slate-300 hover:bg-[#1e293b] hover:text-white transition-colors"
                   >
                     <Edit2 size={14} />
-                    Edit Name
+                    {dict.modelCard.editName}
                   </button>
                   <button
                     onClick={handleDelete}
                     className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-colors"
                   >
                     <Trash2 size={14} />
-                    Delete
+                    {dict.modelCard.delete}
                   </button>
                 </div>
               )}
@@ -231,7 +229,7 @@ export function ModelCard({ model }: { model: Generation }) {
                 onClick={handleViewInAR}
                 className="w-full flex items-center justify-center gap-2 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] text-sm font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.3)]"
               >
-                <Eye size={16} /> View in AR
+                <Eye size={16} /> {dict.modelCard.viewInAR}
               </button>
 
               {/* Secondary Actions */}
@@ -276,7 +274,7 @@ export function ModelCard({ model }: { model: Generation }) {
               ) : (
                 <>
                   <RefreshCw className="w-4 h-4" />
-                  Retry Generation
+                  {dict.modelCard.retryGeneration}
                 </>
               )}
             </button>
@@ -284,7 +282,7 @@ export function ModelCard({ model }: { model: Generation }) {
             <div className="flex items-center justify-center text-xs text-slate-400 italic bg-[#1e293b]/50 py-3 rounded-lg border border-dashed border-[#1e293b]">
               <span className="flex items-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Processing...
+                {dict.modelCard.processing}
               </span>
             </div>
           )}
