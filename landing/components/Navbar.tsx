@@ -50,7 +50,7 @@ export default function Navbar({ dict, lang }: { dict: any, lang: string }) {
             </div>
 
             <Link href="/login" className="text-gray-600 hover:text-primary transition-colors font-medium">{dict.nav.login}</Link>
-            <Link href="/register" className="bg-primary text-white px-5 py-2 rounded-full font-medium hover:bg-opacity-90 transition-all shadow-lg shadow-primary/20">
+            <Link href="/login" className="bg-primary text-white px-5 py-2 rounded-full font-medium hover:bg-opacity-90 transition-all shadow-lg shadow-primary/20">
               {dict.nav.getStarted}
             </Link>
           </div>
