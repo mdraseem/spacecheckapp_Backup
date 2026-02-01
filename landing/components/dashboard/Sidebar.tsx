@@ -2,21 +2,23 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Box, PlusCircle, Settings, LogOut, Menu } from 'lucide-react'
+import { Box, PlusCircle, Settings, LogOut, Menu, Languages } from 'lucide-react'
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
-
-const navItems = [
-  { name: 'My Models', href: '/dashboard', icon: Box },
-  { name: 'Create New', href: '/dashboard/create', icon: PlusCircle },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-]
+import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
 
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
+  const { lang, setLang, dict } = useDashboardLanguage()
+
+  const navItems = [
+    { name: dict.sidebar.myModels, href: '/dashboard', icon: Box },
+    { name: dict.sidebar.createNew, href: '/dashboard/create', icon: PlusCircle },
+    { name: dict.sidebar.settings, href: '/dashboard/settings', icon: Settings },
+  ]
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -42,9 +44,20 @@ export function Sidebar() {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="h-16 flex items-center px-6 border-b border-[#1e293b]">
-            <span className="text-xl font-bold text-white">Space</span>
-            <span className="text-xl font-bold text-[#00f0ff]">Check</span>
+          <div className="h-16 flex items-center justify-between px-6 border-b border-[#1e293b]">
+            <div>
+              <span className="text-xl font-bold text-white">Space</span>
+              <span className="text-xl font-bold text-[#00f0ff]">Check</span>
+            </div>
+            {/* Language Switcher */}
+            <button
+              onClick={() => setLang(lang === 'en' ? 'pl' : 'en')}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-[#1e293b] rounded-md transition-colors"
+              title="Change Language"
+            >
+              <Languages size={16} />
+              {lang === 'en' ? 'PL' : 'EN'}
+            </button>
           </div>
 
           {/* Navigation */}
@@ -76,7 +89,7 @@ export function Sidebar() {
               className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-900/10 rounded-lg transition-colors"
             >
               <LogOut size={20} />
-              Sign Out
+              {dict.sidebar.logout}
             </button>
           </div>
         </div>

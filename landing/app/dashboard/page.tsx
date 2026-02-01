@@ -5,11 +5,13 @@ import { createClient } from '@/utils/supabase/client'
 import { ModelCard } from '@/components/dashboard/ModelCard'
 import { PlusCircle, Box } from 'lucide-react'
 import Link from 'next/link'
+import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
 
 export const dynamic = 'force-dynamic'
 
 export default function DashboardPage() {
   const supabase = createClient()
+  const { dict } = useDashboardLanguage()
 
   const { data: generations, isLoading } = useQuery({
     queryKey: ['generations'],
@@ -46,16 +48,16 @@ export default function DashboardPage() {
         <div className="w-24 h-24 bg-[#1e293b] rounded-full flex items-center justify-center mb-6">
             <Box className="w-12 h-12 text-slate-500" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">No models yet</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">{dict.dashboard.noModels}</h2>
         <p className="text-slate-400 mb-8 max-w-md">
-          Start by uploading your first furniture product. We'll generate the AR assets automatically.
+          {dict.dashboard.noModelsDesc}
         </p>
-        <Link 
+        <Link
             href="/dashboard/create"
             className="flex items-center gap-2 px-6 py-3 bg-[#00f0ff] text-[#050a14] font-bold rounded-lg hover:bg-[#00f0ff]/90 transition-colors uppercase tracking-wide"
         >
             <PlusCircle size={20} />
-            Create First Model
+            {dict.dashboard.createFirst}
         </Link>
       </div>
     )
@@ -65,15 +67,15 @@ export default function DashboardPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <div>
-            <h1 className="text-3xl font-bold text-white">My Models</h1>
-            <p className="text-slate-400">Manage your AR assets.</p>
+            <h1 className="text-3xl font-bold text-white">{dict.dashboard.title}</h1>
+            <p className="text-slate-400">{dict.dashboard.subtitle}</p>
         </div>
-        <Link 
+        <Link
             href="/dashboard/create"
             className="hidden md:flex items-center gap-2 px-4 py-2 bg-[#1e293b] text-slate-300 hover:text-white border border-[#1e293b] hover:border-[#00f0ff]/50 rounded-lg transition-all text-sm font-medium"
         >
             <PlusCircle size={16} />
-            New Scan
+            {dict.dashboard.newScan}
         </Link>
       </div>
 

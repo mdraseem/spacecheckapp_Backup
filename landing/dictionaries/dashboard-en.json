@@ -1,0 +1,59 @@
+{
+  "sidebar": {
+    "title": "SpaceCheck",
+    "myModels": "My Models",
+    "createNew": "Create New",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "dashboard": {
+    "title": "My Models",
+    "subtitle": "Manage your AR assets.",
+    "newScan": "New Scan",
+    "noModels": "No models yet",
+    "noModelsDesc": "Start by uploading your first furniture product. We'll generate the AR assets automatically.",
+    "createFirst": "Create First Model"
+  },
+  "modelCard": {
+    "ready": "READY",
+    "processing": "Processing...",
+    "generationFailed": "Generation Failed",
+    "viewInAR": "View in AR",
+    "qr": "QR",
+    "stats": "Stats",
+    "glb": "GLB",
+    "retryGeneration": "Retry Generation",
+    "restarting": "Restarting...",
+    "editName": "Edit Name",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete",
+    "failedToDelete": "Failed to delete model",
+    "generatingModel": "Generating 3D model..."
+  },
+  "create": {
+    "title": "Create New Model",
+    "subtitle": "Upload a photo and specify dimensions to generate your AR asset.",
+    "dragDrop": "Drag & Drop your image",
+    "supports": "Supports JPG, PNG. High contrast images work best.",
+    "browseFiles": "Browse Files",
+    "changeImage": "Change Image",
+    "uploadingProcessing": "Uploading & Processing...",
+    "quantumScan": "Initiating quantum scan protocol",
+    "productDetails": "Product Details",
+    "productName": "Product Name",
+    "productNamePlaceholder": "e.g. Modern Leather Sofa",
+    "dimensions": "Physical Dimensions (cm)",
+    "dimensionsDesc": "Enter the exact real-world dimensions of the object. The AI will scale the generated model to match these bounds.",
+    "width": "Width (cm)",
+    "height": "Height (cm)",
+    "depth": "Depth (cm)",
+    "widthPlaceholder": "e.g. 200",
+    "heightPlaceholder": "e.g. 85",
+    "depthPlaceholder": "e.g. 95",
+    "generateAR": "Generate AR Model",
+    "processing": "Processing...",
+    "enterProductName": "Please enter a product name",
+    "enterDimensions": "Please enter all dimensions",
+    "errorUploading": "Error uploading file"
+  }
+}

@@ -9,10 +9,10 @@ function SubmitButton({ text }: { text: string }) {
   const { pending } = useFormStatus();
 
   return (
-    <button 
-      type="submit" 
+    <button
+      type="submit"
       disabled={pending}
-      className="inline-flex items-center justify-center gap-2 bg-secondary text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-all shadow-xl shadow-secondary/20 disabled:opacity-70 disabled:cursor-not-allowed min-w-[200px]"
+      className="inline-flex items-center justify-center gap-2 bg-secondary text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-all shadow-xl shadow-secondary/20 disabled:opacity-70 disabled:cursor-not-allowed sm:flex-shrink-0 whitespace-nowrap"
     >
       {pending ? <Loader2 className="animate-spin" /> : <>{text} <ArrowRight size={20} /></>}
     </button>
@@ -31,8 +31,8 @@ export default function Waitlist({ ctaText, placeholderText }: { ctaText: string
   }
 
   return (
-    <form action={formAction} className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md mx-auto">
-      <div className="flex-grow relative">
+    <form action={formAction} className="flex flex-col sm:flex-row gap-4 justify-center w-full mx-auto">
+      <div className="flex-1 min-w-0 relative">
         <input
           type="email"
           name="email"

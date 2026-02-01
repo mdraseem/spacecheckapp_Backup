@@ -24,10 +24,10 @@ export default function Hero({ dict, lang }: { dict: any, lang: string }) {
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
             {dict.hero.subtitle}
           </p>
-          <div className="flex flex-col gap-6 justify-center max-w-lg mx-auto">
-            <Waitlist 
-              ctaText={dict.hero.waitlistButton} 
-              placeholderText={dict.hero.waitlistPlaceholder} 
+          <div className="flex flex-col gap-6 justify-center max-w-2xl mx-auto">
+            <Waitlist
+              ctaText={dict.hero.waitlistButton}
+              placeholderText={dict.hero.waitlistPlaceholder}
             />
             <div className="flex justify-center">
               <Link href="#demo" className="inline-flex items-center justify-center gap-2 text-primary hover:text-secondary transition-colors text-sm font-medium">

@@ -1,0 +1,59 @@
+{
+  "sidebar": {
+    "title": "SpaceCheck",
+    "myModels": "Moje Modele",
+    "createNew": "Utwórz Nowy",
+    "settings": "Ustawienia",
+    "logout": "Wyloguj"
+  },
+  "dashboard": {
+    "title": "Moje Modele",
+    "subtitle": "Zarządzaj swoimi zasobami AR.",
+    "newScan": "Nowy Skan",
+    "noModels": "Brak modeli",
+    "noModelsDesc": "Zacznij od przesłania swojego pierwszego produktu meblowego. Automatycznie wygenerujemy zasoby AR.",
+    "createFirst": "Utwórz Pierwszy Model"
+  },
+  "modelCard": {
+    "ready": "GOTOWY",
+    "processing": "Przetwarzanie...",
+    "generationFailed": "Generowanie Nie Powiodło Się",
+    "viewInAR": "Zobacz w AR",
+    "qr": "QR",
+    "stats": "Statystyki",
+    "glb": "GLB",
+    "retryGeneration": "Spróbuj Ponownie",
+    "restarting": "Ponowne uruchamianie...",
+    "editName": "Edytuj Nazwę",
+    "delete": "Usuń",
+    "deleteConfirm": "Czy na pewno chcesz usunąć",
+    "failedToDelete": "Nie udało się usunąć modelu",
+    "generatingModel": "Generowanie modelu 3D..."
+  },
+  "create": {
+    "title": "Utwórz Nowy Model",
+    "subtitle": "Prześlij zdjęcie i określ wymiary, aby wygenerować zasób AR.",
+    "dragDrop": "Przeciągnij i upuść swoje zdjęcie",
+    "supports": "Obsługuje JPG, PNG. Najlepiej działają zdjęcia o wysokim kontraście.",
+    "browseFiles": "Przeglądaj Pliki",
+    "changeImage": "Zmień Zdjęcie",
+    "uploadingProcessing": "Przesyłanie i Przetwarzanie...",
+    "quantumScan": "Inicjowanie protokołu skanowania kwantowego",
+    "productDetails": "Szczegóły Produktu",
+    "productName": "Nazwa Produktu",
+    "productNamePlaceholder": "np. Nowoczesna Skórzana Sofa",
+    "dimensions": "Wymiary Fizyczne (cm)",
+    "dimensionsDesc": "Wprowadź dokładne wymiary rzeczywistego obiektu. AI przeskaluje wygenerowany model do tych wymiarów.",
+    "width": "Szerokość (cm)",
+    "height": "Wysokość (cm)",
+    "depth": "Głębokość (cm)",
+    "widthPlaceholder": "np. 200",
+    "heightPlaceholder": "np. 85",
+    "depthPlaceholder": "np. 95",
+    "generateAR": "Wygeneruj Model AR",
+    "processing": "Przetwarzanie...",
+    "enterProductName": "Proszę wprowadzić nazwę produktu",
+    "enterDimensions": "Proszę wprowadzić wszystkie wymiary",
+    "errorUploading": "Błąd podczas przesyłania pliku"
+  }
+}
