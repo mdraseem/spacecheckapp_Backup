@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Smartphone, Zap } from 'lucide-react';
-import Waitlist from './Waitlist';
 import dynamic from 'next/dynamic';
 
 const ModelViewer = dynamic(() => import('./ModelViewer'), { ssr: false });
@@ -24,18 +23,21 @@ export default function Hero({ dict, lang }: { dict: any, lang: string }) {
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
             {dict.hero.subtitle}
           </p>
-          <div className="flex flex-col gap-6 justify-center max-w-2xl mx-auto">
-            <Waitlist
-              ctaText={dict.hero.waitlistButton}
-              placeholderText={dict.hero.waitlistPlaceholder}
-            />
-            <div className="flex justify-center">
-              <Link href="#demo" className="inline-flex items-center justify-center gap-2 text-primary hover:text-secondary transition-colors text-sm font-medium">
-                {dict.hero.ctaDemo} <ArrowRight size={16} />
-              </Link>
-            </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center gap-2 bg-secondary text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-all shadow-xl shadow-secondary/20"
+            >
+              {dict.hero.ctaStart}
+            </Link>
+            <Link
+              href="#demo"
+              className="inline-flex items-center justify-center gap-2 bg-white border-2 border-primary text-primary px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-50 transition-all"
+            >
+              {dict.hero.ctaDemo} <ArrowRight size={20} />
+            </Link>
           </div>
-          <p className="mt-4 text-sm text-gray-500">{dict.hero.disclaimer}</p>
+          <p className="mt-6 text-sm text-gray-500">{dict.hero.disclaimer}</p>
         </div>
 
         {/* Hero Visual */}

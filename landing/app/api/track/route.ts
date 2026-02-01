@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { rateLimit, rateLimitResponse } from '@/utils/rate-limit';
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 100 analytics events per minute (generous for AR tracking)
+  const rateLimitResult = await rateLimit(req, {
+    maxRequests: 100,
+    windowMs: 60 * 1000 // 1 minute
+  });
+
+  if (!rateLimitResult.success) {
+    return rateLimitResponse('Too many analytics events.', rateLimitResult);
+  }
+
   try {
     const body = await req.json();
 

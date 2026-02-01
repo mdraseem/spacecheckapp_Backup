@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { Loader2, AlertCircle } from 'lucide-react'
 
@@ -242,7 +243,15 @@ export default function LoginPage() {
         )}
 
         <div className="mt-8 text-center text-xs text-slate-500">
-          By accessing the system, you agree to our Terms of Service.
+          By accessing the system, you agree to our{' '}
+          <Link href="/terms" className="text-[#00f0ff] hover:underline">
+            Terms of Service
+          </Link>
+          {' '}and{' '}
+          <Link href="/privacy" className="text-[#00f0ff] hover:underline">
+            Privacy Policy
+          </Link>
+          .
         </div>
       </div>
     </div>

@@ -9,6 +9,9 @@ create table public.generations (
   usdz_url text,
   status generation_status not null default 'processing',
   name text,
+  width_cm numeric(10, 2),
+  height_cm numeric(10, 2),
+  depth_cm numeric(10, 2),
   created_at timestamp with time zone not null default now(),
   primary key (id)
 );

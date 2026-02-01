@@ -17,6 +17,9 @@ interface Generation {
   usdz_url: string | null
   created_at: string
   name?: string
+  width_cm?: number | null
+  height_cm?: number | null
+  depth_cm?: number | null
 }
 
 export function ModelCard({ model }: { model: Generation }) {

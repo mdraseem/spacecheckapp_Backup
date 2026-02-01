@@ -46,8 +46,9 @@ export default function Footer({ dict, lang }: { dict: any, lang: string }) {
             <ul className="space-y-2 text-sm text-gray-600">
                 <li><a href="#" className="hover:text-secondary">About Us</a></li>
                 <li><a href="#" className="hover:text-secondary">Careers</a></li>
-                <li><a href="#" className="hover:text-secondary">Contact</a></li>
-                <li><a href="#" className="hover:text-secondary">Privacy Policy</a></li>
+                <li><a href="mailto:support@spacecheck.app" className="hover:text-secondary">Contact</a></li>
+                <li><Link href="/privacy" className="hover:text-secondary">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-secondary">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
@@ -55,9 +56,9 @@ export default function Footer({ dict, lang }: { dict: any, lang: string }) {
         <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
             <p>&copy; {new Date().getFullYear()} {dict.footer.rights}</p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-                <a href="#" className="hover:text-secondary">Terms</a>
-                <a href="#" className="hover:text-secondary">Privacy</a>
-                <a href="#" className="hover:text-secondary">Cookies</a>
+                <Link href="/terms" className="hover:text-secondary">Terms</Link>
+                <Link href="/privacy" className="hover:text-secondary">Privacy</Link>
+                <a href="mailto:support@spacecheck.app" className="hover:text-secondary">Contact</a>
             </div>
         </div>
       </div>

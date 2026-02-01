@@ -21,14 +21,17 @@ export async function createGeneration(imagePath: string, dimensions: Dimensions
     .from('uploads')
     .getPublicUrl(imagePath)
 
-  // Insert into DB (dimensions passed separately to backend)
+  // Insert into DB with dimensions stored in cm
   const { data: generation, error } = await supabase
     .from('generations')
     .insert({
       user_id: user.id,
       input_image_url: publicUrl,
       status: 'processing',
-      name: productName
+      name: productName,
+      width_cm: parseFloat(dimensions.width),
+      height_cm: parseFloat(dimensions.height),
+      depth_cm: parseFloat(dimensions.depth)
     })
     .select()
     .single()
@@ -112,12 +115,11 @@ export async function retryGeneration(generationId: string) {
       .eq('id', generationId)
   }
 
-  // Use default dimensions for retry (100cm x 100cm x 100cm)
-  // TODO: Add dimensions column to store original dimensions for accurate retry
+  // Use stored dimensions from the database
   const dimensions: Dimensions = {
-    width: '100',
-    height: '100',
-    depth: '100'
+    width: generation.width_cm?.toString() || '100',
+    height: generation.height_cm?.toString() || '100',
+    depth: generation.depth_cm?.toString() || '100'
   }
 
   // Re-trigger the Modal Backend

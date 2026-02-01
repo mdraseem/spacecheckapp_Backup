@@ -1,6 +1,17 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit, rateLimitResponse } from '@/utils/rate-limit'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Rate limit: 10 requests per hour
+  const rateLimitResult = await rateLimit(request, {
+    maxRequests: 10,
+    windowMs: 60 * 60 * 1000 // 1 hour
+  })
+
+  if (!rateLimitResult.success) {
+    return rateLimitResponse('Too many generation requests. Please try again later.', rateLimitResult)
+  }
+
   try {
     const body = await request.json()
     const { imageUrl, dimensions, generationId } = body
