@@ -151,7 +151,16 @@ export default function TermsPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-primary mb-4">12. Contact</h2>
+            <h2 className="text-2xl font-bold text-primary mb-4">12. Governing Law</h2>
+            <p className="text-gray-700 leading-relaxed">
+              These Terms shall be governed by and construed in accordance with the laws of Poland.
+              Any disputes arising from these Terms shall be subject to the exclusive jurisdiction of
+              the courts of Wrocław, Poland.
+            </p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-primary mb-4">13. Contact</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
               For questions about these Terms, please contact us.
             </p>
@@ -164,8 +173,17 @@ export default function TermsPage() {
           </section>
 
           <div className="mt-12 pt-8 border-t border-gray-200">
+            <p className="text-sm text-gray-600 mb-2 font-semibold">
+              People Can Dream Sebastian Kotarski
+            </p>
             <p className="text-sm text-gray-500">
-              SpaceCheck Inc. • All rights reserved.
+              Złotnicka 9 lok. 2, 54-029 Wrocław, Poland
+            </p>
+            <p className="text-sm text-gray-500">
+              NIP: 8943142663 • REGON: 383688258
+            </p>
+            <p className="text-sm text-gray-400 mt-3">
+              All rights reserved.
             </p>
           </div>
         </div>

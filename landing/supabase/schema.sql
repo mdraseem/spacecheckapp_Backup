@@ -36,6 +36,51 @@ create policy "Users can delete their own generations"
   on public.generations for delete
   using (auth.uid() = user_id);
 
+-- User profiles for subscription management
+create table if not exists public.profiles (
+  id uuid not null references auth.users(id) on delete cascade,
+  stripe_customer_id text,
+  stripe_subscription_id text,
+  subscription_status text default 'inactive',
+  plan_type text default 'starter',
+  updated_at timestamp with time zone default now(),
+  primary key (id)
+);
+
+create index if not exists idx_profiles_stripe_customer on public.profiles(stripe_customer_id);
+create index if not exists idx_profiles_subscription on public.profiles(stripe_subscription_id);
+
+-- Enable RLS for profiles
+alter table public.profiles enable row level security;
+
+-- Users can read their own profile
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where tablename = 'profiles'
+    and policyname = 'Users can read own profile'
+  ) then
+    create policy "Users can read own profile"
+      on public.profiles for select
+      using (auth.uid() = id);
+  end if;
+end $$;
+
+-- Users can update their own profile
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where tablename = 'profiles'
+    and policyname = 'Users can update own profile'
+  ) then
+    create policy "Users can update own profile"
+      on public.profiles for update
+      using (auth.uid() = id);
+  end if;
+end $$;
+
 -- Contact form submissions
 create table if not exists public.contact_submissions (
   id uuid not null default gen_random_uuid(),

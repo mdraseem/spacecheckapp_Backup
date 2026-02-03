@@ -23,10 +23,24 @@ export default function PrivacyPage() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-primary mb-4">1. Introduction</h2>
-            <p className="text-gray-700 leading-relaxed">
-              SpaceCheck Inc. ("we", "our", or "us") respects your privacy. This Privacy Policy explains
+            <p className="text-gray-700 leading-relaxed mb-4">
+              People Can Dream Sebastian Kotarski ("we", "our", or "us") respects your privacy. This Privacy Policy explains
               how we collect, use, disclose, and safeguard your information when you use our Service.
             </p>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-700 mb-1">
+                <strong>Business Name:</strong> People Can Dream Sebastian Kotarski
+              </p>
+              <p className="text-sm text-gray-700 mb-1">
+                <strong>Address:</strong> Złotnicka 9 lok. 2, 54-029 Wrocław, Poland
+              </p>
+              <p className="text-sm text-gray-700 mb-1">
+                <strong>NIP:</strong> 8943142663
+              </p>
+              <p className="text-sm text-gray-700">
+                <strong>REGON:</strong> 383688258
+              </p>
+            </div>
           </section>
 
           <section className="mb-8">
@@ -193,9 +207,30 @@ export default function PrivacyPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-primary mb-4">14. Contact Us</h2>
+            <h2 className="text-2xl font-bold text-primary mb-4">14. Data Controller Information</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              If you have questions about this Privacy Policy, please contact us.
+              Under GDPR and Polish data protection laws, the data controller is:
+            </p>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <p className="text-gray-700 mb-2">
+                <strong>Business Name:</strong> People Can Dream Sebastian Kotarski
+              </p>
+              <p className="text-gray-700 mb-2">
+                <strong>Address:</strong> Złotnicka 9 lok. 2, 54-029 Wrocław, Poland
+              </p>
+              <p className="text-gray-700 mb-2">
+                <strong>NIP:</strong> 8943142663
+              </p>
+              <p className="text-gray-700">
+                <strong>REGON:</strong> 383688258
+              </p>
+            </div>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-primary mb-4">15. Contact Us</h2>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              If you have questions about this Privacy Policy or wish to exercise your data protection rights, please contact us.
             </p>
             <div className="mt-4">
               <Link

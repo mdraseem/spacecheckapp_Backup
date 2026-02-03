@@ -11,17 +11,55 @@ export const dynamic = 'force-dynamic'
 export default function SettingsPage() {
   const { dict } = useDashboardLanguage()
   const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [loadingPortal, setLoadingPortal] = useState(false)
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndProfile = async () => {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+
+      if (user) {
+        // Fetch subscription profile
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+
+        setProfile(profileData)
+      }
+
       setLoading(false)
     }
-    fetchUser()
+    fetchUserAndProfile()
   }, [])
+
+  const handleManageSubscription = async () => {
+    setLoadingPortal(true)
+    try {
+      const response = await fetch('/api/create-portal', {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to open billing portal')
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error: any) {
+      console.error('Portal error:', error)
+      alert(error.message || 'Failed to open billing portal')
+    } finally {
+      setLoadingPortal(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -77,6 +115,80 @@ export default function SettingsPage() {
               <p className="text-white font-mono text-sm">{user?.id}</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Subscription & Billing */}
+      <div className="bg-[#0f172a] border border-[#1e293b] rounded-xl p-6 mb-6">
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <Shield size={20} className="text-[#00f0ff]" />
+          Subscription & Billing
+        </h2>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-[#0a0f1c] rounded-lg border border-[#1e293b]">
+            <div>
+              <p className="text-white font-medium mb-1">Current Plan</p>
+              <p className="text-slate-400 text-sm">Your active subscription plan</p>
+            </div>
+            <div>
+              <span className="px-4 py-2 bg-[#00f0ff]/10 text-[#00f0ff] rounded-full text-sm font-bold uppercase">
+                {profile?.plan_type || 'Starter'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-[#0a0f1c] rounded-lg border border-[#1e293b]">
+            <div>
+              <p className="text-white font-medium mb-1">Status</p>
+              <p className="text-slate-400 text-sm">Subscription status</p>
+            </div>
+            <div>
+              {profile?.subscription_status === 'active' ? (
+                <span className="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm font-medium">
+                  Active
+                </span>
+              ) : profile?.subscription_status === 'past_due' ? (
+                <span className="px-3 py-1 bg-red-500/10 text-red-400 rounded-full text-sm font-medium">
+                  Past Due
+                </span>
+              ) : profile?.subscription_status === 'canceled' ? (
+                <span className="px-3 py-1 bg-gray-500/10 text-gray-400 rounded-full text-sm font-medium">
+                  Canceled
+                </span>
+              ) : (
+                <span className="px-3 py-1 bg-slate-500/10 text-slate-400 rounded-full text-sm font-medium">
+                  Free Plan
+                </span>
+              )}
+            </div>
+          </div>
+
+          {profile?.stripe_customer_id && (
+            <button
+              onClick={handleManageSubscription}
+              disabled={loadingPortal}
+              className="w-full px-4 py-3 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loadingPortal ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                'Manage Subscription'
+              )}
+            </button>
+          )}
+
+          {!profile?.stripe_customer_id && (
+            <Link
+              href="/#pricing"
+              className="block w-full px-4 py-3 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] rounded-lg font-medium transition-colors text-center"
+            >
+              Upgrade Plan
+            </Link>
+          )}
         </div>
       </div>
 

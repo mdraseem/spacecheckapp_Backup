@@ -5,7 +5,7 @@ import Features from '@/components/Features';
 import HowItWorks from '@/components/HowItWorks';
 import Omnichannel from '@/components/Omnichannel';
 import DemoSection from '@/components/DemoSection';
-import Pricing from '@/components/Pricing';
+import PricingWithCheckout from '@/components/PricingWithCheckout';
 import FAQ from '@/components/FAQ';
 import Footer from '@/components/Footer';
 
@@ -21,7 +21,7 @@ export default async function Home({ params }: { params: { lang: 'en' | 'pl' } }
       <HowItWorks dict={dict} />
       <Omnichannel dict={dict} />
       <DemoSection dict={dict} />
-      <Pricing dict={dict} />
+      <PricingWithCheckout dict={dict} />
       <FAQ dict={dict} />
       <Footer dict={dict} lang={lang} />
     </main>
