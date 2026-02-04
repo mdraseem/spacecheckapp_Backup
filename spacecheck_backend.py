@@ -173,7 +173,7 @@ def process_generation(item: dict):
                 "guidance_scale": 7.5,
                 "generate_texture": True,
                 "octree_resolution": 256,
-                "remove_background": False
+                "remove_background": True
             }
         )
 

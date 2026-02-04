@@ -6,6 +6,7 @@ import { createGeneration } from '../actions'
 import { UploadCloud, Loader2, FileIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
+import { UsageBadge } from '@/components/dashboard/UsageBadge'
 
 export const dynamic = 'force-dynamic'
 
@@ -145,16 +146,27 @@ export default function CreatePage() {
         throw error
       }
       console.error('Error uploading:', error)
-      alert(dict.create.errorUploading)
+
+      // Check if it's a usage limit error
+      if (error.message && error.message.includes('limit')) {
+        alert(error.message)
+      } else {
+        alert(dict.create.errorUploading)
+      }
       setIsUploading(false)
     }
   }
 
   return (
     <div className="max-w-4xl mx-auto pb-20">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">{dict.create.title}</h1>
         <p className="text-slate-400">{dict.create.subtitle}</p>
+      </div>
+
+      {/* Usage Badge */}
+      <div className="mb-8">
+        <UsageBadge />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

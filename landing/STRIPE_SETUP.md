@@ -42,6 +42,8 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000  # or your Vercel URL
 5. Click **Save product**
 6. Copy the **Price ID**
 
+**Note:** The 14-day free trial is configured in the checkout code, not on the product itself. Customers will not be charged for 14 days after signup.
+
 ### Add metadata to each price (optional but recommended):
 - Click on the price → **More** → **Edit**
 - Add metadata:
@@ -149,7 +151,7 @@ npm install stripe @stripe/stripe-js
 
 ## Step 7: Test the Integration
 
-### Test Checkout Flow with Invoices:
+### Test Checkout Flow with Invoices and Free Trial:
 
 1. Start your dev server: `npm run dev`
 2. Start Stripe webhook forwarding: `stripe listen --forward-to localhost:3000/api/webhook`
@@ -164,9 +166,15 @@ npm install stripe @stripe/stripe-js
 5. Complete checkout
 6. Check:
    - Supabase `profiles` table - subscription data should be updated
-   - Stripe dashboard - customer, subscription, and **invoice** created
-   - Webhook logs - should see `invoice.payment_succeeded` event
-   - **Download the invoice PDF** - verify company details appear
+   - Stripe dashboard → **Subscriptions** - verify status shows "trialing" with trial end date 14 days from now
+   - Stripe dashboard → **Customers** - customer created
+   - **No invoice yet** - invoice will be created when trial ends (after 14 days)
+   - Webhook logs - should see `customer.subscription.created` event
+
+**To test trial ending (optional):**
+- In Stripe Dashboard → Find the subscription
+- Click **Actions** → **End trial now**
+- This will immediately charge the customer and create an invoice
 
 ### Test Cards:
 - **Success:** `4242 4242 4242 4242`

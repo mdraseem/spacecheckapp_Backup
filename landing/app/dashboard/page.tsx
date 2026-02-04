@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/utils/supabase/client'
 import { ModelCard } from '@/components/dashboard/ModelCard'
+import { UsageBadge } from '@/components/dashboard/UsageBadge'
 import { PlusCircle, Box, CheckCircle, X } from 'lucide-react'
 import Link from 'next/link'
 import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
@@ -112,7 +113,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-6">
         <div>
             <h1 className="text-3xl font-bold text-white">{dict.dashboard.title}</h1>
             <p className="text-slate-400">{dict.dashboard.subtitle}</p>
@@ -124,6 +125,11 @@ export default function DashboardPage() {
             <PlusCircle size={16} />
             {dict.dashboard.newScan}
         </Link>
+      </div>
+
+      {/* Usage Badge */}
+      <div className="mb-8">
+        <UsageBadge />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

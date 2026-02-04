@@ -16,6 +16,14 @@ export async function createGeneration(imagePath: string, dimensions: Dimensions
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
+  // Check usage limits
+  const { canCreateGeneration } = await import('@/utils/usage-limits')
+  const { allowed, usage, error: limitError } = await canCreateGeneration(supabase, user.id)
+
+  if (!allowed) {
+    throw new Error(limitError || 'Generation limit exceeded')
+  }
+
   // Construct public URL (assuming public bucket)
   const { data: { publicUrl } } = supabase.storage
     .from('uploads')

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe, PRICE_IDS } from '@/lib/stripe';
 import { createClient } from '@/utils/supabase/server';
 
+/**
+ * Special checkout endpoint for VIP customers with extended trials
+ * Use query param: ?trial_days=60 for 2 months free
+ */
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
@@ -12,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { priceId } = body;
+    const { priceId, trialDays = 14 } = body;
 
     if (!priceId || !Object.values(PRICE_IDS).includes(priceId)) {
       return NextResponse.json({ error: 'Invalid price ID' }, { status: 400 });
@@ -28,7 +32,6 @@ export async function POST(req: NextRequest) {
     // Create or retrieve Stripe customer
     let customerId: string;
 
-    // Check if user already has a Stripe customer ID
     const { data: profile } = await supabase
       .from('profiles')
       .select('stripe_customer_id')
@@ -38,7 +41,6 @@ export async function POST(req: NextRequest) {
     if (profile?.stripe_customer_id) {
       customerId = profile.stripe_customer_id;
     } else {
-      // Create new Stripe customer
       const customer = await stripe.customers.create({
         email: user.email,
         metadata: {
@@ -48,7 +50,6 @@ export async function POST(req: NextRequest) {
 
       customerId = customer.id;
 
-      // Save customer ID to database
       await supabase
         .from('profiles')
         .upsert({
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
         });
     }
 
-    // Create Checkout Session
+    // Create Checkout Session with custom trial period
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
@@ -69,20 +70,21 @@ export async function POST(req: NextRequest) {
         },
       ],
       subscription_data: {
-        trial_period_days: 14, // 14-day free trial
+        trial_period_days: trialDays, // Custom trial period
         metadata: {
           user_id: user.id,
+          special_offer: trialDays > 14 ? 'vip_extended_trial' : 'standard',
         },
       },
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL || req.headers.get('origin')}/dashboard?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || req.headers.get('origin')}/dashboard?canceled=true`,
       allow_promotion_codes: true,
-      billing_address_collection: 'required', // Collect billing address for invoices
+      billing_address_collection: 'required',
       tax_id_collection: {
-        enabled: true, // Allow customers to provide VAT/Tax ID
+        enabled: true,
       },
       automatic_tax: {
-        enabled: true, // Enable Stripe Tax (requires setup in dashboard)
+        enabled: true,
       },
       metadata: {
         user_id: user.id,

@@ -44,6 +44,11 @@ export async function POST(req: NextRequest) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
 
+        // Retrieve the subscription to get its status (could be 'trialing' or 'active')
+        const subscription = await stripe.subscriptions.retrieve(
+          session.subscription as string
+        );
+
         // Update user subscription
         await supabase
           .from('profiles')
@@ -51,12 +56,12 @@ export async function POST(req: NextRequest) {
             id: session.metadata?.user_id,
             stripe_customer_id: session.customer as string,
             stripe_subscription_id: session.subscription as string,
-            subscription_status: 'active',
+            subscription_status: subscription.status, // Will be 'trialing' if trial is active
             plan_type: 'growth', // Determine based on price ID
             updated_at: new Date().toISOString(),
           });
 
-        console.log('Subscription created:', session.id);
+        console.log('Subscription created:', session.id, 'Status:', subscription.status);
         break;
       }
 
