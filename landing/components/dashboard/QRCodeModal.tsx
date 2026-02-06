@@ -327,19 +327,6 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">{dict.qrModal.customizeButton}</h3>
 
                 <div>
-                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">
-                    {dict.qrModal.displayName} <span className="text-slate-600 normal-case">{dict.qrModal.displayNameButton}</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={customName}
-                    onChange={(e) => setCustomName(e.target.value)}
-                    className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
-                    placeholder={dict.qrModal.displayNameButtonPlaceholder}
-                  />
-                </div>
-
-                <div>
                   <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.buttonLabel}</label>
                   <input
                     type="text"
