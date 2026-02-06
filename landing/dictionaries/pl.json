@@ -123,7 +123,9 @@
     "q2": "Jak udostępnić modele AR klientom?",
     "a2": "Masz dwie opcje: 1) Pobierz plakat z kodem QR do wydruku i wyświetlenia na meblach w swoim sklepie stacjonarnym, lub 2) Skopiuj kod HTML do osadzenia przycisku AR na swojej stronie. Oba działają na iPhone i Android bez konieczności pobierania aplikacji.",
     "q3": "Czy klienci mogą używać AR na swoich telefonach?",
-    "a3": "Tak. Generujemy pliki USDZ dla iPhone'ów (korzystając z Apple AR Quick Look) i pliki GLB dla urządzeń Android (korzystając z Google Scene Viewer). Klienci po prostu skanują kod QR lub dotykają przycisku na Twojej stronie, aby zobaczyć meble w swoim otoczeniu."
+    "a3": "Tak. Generujemy pliki USDZ dla iPhone'ów (korzystając z Apple AR Quick Look) i pliki GLB dla urządzeń Android (korzystając z Google Scene Viewer). Klienci po prostu skanują kod QR lub dotykają przycisku na Twojej stronie, aby zobaczyć meble w swoim otoczeniu.",
+    "q4": "Co się dzieje z moimi modelami po anulowaniu subskrypcji?",
+    "a4": "Twoje modele 3D pozostają dostępne nawet po anulowaniu! Wszystkie linki AR, kody QR i osadzone przeglądarki działają bezterminowo. Nadal możesz przeglądać i udostępniać swoje istniejące modele. Jedynym ograniczeniem jest to, że będziesz mieć limit 3 wgrań modeli miesięcznie (plan Starter) dla tworzenia nowych modeli."
     },
     "generator": {
       "headerTitle": "Generator Kodów QR AR",

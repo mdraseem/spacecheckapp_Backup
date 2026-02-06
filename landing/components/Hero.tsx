@@ -4,10 +4,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Smartphone, Zap } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { useEffect } from 'react';
+import { trackLandingEvent, trackCTAClick } from '@/utils/track';
 
 const ModelViewer = dynamic(() => import('./ModelViewer'), { ssr: false });
 
 export default function Hero({ dict, lang }: { dict: any, lang: string }) {
+  // Track hero section view
+  useEffect(() => {
+    trackLandingEvent('hero_view', { page: 'home', lang });
+  }, [lang]);
   return (
     <section className="pt-32 pb-20 overflow-hidden bg-gradient-to-b from-white to-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -26,12 +32,14 @@ export default function Hero({ dict, lang }: { dict: any, lang: string }) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
             <Link
               href="/login"
+              onClick={() => trackCTAClick(dict.hero.ctaStart, '/login', { position: 'hero_primary' })}
               className="inline-flex items-center justify-center gap-2 bg-secondary text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-all shadow-xl shadow-secondary/20"
             >
               {dict.hero.ctaStart}
             </Link>
             <Link
               href="#demo"
+              onClick={() => trackLandingEvent('cta_view_demo_clicked', { position: 'hero_secondary' })}
               className="inline-flex items-center justify-center gap-2 bg-white border-2 border-primary text-primary px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-50 transition-all"
             >
               {dict.hero.ctaDemo} <ArrowRight size={20} />
@@ -59,36 +67,41 @@ export default function Hero({ dict, lang }: { dict: any, lang: string }) {
                     </div>
 
                     {/* Center: Transformation Arrow */}
-                    <div className="relative lg:w-2/12 flex items-center justify-center bg-gradient-to-r from-gray-50 to-gray-900 py-8 lg:py-0">
+                    <div className="relative lg:w-2/12 flex items-center justify-center bg-gradient-to-b from-gray-100 via-gray-200 to-gray-800 py-8 lg:py-0">
+                        {/* Background glow effect */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-secondary/5 via-secondary/10 to-transparent"></div>
+
                         {/* Animated Arrow */}
-                        <div className="flex flex-row lg:flex-col items-center justify-center gap-3 animate-pulse">
+                        <div className="relative z-10 flex flex-row lg:flex-col items-center justify-center gap-3 animate-pulse">
                             {/* Desktop: Vertical Arrow */}
-                            <div className="hidden lg:flex flex-col items-center gap-2">
-                                <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center border-2 border-secondary">
-                                    <Zap className="text-secondary" size={24} />
+                            <div className="hidden lg:flex flex-col items-center gap-4">
+                                <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center border-4 border-secondary">
+                                    <Zap className="text-secondary" size={28} />
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <div className="w-0.5 h-8 bg-gradient-to-b from-secondary to-transparent"></div>
-                                    <ArrowRight className="text-secondary rotate-90" size={32} strokeWidth={3} />
-                                    <div className="w-0.5 h-8 bg-gradient-to-t from-secondary to-transparent"></div>
+                                    <div className="w-1 h-12 bg-gradient-to-b from-secondary to-secondary/50"></div>
+                                    <div className="my-2">
+                                        <ArrowRight className="text-secondary drop-shadow-lg rotate-90" size={40} strokeWidth={3} />
+                                    </div>
+                                    <div className="w-1 h-12 bg-gradient-to-b from-secondary/50 to-secondary"></div>
                                 </div>
-                                <div className="text-xs font-bold text-secondary text-center px-2">
+                                <div className="text-sm font-bold text-gray-900 bg-white px-4 py-2 rounded-full shadow-md border-2 border-secondary/30">
                                     AI
                                 </div>
                             </div>
 
                             {/* Mobile: Horizontal Arrow */}
-                            <div className="flex lg:hidden flex-row items-center gap-2">
-                                <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center border-2 border-secondary">
-                                    <Zap className="text-secondary" size={20} />
+                            <div className="flex lg:hidden flex-row items-center gap-3">
+                                <div className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center border-4 border-secondary">
+                                    <Zap className="text-secondary" size={22} />
                                 </div>
-                                <div className="flex items-center">
-                                    <div className="h-0.5 w-8 bg-gradient-to-r from-secondary to-transparent"></div>
-                                    <ArrowRight className="text-secondary" size={28} strokeWidth={3} />
-                                    <div className="h-0.5 w-8 bg-gradient-to-l from-secondary to-transparent"></div>
+                                <div className="flex items-center gap-2">
+                                    <div className="h-1 w-10 bg-gradient-to-r from-secondary to-secondary/50"></div>
+                                    <ArrowRight className="text-secondary drop-shadow-lg" size={32} strokeWidth={3} />
+                                    <div className="h-1 w-10 bg-gradient-to-r from-secondary/50 to-secondary"></div>
                                 </div>
-                                <div className="text-xs font-bold text-white">
-                                    3D
+                                <div className="text-sm font-bold text-gray-900 bg-white px-3 py-1.5 rounded-full shadow-md border-2 border-secondary/30">
+                                    AI
                                 </div>
                             </div>
                         </div>

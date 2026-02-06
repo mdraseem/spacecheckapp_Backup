@@ -252,8 +252,26 @@
         }
         const userId = getUserId();
 
-        // 3. Analytics Helper
+        // 3. Check cookie consent before tracking (GDPR compliance)
+        function hasAnalyticsConsent() {
+            try {
+                const consent = localStorage.getItem('spacecheck_cookie_consent');
+                if (!consent) return false;
+                const parsed = JSON.parse(consent);
+                return parsed.status === 'accepted';
+            } catch {
+                return false;
+            }
+        }
+
+        // 4. Analytics Helper (respects consent)
         async function trackEvent(eventName, extraData = {}) {
+            // Only track if user has consented
+            if (!hasAnalyticsConsent()) {
+                console.log('📊 Analytics disabled - no consent');
+                return;
+            }
+
             const payload = {
                 event: eventName,
                 user_id: userId,

@@ -61,6 +61,20 @@ export async function POST(req: NextRequest) {
             updated_at: new Date().toISOString(),
           });
 
+        // Track subscription activation in analytics
+        await supabase
+          .from('analytics')
+          .insert({
+            event_type: 'subscription_activated',
+            user_id: session.metadata?.user_id,
+            metadata: {
+              subscription_id: session.subscription,
+              customer_id: session.customer,
+              status: subscription.status,
+              plan_type: 'growth',
+            },
+          });
+
         console.log('Subscription created:', session.id, 'Status:', subscription.status);
         break;
       }

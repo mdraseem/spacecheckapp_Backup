@@ -1,9 +1,14 @@
+'use client';
+
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
+import SectionTracker from './SectionTracker';
+import { trackLandingEvent } from '@/utils/track';
 
 export default function DemoSection({ dict }: { dict: any }) {
   return (
-    <section id="demo" className="py-24 bg-primary text-white overflow-hidden relative">
+    <SectionTracker sectionName="demo" event="demo_section_viewed">
+      <section id="demo" className="py-24 bg-primary text-white overflow-hidden relative">
         {/* Background Patterns */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
             <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-secondary blur-3xl"></div>
@@ -70,7 +75,13 @@ export default function DemoSection({ dict }: { dict: any }) {
                      </div>
                 </div>
 
-                <a href={`/viewer.html?model=${encodeURIComponent('kler/bach.glb')}&name=${encodeURIComponent('Stół Bach')}`} target="_blank" rel="noopener noreferrer" className="w-full bg-secondary text-white py-3 rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2">
+                <a
+                  href={`/viewer.html?model=${encodeURIComponent('kler/bach.glb')}&name=${encodeURIComponent('Stół Bach')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackLandingEvent('cta_view_demo_clicked', { source: 'demo_section', demo_type: 'ar_viewer' })}
+                  className="w-full bg-secondary text-white py-3 rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2"
+                >
                     {dict.demo.mobileBtn} <ArrowRight size={18} />
                 </a>
             </div>
@@ -78,5 +89,6 @@ export default function DemoSection({ dict }: { dict: any }) {
         </div>
       </div>
     </section>
+    </SectionTracker>
   );
 }

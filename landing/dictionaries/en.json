@@ -123,7 +123,9 @@
     "q2": "How do I share AR models with customers?",
     "a2": "You get two options: 1) Download a QR code poster to print and display on furniture in your physical store, or 2) Copy HTML embed code to add an AR button to your website. Both work on iPhone and Android without requiring any app download.",
     "q3": "Can customers use AR on their phones?",
-    "a3": "Yes. We generate both USDZ files for iPhones (using Apple's AR Quick Look) and GLB files for Android devices (using Google's Scene Viewer). Customers simply scan the QR code or tap the button on your website to view furniture in their space."
+    "a3": "Yes. We generate both USDZ files for iPhones (using Apple's AR Quick Look) and GLB files for Android devices (using Google's Scene Viewer). Customers simply scan the QR code or tap the button on your website to view furniture in their space.",
+    "q4": "What happens to my models if I cancel my subscription?",
+    "a4": "Your 3D models remain accessible even after cancellation! All AR links, QR codes, and embedded viewers continue working indefinitely. You can still view and share your existing models. The only limitation is that you'll be restricted to the Starter plan's 3 model uploads per month for creating new models."
     },
     "generator": {
       "headerTitle": "AR QR Code Generator",

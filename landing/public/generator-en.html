@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR QR Code Generator</title>
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a3a52;
+            --secondary-color: #208a93;
+            --background-color: #f5f5f5;
+            --white: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.3rem;
+        }
+
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--background-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+            .full-width {
+                grid-column: span 3;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(32, 138, 147, 0.2);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-secondary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .result-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        .marketing-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+            max-width: 320px;
+            width: 100%;
+            position: relative;
+            text-align: center;
+        }
+
+        .marketing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px 12px 0 0;
+        }
+
+        .marketing-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .marketing-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .marketing-subtitle {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .ar-arrow {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin: 0.5rem 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-5px);}
+            60% {transform: translateY(-3px);}
+        }
+
+        #qrcode {
+            margin: 0 auto;
+            padding: 0.5rem;
+            background: white;
+        }
+
+        #qrcode img {
+            margin: 0 auto;
+        }
+
+        .marketing-footer {
+            margin-top: 1.5rem;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+        }
+
+        .product-tag {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: #333;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #777;
+            font-size: 0.9rem;
+            background-color: #eee;
+            margin-top: auto;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>AR QR Code Generator</h1>
+        <p>Quick Generator - Create AR QR codes for your models</p>
+    </header>
+
+    <main>
+        <!-- Form Section -->
+        <section id="formSection" class="card">
+            <h2>Product Information</h2>
+            <p style="margin-bottom: 1.5rem; color: #666;">Fill in the product details to generate an AR QR code.</p>
+
+            <form id="generatorForm" onsubmit="event.preventDefault(); generateQR();">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="productName">Product Name *</label>
+                        <input type="text" id="productName" placeholder="e.g. Modern Sofa Collection" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="modelPath">Model Path *</label>
+                        <input type="text" id="modelPath" placeholder="e.g. kler/bach.glb or brand/table.glb" required>
+                        <small style="color: #666; font-size: 0.8rem; margin-top: 4px;">Enter the path to GLB model in format: brand/filename.glb</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="width">Width (cm) *</label>
+                        <input type="number" id="width" min="1" step="0.1" placeholder="e.g. 240" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="height">Height (cm) *</label>
+                        <input type="number" id="height" min="1" step="0.1" placeholder="e.g. 85" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="depth">Depth (cm) *</label>
+                        <input type="number" id="depth" min="1" step="0.1" placeholder="e.g. 95" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="generateBtn">
+                    <span>🎯</span> Generate AR QR Code
+                </button>
+            </form>
+        </section>
+
+        <!-- Result Section -->
+        <section id="resultSection" class="result-section card">
+            <h2>Your AR QR Code is Ready!</h2>
+
+            <div class="result-container">
+                <div class="marketing-card" id="marketingCard">
+                    <div class="marketing-header">
+                        <div class="marketing-title">See it in your room</div>
+                        <div class="marketing-subtitle">Scan with your phone camera</div>
+                        <div class="ar-arrow">⬇</div>
+                    </div>
+
+                    <div id="qrcode"></div>
+
+                    <div class="marketing-footer">
+                        <div class="product-tag" id="resultName">Product Name</div>
+                        <div style="font-size: 0.8rem; color: #888; margin-top:0.2rem;">AR Visualization</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="downloadMarketingCard()">
+                        <span>⬇️</span> Download Poster
+                    </button>
+                    <button class="btn btn-outline" onclick="copyLink()">
+                        <span>📋</span> Copy Link
+                    </button>
+                    <button class="btn btn-outline" onclick="window.print()">
+                        <span>🖨️</span> Print
+                    </button>
+                </div>
+
+                <div class="info-box" style="text-align: left; width: 100%;">
+                    <strong>Generated Data:</strong>
+                    <ul id="summaryList" style="margin-left: 1.5rem; margin-top: 0.5rem; color: #666;">
+                        <!-- JS fills this -->
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="resetForm()" style="margin-top: 1rem;">
+                    <span>🔄</span> Generate Another
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>AR QR Code Generator &copy; 2025</p>
+        <p>AR Technology for Your Business</p>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Link copied to clipboard!</div>
+
+    <script>
+        let qrCodeObj = null;
+
+        // Generate QR Code
+        function generateQR() {
+            const productName = document.getElementById('productName').value;
+            const modelPath = document.getElementById('modelPath').value;
+            const width = document.getElementById('width').value;
+            const height = document.getElementById('height').value;
+            const depth = document.getElementById('depth').value;
+
+            if (!modelPath) {
+                showToast('Please enter the 3D model path');
+                return;
+            }
+
+            // Ensure modelPath ends with .glb
+            if (!modelPath.toLowerCase().endsWith('.glb')) {
+                showToast('Model path must end with .glb');
+                return;
+            }
+
+            // Build the viewer URL
+            const path = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+            const encodedName = encodeURIComponent(productName);
+            const encodedModel = encodeURIComponent(modelPath);
+            const viewerUrl = `${path}/viewer.html?model=${encodedModel}&name=${encodedName}`;
+
+            // Display summary
+            const summaryList = document.getElementById('summaryList');
+            summaryList.innerHTML = `
+                <li><strong>Product Name:</strong> ${productName}</li>
+                <li><strong>Model:</strong> ${modelPath}</li>
+                <li><strong>Dimensions:</strong> ${width}×${height}×${depth} cm</li>
+                <li><strong>Preview URL:</strong> <a href="${viewerUrl}" target="_blank" style="color: var(--secondary-color);">Open</a></li>
+            `;
+
+            document.getElementById('resultName').innerText = productName;
+
+            // Clear previous QR
+            document.getElementById('qrcode').innerHTML = '';
+
+            // Generate new QR
+            qrCodeObj = new QRCode(document.getElementById('qrcode'), {
+                text: viewerUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Store link for copy button
+            document.getElementById('qrcode').dataset.link = viewerUrl;
+
+            // Show result section
+            document.getElementById('formSection').style.display = 'none';
+            document.getElementById('resultSection').classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('generatorForm').reset();
+            document.getElementById('formSection').style.display = 'block';
+            document.getElementById('resultSection').classList.remove('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Download marketing card
+        function downloadMarketingCard() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const width = 600;
+            const height = 800;
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw header color strip
+            const gradient = ctx.createLinearGradient(0, 0, width, 0);
+            gradient.addColorStop(0, '#1a3a52');
+            gradient.addColorStop(1, '#208a93');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, 20);
+
+            // Text configuration
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#1a3a52';
+
+            // Draw title
+            ctx.font = 'bold 42px -apple-system, sans-serif';
+            ctx.fillText('See it in your room', width / 2, 120);
+
+            // Draw subtitle
+            ctx.font = '24px -apple-system, sans-serif';
+            ctx.fillStyle = '#666666';
+            ctx.fillText('Scan with your phone camera', width / 2, 160);
+
+            // Draw arrow
+            ctx.beginPath();
+            ctx.moveTo(width / 2, 190);
+            ctx.lineTo(width / 2, 230);
+            ctx.lineTo(width / 2 - 15, 215);
+            ctx.moveTo(width / 2, 230);
+            ctx.lineTo(width / 2 + 15, 215);
+            ctx.strokeStyle = '#208a93';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Draw QR Code
+            const qrImg = document.querySelector('#qrcode img');
+            if (qrImg) {
+                const qrSize = 350;
+                ctx.drawImage(qrImg, (width - qrSize) / 2, 260, qrSize, qrSize);
+            }
+
+            // Draw footer info
+            ctx.fillStyle = '#333333';
+            ctx.font = 'bold 32px -apple-system, sans-serif';
+            const productName = document.getElementById('resultName').innerText || 'Product';
+            ctx.fillText(productName, width / 2, 660);
+
+            ctx.fillStyle = '#888888';
+            ctx.font = '20px -apple-system, sans-serif';
+            ctx.fillText('AR Visualization', width / 2, 700);
+
+            ctx.font = 'italic 16px -apple-system, sans-serif';
+            ctx.fillStyle = '#aaaaaa';
+            ctx.fillText('AR QR Code Generator', width / 2, 750);
+
+            // Trigger download
+            const link = document.createElement('a');
+            link.download = `ar-poster-${productName.replace(/\s+/g, '-').toLowerCase()}-en.png`;
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Copy link
+        function copyLink() {
+            const link = document.getElementById('qrcode').dataset.link;
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('Link copied to clipboard!');
+            }).catch(err => {
+                showToast('Failed to copy link');
+                console.error('Copy failed:', err);
+            });
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

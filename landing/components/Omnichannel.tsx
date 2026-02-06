@@ -1,7 +1,7 @@
 import { Printer, ShoppingBag, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 
-export default function Omnichannel({ dict }: { dict: any }) {
+export default function Omnichannel({ dict, lang }: { dict: any; lang: string }) {
   return (
     <section className="py-24 bg-white border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,15 +51,15 @@ export default function Omnichannel({ dict }: { dict: any }) {
             <div className="relative">
                 {/* The Poster Image */}
                 <div className="relative bg-white p-2 shadow-2xl rounded-lg transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500 border border-gray-200 w-3/4 mx-auto z-10">
-                    <Image 
-                        src="/poster-example.png" 
-                        alt="AR QR Poster" 
-                        width={400} 
-                        height={500} 
+                    <Image
+                        src={`/poster-example-${lang}.png`}
+                        alt="AR QR Poster"
+                        width={400}
+                        height={500}
                         className="w-full h-auto rounded"
                     />
                     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 font-mono bg-white/90 px-2 py-1 rounded">
-                        PDF Format
+                        {lang === 'en' ? 'Printable Poster' : 'Plakat do wydruku'}
                     </div>
                 </div>
 

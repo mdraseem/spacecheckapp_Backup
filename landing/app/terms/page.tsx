@@ -118,9 +118,17 @@ export default function TermsPage() {
               <strong>Paid Plans:</strong> Billed monthly or annually. Prices are in USD. You authorize
               us to charge your payment method. Refunds are provided at our discretion.
             </p>
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-gray-700 leading-relaxed mb-4">
               <strong>Cancellation:</strong> You may cancel your subscription at any time. Access continues
-              until the end of your billing period.
+              until the end of your billing period. After cancellation, you will revert to the Starter (free)
+              plan, but your existing 3D models and AR links will remain active.
+            </p>
+            <p className="text-gray-700 leading-relaxed">
+              <strong>Model Retention After Cancellation:</strong> Your 3D models, AR viewers, and QR codes
+              remain accessible indefinitely after cancellation. However, we reserve the right to remove
+              models and associated data from accounts that have been inactive (no login or model access) for
+              more than 24 consecutive months. We will provide 30 days advance notice via email before any
+              such removal.
             </p>
           </section>
 
@@ -134,10 +142,28 @@ export default function TermsPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-primary mb-4">10. Termination</h2>
+            <h2 className="text-2xl font-bold text-primary mb-4">10. Data Retention and Account Termination</h2>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              <strong>Voluntary Cancellation:</strong> If you cancel your subscription, your account remains
+              active with Starter plan limits. Your 3D models and AR links continue working as described in
+              Section 8 (Payment and Billing).
+            </p>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              <strong>Inactive Account Policy:</strong> To maintain service quality and manage storage resources,
+              we may remove 3D models and associated data from accounts that have been completely inactive
+              (no login, model views, or dashboard access) for 24 consecutive months or more. You will receive
+              email notification 30 days before any such removal, giving you the opportunity to log in and
+              preserve your data.
+            </p>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              <strong>Violation Termination:</strong> We may terminate or suspend your account immediately,
+              without prior notice, for any violation of these Terms. Upon termination for violations, your
+              right to use the Service will cease immediately, and we reserve the right to remove your content.
+            </p>
             <p className="text-gray-700 leading-relaxed">
-              We may terminate or suspend your account immediately, without prior notice, for any violation
-              of these Terms. Upon termination, your right to use the Service will cease immediately.
+              <strong>Account Deletion:</strong> You may request full account deletion at any time by contacting
+              us. Upon deletion, all your data will be permanently removed within 30 days, and this action
+              cannot be undone.
             </p>
           </section>
 

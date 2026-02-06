@@ -90,9 +90,20 @@ export default function PrivacyPage() {
               <strong>Security Measures:</strong> We implement industry-standard security measures including
               encryption in transit (HTTPS/TLS), encrypted storage, secure authentication, and regular security audits.
             </p>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              <strong>Data Retention - Active Accounts:</strong> We retain your data for as long as your account is active,
+              including after subscription cancellation. Your 3D models and AR links remain accessible even if you cancel
+              your paid subscription.
+            </p>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              <strong>Data Retention - Inactive Accounts:</strong> For accounts that remain completely inactive
+              (no login, model views, or dashboard access) for 24 consecutive months or more, we reserve the right to
+              remove 3D models and associated data to manage storage resources. We will provide 30 days advance notice
+              via email before any such removal.
+            </p>
             <p className="text-gray-700 leading-relaxed">
-              <strong>Data Retention:</strong> We retain your data for as long as your account is active.
-              After account deletion, data is permanently removed within 30 days.
+              <strong>Account Deletion:</strong> If you request account deletion, all data is permanently removed
+              within 30 days. This action is irreversible.
             </p>
           </section>
 

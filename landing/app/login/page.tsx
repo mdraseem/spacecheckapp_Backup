@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { Loader2, AlertCircle } from 'lucide-react'
+import { trackConversion, trackPageView } from '@/utils/track'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,6 +16,11 @@ export default function LoginPage() {
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  // Track page view
+  useEffect(() => {
+    trackPageView('login', { action: 'viewed' });
+  }, []);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -61,6 +67,9 @@ export default function LoginPage() {
     }
 
     try {
+      // Track signup initiation
+      trackConversion('signup', 'initiated', { method: 'email' });
+
       const { error } = await supabase.auth.signUp({
         email: emailInput.value,
         password: passwordInput.value,
@@ -72,6 +81,8 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
+        // Track signup completion
+        trackConversion('signup', 'completed', { method: 'email' });
         setMessage('Check your email to confirm your account')
       }
     } catch (err) {

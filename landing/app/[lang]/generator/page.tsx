@@ -141,22 +141,29 @@ export default function GeneratorPage({ dict, lang }: GeneratorPageProps) {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#1a3a52'; // Primary color
 
-    // Draw title
-    ctx.font = 'bold 42px -apple-system, sans-serif';
-    ctx.fillText(dict.marketingTitle, cardWidth / 2, 120);
+    // Draw title (split into two lines if it contains ":")
+    const titleParts = dict.marketingTitle.split(':');
+    if (titleParts.length > 1) {
+      ctx.font = 'bold 38px -apple-system, sans-serif';
+      ctx.fillText(titleParts[0] + ':', cardWidth / 2, 100);
+      ctx.fillText(titleParts[1].trim(), cardWidth / 2, 140);
+    } else {
+      ctx.font = 'bold 42px -apple-system, sans-serif';
+      ctx.fillText(dict.marketingTitle, cardWidth / 2, 120);
+    }
 
     // Draw subtitle
-    ctx.font = '24px -apple-system, sans-serif';
+    ctx.font = '22px -apple-system, sans-serif';
     ctx.fillStyle = '#666666';
-    ctx.fillText(dict.marketingSubtitle, cardWidth / 2, 160);
+    ctx.fillText(dict.marketingSubtitle, cardWidth / 2, 180);
 
     // Draw arrow
     ctx.beginPath();
-    ctx.moveTo(cardWidth / 2, 190);
-    ctx.lineTo(cardWidth / 2, 230);
-    ctx.lineTo(cardWidth / 2 - 15, 215);
-    ctx.moveTo(cardWidth / 2, 230);
-    ctx.lineTo(cardWidth / 2 + 15, 215);
+    ctx.moveTo(cardWidth / 2, 210);
+    ctx.lineTo(cardWidth / 2, 250);
+    ctx.lineTo(cardWidth / 2 - 15, 235);
+    ctx.moveTo(cardWidth / 2, 250);
+    ctx.lineTo(cardWidth / 2 + 15, 235);
     ctx.strokeStyle = '#208a93'; // Secondary color
     ctx.lineWidth = 4;
     ctx.stroke();
@@ -164,21 +171,21 @@ export default function GeneratorPage({ dict, lang }: GeneratorPageProps) {
     // Draw QR Code
     if (imgElement) {
       const qrSize = 350;
-      ctx.drawImage(imgElement, (cardWidth - qrSize) / 2, 260, qrSize, qrSize);
+      ctx.drawImage(imgElement, (cardWidth - qrSize) / 2, 280, qrSize, qrSize);
     }
 
     // Draw footer info
     ctx.fillStyle = '#333333';
     ctx.font = 'bold 32px -apple-system, sans-serif';
-    ctx.fillText(productName || 'Product', cardWidth / 2, 660);
+    ctx.fillText(productName || 'Product', cardWidth / 2, 680);
 
     ctx.fillStyle = '#888888';
     ctx.font = '20px -apple-system, sans-serif';
-    ctx.fillText(dict.marketingArVis, cardWidth / 2, 700);
+    ctx.fillText(dict.marketingArVis, cardWidth / 2, 720);
 
     ctx.font = 'italic 16px -apple-system, sans-serif';
     ctx.fillStyle = '#aaaaaa';
-    ctx.fillText(dict.footerText, cardWidth / 2, 750); // Using the generator's footer text for this
+    ctx.fillText(dict.footerText, cardWidth / 2, 760); // Using the generator's footer text for this
 
     // Trigger download
     const link = document.createElement('a');

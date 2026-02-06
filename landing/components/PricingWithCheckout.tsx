@@ -4,6 +4,8 @@ import { Check, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import SectionTracker from './SectionTracker';
+import { trackLandingEvent, trackConversion } from '@/utils/track';
 
 export default function PricingWithCheckout({ dict }: { dict: any }) {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
@@ -47,6 +49,14 @@ export default function PricingWithCheckout({ dict }: { dict: any }) {
   ];
 
   const handlePlanSelect = async (plan: typeof plans[0]) => {
+    // Track pricing CTA click
+    trackLandingEvent('pricing_cta_clicked', {
+      plan_type: plan.planType,
+      plan_name: plan.name,
+      price: plan.price,
+      cta_text: plan.cta,
+    });
+
     setLoadingPlan(plan.planType);
 
     try {
@@ -54,6 +64,12 @@ export default function PricingWithCheckout({ dict }: { dict: any }) {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
+        // Track signup initiation
+        trackConversion('signup', 'initiated', {
+          source: 'pricing_section',
+          plan_type: plan.planType,
+        });
+
         // Redirect to login
         router.push('/login');
         return;
@@ -67,9 +83,19 @@ export default function PricingWithCheckout({ dict }: { dict: any }) {
 
       // Enterprise - redirect to contact
       if (plan.planType === 'enterprise') {
+        trackLandingEvent('cta_contact_clicked', {
+          source: 'pricing_enterprise',
+        });
         router.push('/contact');
         return;
       }
+
+      // Track checkout initiation
+      trackConversion('checkout', 'initiated', {
+        plan_type: plan.planType,
+        price_id: plan.priceId,
+        price: plan.price,
+      });
 
       // Paid plan - create checkout session
       const response = await fetch('/api/create-checkout', {
@@ -101,16 +127,17 @@ export default function PricingWithCheckout({ dict }: { dict: any }) {
   };
 
   return (
-    <section id="pricing" className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-primary mb-4">{dict.pricing.title}</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {dict.pricing.subtitle}
-          </p>
-        </div>
+    <SectionTracker sectionName="pricing" event="pricing_section_viewed">
+      <section id="pricing" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-primary mb-4">{dict.pricing.title}</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              {dict.pricing.subtitle}
+            </p>
+          </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {plans.map((plan, index) => (
             <div key={index} className={`relative rounded-2xl p-8 border ${plan.highlighted ? 'border-secondary shadow-xl scale-105 z-10' : 'border-gray-200 shadow-sm'} bg-white flex flex-col`}>
               {plan.highlighted && (
@@ -162,5 +189,6 @@ export default function PricingWithCheckout({ dict }: { dict: any }) {
         )}
       </div>
     </section>
+    </SectionTracker>
   );
 }

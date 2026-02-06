@@ -211,7 +211,7 @@ export default function AnalyticsPage({ lang }: { lang: string }) {
 
       <main className="max-w-7xl mx-auto p-4 my-8 space-y-6">
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <MetricCard
             title="Total Events"
             value={stats.totalEvents.toLocaleString()}
@@ -225,6 +225,12 @@ export default function AnalyticsPage({ lang }: { lang: string }) {
             color="bg-green-50 border-green-200"
           />
           <MetricCard
+            title="Page Views"
+            value={(stats.eventCounts['page_view'] || 0).toLocaleString()}
+            icon="👁️"
+            color="bg-indigo-50 border-indigo-200"
+          />
+          <MetricCard
             title="AR Activations"
             value={stats.arStats.activations.toLocaleString()}
             icon="🎯"
@@ -236,6 +242,96 @@ export default function AnalyticsPage({ lang }: { lang: string }) {
             icon="✨"
             color="bg-yellow-50 border-yellow-200"
           />
+        </div>
+
+        {/* Conversion Funnel */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold text-[#1a3a52] mb-4 flex items-center gap-2">
+            🔄 Conversion Funnel
+          </h2>
+          <div className="space-y-3">
+            <FunnelBar
+              label="Page Views"
+              value={stats.eventCounts['page_view'] || 0}
+              max={stats.eventCounts['page_view'] || 1}
+              color="bg-blue-500"
+            />
+            <FunnelBar
+              label="Hero CTA Clicks"
+              value={(stats.eventCounts['cta_start_free_clicked'] || 0) + (stats.eventCounts['cta_view_demo_clicked'] || 0)}
+              max={stats.eventCounts['page_view'] || 1}
+              color="bg-indigo-500"
+            />
+            <FunnelBar
+              label="Pricing Viewed"
+              value={stats.eventCounts['pricing_section_viewed'] || 0}
+              max={stats.eventCounts['page_view'] || 1}
+              color="bg-purple-500"
+            />
+            <FunnelBar
+              label="Signup Initiated"
+              value={stats.eventCounts['signup_initiated'] || 0}
+              max={stats.eventCounts['page_view'] || 1}
+              color="bg-green-500"
+            />
+            <FunnelBar
+              label="Signup Completed"
+              value={stats.eventCounts['signup_completed'] || 0}
+              max={stats.eventCounts['page_view'] || 1}
+              color="bg-emerald-600"
+            />
+            <FunnelBar
+              label="Checkout Initiated"
+              value={stats.eventCounts['checkout_initiated'] || 0}
+              max={stats.eventCounts['page_view'] || 1}
+              color="bg-orange-500"
+            />
+            <FunnelBar
+              label="Subscriptions Activated"
+              value={stats.eventCounts['subscription_activated'] || 0}
+              max={stats.eventCounts['page_view'] || 1}
+              color="bg-green-600"
+            />
+          </div>
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="text-sm text-gray-600">
+              <strong>Conversion Rates:</strong>
+              <ul className="mt-2 space-y-1">
+                <li>• Visitor → Signup: {calculatePercentage(stats.eventCounts['signup_completed'] || 0, stats.eventCounts['page_view'] || 1)}%</li>
+                <li>• Visitor → Paid: {calculatePercentage(stats.eventCounts['subscription_activated'] || 0, stats.eventCounts['page_view'] || 1)}%</li>
+                <li>• Signup → Paid: {calculatePercentage(stats.eventCounts['subscription_activated'] || 0, stats.eventCounts['signup_completed'] || 1)}%</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Landing Page Engagement */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold text-[#1a3a52] mb-4 flex items-center gap-2">
+            🎯 Landing Page Engagement
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <EngagementCard
+              title="Features Viewed"
+              value={stats.eventCounts['feature_card_viewed'] || 0}
+              total={stats.eventCounts['page_view'] || 1}
+            />
+            <EngagementCard
+              title="How It Works"
+              value={stats.eventCounts['how_it_works_viewed'] || 0}
+              total={stats.eventCounts['page_view'] || 1}
+            />
+            <EngagementCard
+              title="Demo Section"
+              value={stats.eventCounts['demo_section_viewed'] || 0}
+              total={stats.eventCounts['page_view'] || 1}
+            />
+            <EngagementCard
+              title="FAQ Viewed"
+              value={stats.eventCounts['faq_section_viewed'] || 0}
+              total={stats.eventCounts['page_view'] || 1}
+            />
+          </div>
         </div>
 
         {/* AR Funnel */}
@@ -453,4 +549,20 @@ function StatBar({ label, value, total, color }: { label: string; value: number;
       </div>
     </div>
   );
+}
+
+function EngagementCard({ title, value, total }: { title: string; value: number; total: number }) {
+  const percentage = total > 0 ? (value / total) * 100 : 0;
+  return (
+    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+      <div className="text-2xl font-bold text-[#1a3a52]">{value}</div>
+      <div className="text-sm text-gray-600 mt-1">{title}</div>
+      <div className="text-xs text-gray-500 mt-1">{percentage.toFixed(1)}% of visitors</div>
+    </div>
+  );
+}
+
+function calculatePercentage(numerator: number, denominator: number): string {
+  if (denominator === 0) return '0.0';
+  return ((numerator / denominator) * 100).toFixed(1);
 }
