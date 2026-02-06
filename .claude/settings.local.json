@@ -14,7 +14,8 @@
       "Bash(find:*)",
       "Bash(git check-ignore:*)",
       "Bash(/Users/home/Developer/furnite-ar-app/landing/.gitignore)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

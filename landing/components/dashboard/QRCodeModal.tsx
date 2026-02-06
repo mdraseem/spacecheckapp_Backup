@@ -236,87 +236,90 @@ export function QRCodeModal({ isOpen, onClose, modelUrl, modelName }: QRCodeModa
 
         <div className="p-6">
           {activeTab === 'poster' ? (
-            <div className="space-y-6">
-              {/* Customization Options */}
-              <div className="bg-[#0a0f1c] border border-[#1e293b] rounded-xl p-4 space-y-3">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">{dict.qrModal.customizePoster}</h3>
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Left: Customization Options */}
+              <div className="space-y-4">
+                <div className="bg-[#0a0f1c] border border-[#1e293b] rounded-xl p-4 space-y-3">
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">{dict.qrModal.customizePoster}</h3>
 
-                <div>
-                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">
-                    {dict.qrModal.displayName} <span className="text-slate-600 normal-case">{dict.qrModal.displayNameNote}</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={customName}
-                    onChange={(e) => setCustomName(e.target.value)}
-                    className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
-                    placeholder={dict.qrModal.displayNamePlaceholder}
-                  />
+                  <div>
+                    <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">
+                      {dict.qrModal.displayName} <span className="text-slate-600 normal-case">{dict.qrModal.displayNameNote}</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={customName}
+                      onChange={(e) => setCustomName(e.target.value)}
+                      className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
+                      placeholder={dict.qrModal.displayNamePlaceholder}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.title}</label>
+                    <input
+                      type="text"
+                      value={posterTitle}
+                      onChange={(e) => setPosterTitle(e.target.value)}
+                      className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.subtitle}</label>
+                    <input
+                      type="text"
+                      value={posterSubtitle}
+                      onChange={(e) => setPosterSubtitle(e.target.value)}
+                      className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.footerText}</label>
+                    <input
+                      type="text"
+                      value={posterFooter}
+                      onChange={(e) => setPosterFooter(e.target.value)}
+                      className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.title}</label>
-                  <input
-                    type="text"
-                    value={posterTitle}
-                    onChange={(e) => setPosterTitle(e.target.value)}
-                    className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
-                  />
-                </div>
+                <div className="space-y-3">
+                  <div className="bg-[#0a0f1c] border border-[#1e293b] rounded-lg p-3">
+                    <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.arViewerUrl}</p>
+                    <p className="text-sm text-slate-300 break-all">{viewerUrl}</p>
+                  </div>
 
-                <div>
-                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.subtitle}</label>
-                  <input
-                    type="text"
-                    value={posterSubtitle}
-                    onChange={(e) => setPosterSubtitle(e.target.value)}
-                    className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.footerText}</label>
-                  <input
-                    type="text"
-                    value={posterFooter}
-                    onChange={(e) => setPosterFooter(e.target.value)}
-                    className="w-full bg-[#050a14] border border-[#1e293b] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-colors"
-                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={handleCopyUrl}
+                      className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white rounded-lg transition-colors text-sm font-medium"
+                    >
+                      {copied ? <Check size={16} /> : <Copy size={16} />}
+                      {copied ? dict.qrModal.copied : dict.qrModal.copyUrl}
+                    </button>
+                    <button
+                      onClick={handleDownloadPoster}
+                      className="flex items-center justify-center gap-2 px-4 py-3 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] rounded-lg transition-colors text-sm font-medium"
+                    >
+                      <Download size={16} />
+                      {dict.qrModal.downloadPoster}
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="text-center">
-                <p className="text-slate-400 text-sm mb-4">
+              {/* Right: Poster Preview */}
+              <div className="flex flex-col items-center justify-start">
+                <p className="text-slate-400 text-sm mb-4 text-center">
                   {dict.qrModal.posterDescription}
                 </p>
 
-                {/* Poster preview */}
-                <div className="bg-white p-4 rounded-xl inline-block shadow-lg">
+                {/* Poster preview - Sticky on scroll */}
+                <div className="bg-white p-4 rounded-xl shadow-lg sticky top-4">
                   <canvas ref={posterCanvasRef} className="max-w-full h-auto" style={{ maxWidth: '300px' }} />
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="bg-[#0a0f1c] border border-[#1e293b] rounded-lg p-3">
-                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{dict.qrModal.arViewerUrl}</p>
-                  <p className="text-sm text-slate-300 break-all">{viewerUrl}</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={handleCopyUrl}
-                    className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white rounded-lg transition-colors text-sm font-medium"
-                  >
-                    {copied ? <Check size={16} /> : <Copy size={16} />}
-                    {copied ? dict.qrModal.copied : dict.qrModal.copyUrl}
-                  </button>
-                  <button
-                    onClick={handleDownloadPoster}
-                    className="flex items-center justify-center gap-2 px-4 py-3 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] rounded-lg transition-colors text-sm font-medium"
-                  >
-                    <Download size={16} />
-                    {dict.qrModal.downloadPoster}
-                  </button>
                 </div>
               </div>
             </div>

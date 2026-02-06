@@ -60,6 +60,9 @@ export async function POST(req: NextRequest) {
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
+      customer_update: {
+        address: 'auto', // Save billing address to Customer for automatic tax
+      },
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [
