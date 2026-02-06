@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
       customer: customerId,
       customer_update: {
         address: 'auto', // Save billing address to Customer for automatic tax
+        name: 'auto',    // Save name to Customer for tax ID collection
       },
       mode: 'subscription',
       payment_method_types: ['card'],
