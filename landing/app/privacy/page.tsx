@@ -241,14 +241,25 @@ export default function PrivacyPage() {
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-primary mb-4">15. Contact Us</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              If you have questions about this Privacy Policy or wish to exercise your data protection rights, please contact us.
+              If you have questions about this Privacy Policy or wish to exercise your data protection rights, please contact us at:
             </p>
+            <div className="bg-gray-50 p-4 rounded-lg mb-4">
+              <p className="text-gray-700">
+                <strong>Email:</strong>{' '}
+                <a href="mailto:spacecheck@sebastiankotarski.com" className="text-secondary hover:underline">
+                  spacecheck@sebastiankotarski.com
+                </a>
+              </p>
+              <p className="text-gray-700 mt-2">
+                <strong>Address:</strong> Złotnicka 9 lok. 2, 54-029 Wrocław, Poland
+              </p>
+            </div>
             <div className="mt-4">
               <Link
                 href="/contact"
                 className="inline-flex items-center gap-2 bg-secondary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary/90 transition-all"
               >
-                Contact Us
+                Contact Form
               </Link>
             </div>
           </section>

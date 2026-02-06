@@ -188,7 +188,11 @@ export default function TermsPage() {
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-primary mb-4">13. Contact</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              For questions about these Terms, please contact us.
+              For questions about these Terms, please contact us at{' '}
+              <a href="mailto:spacecheck@sebastiankotarski.com" className="text-secondary hover:underline">
+                spacecheck@sebastiankotarski.com
+              </a>{' '}
+              or use our contact form.
             </p>
             <Link
               href="/contact"

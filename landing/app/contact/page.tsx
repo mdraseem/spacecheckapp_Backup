@@ -86,7 +86,9 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-primary mb-1">Email</h3>
-                  <p className="text-gray-600">support@spacecheck.app</p>
+                  <a href="mailto:spacecheck@sebastiankotarski.com" className="text-secondary hover:underline">
+                    spacecheck@sebastiankotarski.com
+                  </a>
                   <p className="text-sm text-gray-500 mt-1">We'll respond within 24 hours</p>
                 </div>
               </div>

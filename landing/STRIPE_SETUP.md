@@ -195,7 +195,7 @@ More test cards: https://stripe.com/docs/testing
    - **Address:** Złotnicka 9 lok. 2, 54-029 Wrocław, Poland
    - **Tax ID / VAT number (NIP):** 8943142663
    - **REGON:** 383688258
-   - **Support email:** Your support email
+   - **Support email:** spacecheck@sebastiankotarski.com
    - **Website URL:** Your production domain
 
 ### Configure Stripe Tax (Recommended):
