@@ -1,6 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -19,6 +18,12 @@ export async function GET(request: Request) {
     redirectBase = process.env.NEXT_PUBLIC_SITE_URL || requestUrl.origin
   }
 
+  console.log('[auth/callback] code present:', !!code)
+  console.log('[auth/callback] redirectBase:', redirectBase)
+  console.log('[auth/callback] forwardedHost:', forwardedHost)
+  console.log('[auth/callback] requestUrl:', requestUrl.toString())
+  console.log('[auth/callback] cookies:', request.headers.get('cookie')?.substring(0, 200))
+
   if (code) {
     // Create the redirect response FIRST so we can attach cookies to it
     const redirectUrl = `${redirectBase}${next}`
@@ -30,11 +35,7 @@ export async function GET(request: Request) {
       {
         cookies: {
           getAll() {
-            const cookieStore = request.headers.get('cookie') || ''
-            return cookieStore.split(';').filter(Boolean).map((cookie) => {
-              const [name, ...rest] = cookie.trim().split('=')
-              return { name, value: rest.join('=') }
-            })
+            return request.cookies.getAll()
           },
           setAll(cookiesToSet) {
             cookiesToSet.forEach(({ name, value, options }) => {
@@ -47,13 +48,17 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
+    console.log('[auth/callback] exchangeCodeForSession error:', error?.message || 'none')
+
     if (!error) {
+      console.log('[auth/callback] SUCCESS - redirecting to:', redirectUrl)
       return response // Cookies are attached to this redirect response
     }
 
-    console.error('Auth callback error:', error.message)
+    console.error('[auth/callback] FAILED:', error.message)
   }
 
   // return the user to an error page with instructions
+  console.log('[auth/callback] redirecting to error page')
   return NextResponse.redirect(`${redirectBase}/auth/auth-code-error`)
 }
