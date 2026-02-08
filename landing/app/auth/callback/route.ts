@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
             return request.cookies.getAll()
           },
           setAll(cookiesToSet) {
+            console.log('[auth/callback] setAll called with cookies:', cookiesToSet.map(c => c.name).join(', '))
             cookiesToSet.forEach(({ name, value, options }) => {
               response.cookies.set(name, value, options)
             })

@@ -37,8 +37,17 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Debug logging for auth flow
+  if (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/auth')) {
+    const authCookies = request.cookies.getAll().filter(c => c.name.includes('sb-'))
+    console.log(`[middleware] path: ${request.nextUrl.pathname}`)
+    console.log(`[middleware] user: ${user?.email || 'null'}`)
+    console.log(`[middleware] auth cookies: ${authCookies.map(c => c.name).join(', ') || 'none'}`)
+  }
+
   if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
     // Redirect to login if accessing dashboard without user
+    console.log('[middleware] No user on /dashboard - redirecting to /login')
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/login'
     return NextResponse.redirect(loginUrl)
