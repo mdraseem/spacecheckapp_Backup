@@ -37,6 +37,34 @@ export default function SettingsPage() {
     fetchUserAndProfile()
   }, [])
 
+  const handleUpgrade = async () => {
+    setLoadingPortal(true)
+    try {
+      const response = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_GROWTH,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session')
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error: any) {
+      console.error('Upgrade error:', error)
+      alert(error.message || 'Failed to start upgrade')
+    } finally {
+      setLoadingPortal(false)
+    }
+  }
+
   const handleManageSubscription = async () => {
     setLoadingPortal(true)
     try {
@@ -164,11 +192,30 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {profile?.stripe_customer_id && (
+          {/* Show Upgrade button for Starter/free plan users */}
+          {(!profile?.plan_type || profile?.plan_type === 'starter') && (
+            <button
+              onClick={handleUpgrade}
+              disabled={loadingPortal}
+              className="w-full px-4 py-3 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loadingPortal ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                'Upgrade to Growth Plan'
+              )}
+            </button>
+          )}
+
+          {/* Show Manage Subscription for paying users */}
+          {profile?.stripe_customer_id && profile?.plan_type === 'growth' && (
             <button
               onClick={handleManageSubscription}
               disabled={loadingPortal}
-              className="w-full px-4 py-3 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full px-4 py-3 bg-transparent border border-[#1e293b] hover:bg-[#1e293b] text-slate-300 hover:text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loadingPortal ? (
                 <>
@@ -179,15 +226,6 @@ export default function SettingsPage() {
                 'Manage Subscription'
               )}
             </button>
-          )}
-
-          {!profile?.stripe_customer_id && (
-            <Link
-              href="/#pricing"
-              className="block w-full px-4 py-3 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] rounded-lg font-medium transition-colors text-center"
-            >
-              Upgrade Plan
-            </Link>
           )}
         </div>
       </div>
