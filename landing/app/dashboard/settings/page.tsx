@@ -180,6 +180,10 @@ export default function SettingsPage() {
                 <span className="px-3 py-1 bg-red-500/10 text-red-400 rounded-full text-sm font-medium">
                   Past Due
                 </span>
+              ) : profile?.subscription_status === 'trialing' ? (
+                <span className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-sm font-medium">
+                  Trial Active
+                </span>
               ) : profile?.subscription_status === 'canceled' ? (
                 <span className="px-3 py-1 bg-gray-500/10 text-gray-400 rounded-full text-sm font-medium">
                   Canceled
