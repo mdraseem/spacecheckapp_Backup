@@ -245,6 +245,23 @@ def process_generation(item: dict):
 
             print(f"✓ Complete: {glb_public_url}")
 
+            # Trigger Shopify auto-sync if applicable
+            try:
+                site_url = os.environ.get("NEXT_PUBLIC_SITE_URL", "https://spacecheck.app")
+                webhook_secret = os.environ.get("MODAL_WEBHOOK_SECRET", "")
+                sync_headers = {"Content-Type": "application/json"}
+                if webhook_secret:
+                    sync_headers["x-webhook-secret"] = webhook_secret
+                sync_resp = requests.post(
+                    f"{site_url}/api/shopify/auto-sync",
+                    json={"generationId": gen_id},
+                    headers=sync_headers,
+                    timeout=60
+                )
+                print(f"Shopify auto-sync response: {sync_resp.status_code} {sync_resp.text}")
+            except Exception as sync_err:
+                print(f"Shopify auto-sync callback failed (non-fatal): {sync_err}")
+
     except Exception as e:
         print(f"ERROR: {e}")
         import traceback

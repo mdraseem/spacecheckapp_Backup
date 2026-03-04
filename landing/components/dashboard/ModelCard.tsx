@@ -1,11 +1,13 @@
 'use client'
 
-import { Loader2, AlertCircle, Download, Eye, RefreshCw, QrCode, BarChart3, MoreVertical, Edit2, Trash2 } from 'lucide-react'
+import { Loader2, AlertCircle, Download, Eye, RefreshCw, QrCode, BarChart3, MoreVertical, Edit2, Trash2, Store } from 'lucide-react'
 import Image from 'next/image'
 import { retryGeneration, deleteGeneration } from '@/app/dashboard/actions'
 import { useState, useRef, useEffect } from 'react'
 import { QRCodeModal } from './QRCodeModal'
 import { ModelAnalyticsModal } from './ModelAnalyticsModal'
+import { ShopifyProductPicker } from './ShopifyProductPicker'
+import { ShopifyStatusBadge } from './ShopifyStatusBadge'
 import { useQueryClient } from '@tanstack/react-query'
 import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
 
@@ -28,6 +30,9 @@ export function ModelCard({ model }: { model: Generation }) {
   const [isRetrying, setIsRetrying] = useState(false)
   const [showQRModal, setShowQRModal] = useState(false)
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false)
+  const [showShopifyPicker, setShowShopifyPicker] = useState(false)
+  const [isShopifyUploading, setIsShopifyUploading] = useState(false)
+  const [shopifySyncStatus, setShopifySyncStatus] = useState<'uploading' | 'processing' | 'completed' | 'failed' | null>(null)
   const [showMenu, setShowMenu] = useState(false)
   const [isEditingName, setIsEditingName] = useState(false)
   const [editedName, setEditedName] = useState(model.name || '')
@@ -66,6 +71,36 @@ export function ModelCard({ model }: { model: Generation }) {
       const displayName = model.name || `Generation #${model.id.slice(0, 6)}`
       const viewerUrl = `/viewer.html?modelUrl=${encodeURIComponent(model.glb_url)}&name=${encodeURIComponent(displayName)}`
       window.open(viewerUrl, '_blank')
+    }
+  }
+
+  const handlePushToShopify = async (shopifyProductId: string, productTitle: string) => {
+    setIsShopifyUploading(true)
+    setShopifySyncStatus('uploading')
+    try {
+      const res = await fetch('/api/shopify/push-model', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          generationId: model.id,
+          shopifyProductId,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to push to Shopify')
+      }
+
+      const data = await res.json()
+      setShopifySyncStatus(data.status === 'READY' ? 'completed' : 'processing')
+      setShowShopifyPicker(false)
+    } catch (error: any) {
+      console.error('Shopify push failed:', error)
+      setShopifySyncStatus('failed')
+      alert(error.message || 'Failed to push model to Shopify')
+    } finally {
+      setIsShopifyUploading(false)
     }
   }
 
@@ -190,6 +225,11 @@ export function ModelCard({ model }: { model: Generation }) {
               <p className="text-xs text-slate-500 mt-1">
                 {new Date(model.created_at).toLocaleDateString()}
               </p>
+              {shopifySyncStatus && (
+                <div className="mt-1.5">
+                  <ShopifyStatusBadge status={shopifySyncStatus} />
+                </div>
+              )}
             </div>
 
             {/* Three-dots menu */}
@@ -213,6 +253,18 @@ export function ModelCard({ model }: { model: Generation }) {
                     <Edit2 size={14} />
                     {dict.modelCard.editName}
                   </button>
+                  {model.status === 'completed' && (
+                    <button
+                      onClick={() => {
+                        setShowShopifyPicker(true)
+                        setShowMenu(false)
+                      }}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-slate-300 hover:bg-[#1e293b] hover:text-white transition-colors"
+                    >
+                      <Store size={14} />
+                      {dict.shopify?.pushToShopify || 'Push to Shopify'}
+                    </button>
+                  )}
                   <button
                     onClick={handleDelete}
                     className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-colors"
@@ -306,6 +358,12 @@ export function ModelCard({ model }: { model: Generation }) {
             onClose={() => setShowAnalyticsModal(false)}
             modelUrl={model.glb_url}
             modelName={model.name || `Generation #${model.id.slice(0, 6)}`}
+          />
+          <ShopifyProductPicker
+            isOpen={showShopifyPicker}
+            onClose={() => setShowShopifyPicker(false)}
+            onSelect={handlePushToShopify}
+            isUploading={isShopifyUploading}
           />
         </>
       )}

@@ -4,7 +4,8 @@
     "myModels": "My Models",
     "createNew": "Create New",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "shopify": "Shopify"
   },
   "dashboard": {
     "title": "My Models",
@@ -86,6 +87,23 @@
     "enterProductName": "Please enter a product name",
     "enterDimensions": "Please enter all dimensions",
     "errorUploading": "Error uploading file"
+  },
+  "shopify": {
+    "title": "Shopify Products",
+    "subtitle": "— Select a product to generate a 3D model from its image.",
+    "notConnected": "No Shopify store connected",
+    "notConnectedDesc": "Connect your Shopify store to browse products and push 3D models directly to your product pages.",
+    "connectStore": "Connect Store",
+    "connected": "Shopify store connected!",
+    "connectedDesc": "You can now browse products and push 3D models.",
+    "searchPlaceholder": "Search products...",
+    "noResults": "No products found matching your search.",
+    "noProducts": "No products in your store yet.",
+    "moreProducts": "Showing first 24 products. Use search to find specific products.",
+    "generate3D": "Generate 3D Model",
+    "pushToShopify": "Push to Shopify",
+    "disconnect": "Disconnect Store",
+    "disconnectConfirm": "Are you sure you want to disconnect your Shopify store?"
   },
   "settings": {
     "title": "Settings",

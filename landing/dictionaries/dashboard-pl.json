@@ -4,7 +4,8 @@
     "myModels": "Moje Modele",
     "createNew": "Utwórz Nowy",
     "settings": "Ustawienia",
-    "logout": "Wyloguj"
+    "logout": "Wyloguj",
+    "shopify": "Shopify"
   },
   "dashboard": {
     "title": "Moje Modele",
@@ -86,6 +87,23 @@
     "enterProductName": "Proszę wprowadzić nazwę produktu",
     "enterDimensions": "Proszę wprowadzić wszystkie wymiary",
     "errorUploading": "Błąd podczas przesyłania pliku"
+  },
+  "shopify": {
+    "title": "Produkty Shopify",
+    "subtitle": "— Wybierz produkt, aby wygenerować model 3D z jego zdjęcia.",
+    "notConnected": "Brak połączonego sklepu Shopify",
+    "notConnectedDesc": "Połącz swój sklep Shopify, aby przeglądać produkty i przesyłać modele 3D bezpośrednio na strony produktów.",
+    "connectStore": "Połącz Sklep",
+    "connected": "Sklep Shopify połączony!",
+    "connectedDesc": "Teraz możesz przeglądać produkty i przesyłać modele 3D.",
+    "searchPlaceholder": "Szukaj produktów...",
+    "noResults": "Nie znaleziono produktów pasujących do wyszukiwania.",
+    "noProducts": "Brak produktów w Twoim sklepie.",
+    "moreProducts": "Wyświetlanie pierwszych 24 produktów. Użyj wyszukiwania, aby znaleźć konkretne produkty.",
+    "generate3D": "Wygeneruj Model 3D",
+    "pushToShopify": "Prześlij do Shopify",
+    "disconnect": "Odłącz Sklep",
+    "disconnectConfirm": "Czy na pewno chcesz odłączyć swój sklep Shopify?"
   },
   "settings": {
     "title": "Ustawienia",

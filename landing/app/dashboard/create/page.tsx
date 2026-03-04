@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { createGeneration } from '../actions'
-import { UploadCloud, Loader2, FileIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { createGeneration, createGenerationFromShopify } from '../actions'
+import { UploadCloud, Loader2, FileIcon, Store } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
 import { UsageBadge } from '@/components/dashboard/UsageBadge'
 
@@ -12,13 +12,30 @@ export const dynamic = 'force-dynamic'
 
 export default function CreatePage() {
   const { dict } = useDashboardLanguage()
+  const searchParams = useSearchParams()
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
 
+  // Shopify product context (from query params)
+  const shopifyProductId = searchParams.get('shopify_product_id')
+  const shopifyProductTitle = searchParams.get('shopify_product_title')
+  const shopifyImageUrl = searchParams.get('shopify_image_url')
+  const isShopifyMode = !!shopifyProductId
+
   // Product Name State
-  const [productName, setProductName] = useState('')
+  const [productName, setProductName] = useState(shopifyProductTitle || '')
+
+  // Pre-fill from Shopify image
+  useEffect(() => {
+    if (shopifyImageUrl && !previewUrl) {
+      setPreviewUrl(shopifyImageUrl)
+    }
+    if (shopifyProductTitle && !productName) {
+      setProductName(shopifyProductTitle)
+    }
+  }, [shopifyImageUrl, shopifyProductTitle])
 
   // Unit system state (metric or imperial)
   const [unitSystem, setUnitSystem] = useState<'metric' | 'imperial'>('metric')
@@ -115,7 +132,8 @@ export default function CreatePage() {
   }
 
   const handleUpload = async () => {
-    if (!file) return
+    // For Shopify mode, we don't need a local file - we use the Shopify image URL
+    if (!isShopifyMode && !file) return
     if (!productName.trim()) {
         alert(dict.create.enterProductName)
         return
@@ -127,19 +145,30 @@ export default function CreatePage() {
 
     setIsUploading(true)
     try {
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Math.random()}.${fileExt}`
-      const filePath = `${fileName}`
-
-      const { error: uploadError } = await supabase.storage
-        .from('uploads')
-        .upload(filePath, file)
-
-      if (uploadError) throw uploadError
-
-      // Convert dimensions to cm before sending to API
       const dimensionsInCm = getDimensionsInCm()
-      await createGeneration(filePath, dimensionsInCm, productName)
+
+      if (isShopifyMode && shopifyImageUrl && shopifyProductId) {
+        // Shopify mode: server action downloads image & creates generation
+        await createGenerationFromShopify(
+          shopifyImageUrl,
+          dimensionsInCm,
+          productName,
+          shopifyProductId
+        )
+      } else {
+        // Regular mode: upload file to storage first
+        const fileExt = file!.name.split('.').pop()
+        const fileName = `${Math.random()}.${fileExt}`
+        const filePath = `${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('uploads')
+          .upload(filePath, file!)
+
+        if (uploadError) throw uploadError
+
+        await createGeneration(filePath, dimensionsInCm, productName)
+      }
     } catch (error: any) {
       // Ignore Next.js Redirect errors
       if (error.message === 'NEXT_REDIRECT' || error.digest?.includes('NEXT_REDIRECT')) {
@@ -169,6 +198,23 @@ export default function CreatePage() {
         <UsageBadge />
       </div>
 
+      {/* Shopify context banner */}
+      {isShopifyMode && (
+        <div className="mb-8 p-4 bg-[#00f0ff]/5 border border-[#00f0ff]/20 rounded-xl flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#00f0ff]/10 rounded-full flex items-center justify-center flex-shrink-0">
+            <Store className="w-5 h-5 text-[#00f0ff]" />
+          </div>
+          <div>
+            <p className="text-[#00f0ff] font-semibold text-sm">
+              Generating for Shopify product
+            </p>
+            <p className="text-slate-400 text-sm">
+              {shopifyProductTitle} — The 3D model will be linked to this product after generation.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Col: Upload */}
         <div
@@ -196,27 +242,38 @@ export default function CreatePage() {
                 <p className="text-xl font-medium text-[#00f0ff]">{dict.create.uploadingProcessing}</p>
                 <p className="text-slate-400 mt-2">{dict.create.quantumScan}</p>
             </div>
-            ) : file && previewUrl ? (
+            ) : (file || isShopifyMode) && previewUrl ? (
             <div className="text-center z-10 flex flex-col items-center w-full h-full py-4">
                 <div className="relative w-full aspect-square max-w-[300px] mb-6 rounded-xl overflow-hidden border border-[#00f0ff]/30 shadow-[0_0_20px_rgba(0,240,255,0.1)]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                    src={previewUrl} 
-                    alt="Preview" 
+                <img
+                    src={previewUrl}
+                    alt="Preview"
                     className="w-full h-full object-cover"
                 />
                 </div>
                 <div className="pointer-events-none">
-                    <p className="text-lg font-medium text-white mb-1">{file.name}</p>
-                    <p className="text-sm text-slate-400 mb-4">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    {file ? (
+                      <>
+                        <p className="text-lg font-medium text-white mb-1">{file.name}</p>
+                        <p className="text-sm text-slate-400 mb-4">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                      </>
+                    ) : isShopifyMode ? (
+                      <p className="text-lg font-medium text-white mb-1 flex items-center gap-2 justify-center">
+                        <Store size={16} className="text-[#00f0ff]" />
+                        Shopify product image
+                      </p>
+                    ) : null}
                 </div>
-                <div className="z-30 pointer-events-auto">
-                    <button
-                    className="px-6 py-2 bg-[#1e293b] text-slate-300 rounded-full text-xs border border-slate-700 hover:border-[#00f0ff]/50 hover:text-[#00f0ff] transition-all"
-                    >
-                    {dict.create.changeImage}
-                    </button>
-                </div>
+                {!isShopifyMode && (
+                  <div className="z-30 pointer-events-auto">
+                      <button
+                      className="px-6 py-2 bg-[#1e293b] text-slate-300 rounded-full text-xs border border-slate-700 hover:border-[#00f0ff]/50 hover:text-[#00f0ff] transition-all"
+                      >
+                      {dict.create.changeImage}
+                      </button>
+                  </div>
+                )}
             </div>
             ) : (
             <div className="text-center pointer-events-none">
@@ -325,7 +382,7 @@ export default function CreatePage() {
                 </div>
             </div>
 
-            {file && (
+            {(file || isShopifyMode) && (
                 <button
                     onClick={handleUpload}
                     disabled={isUploading}

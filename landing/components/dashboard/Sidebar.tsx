@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Box, PlusCircle, Settings, LogOut, Menu, Languages } from 'lucide-react'
+import { Box, PlusCircle, Settings, LogOut, Menu, Languages, Store } from 'lucide-react'
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -17,6 +17,7 @@ export function Sidebar() {
   const navItems = [
     { name: dict.sidebar.myModels, href: '/dashboard', icon: Box },
     { name: dict.sidebar.createNew, href: '/dashboard/create', icon: PlusCircle },
+    { name: dict.sidebar?.shopify || 'Shopify', href: '/dashboard/shopify', icon: Store },
     { name: dict.sidebar.settings, href: '/dashboard/settings', icon: Settings },
   ]
 
@@ -45,10 +46,9 @@ export function Sidebar() {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="h-16 flex items-center justify-between px-6 border-b border-[#1e293b]">
-            <div>
-              <span className="text-xl font-bold text-white">Space</span>
-              <span className="text-xl font-bold text-[#00f0ff]">Check</span>
-            </div>
+            <span className="text-xl font-bold text-white tracking-tight">
+              SpaceCheck<span className="text-[#00f0ff]">.app</span>
+            </span>
             {/* Language Switcher */}
             <button
               onClick={() => setLang(lang === 'en' ? 'pl' : 'en')}
