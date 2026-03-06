@@ -226,6 +226,121 @@ export async function getShopifyConnection() {
 }
 
 /**
+ * Create multiple generations from Shopify product images (bulk operation).
+ * Does NOT redirect — returns results so the UI can show progress.
+ */
+export async function bulkCreateGenerationsFromShopify(
+  items: {
+    shopifyImageUrl: string
+    dimensions: Dimensions
+    productName: string
+    shopifyProductId: string
+  }[]
+): Promise<{ results: { productName: string; success: boolean; error?: string }[] }> {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  // Check usage limits upfront
+  const { canCreateGeneration, getUserUsage } = await import('@/utils/usage-limits')
+  const usage = await getUserUsage(supabase, user.id)
+
+  if (usage.remaining < items.length) {
+    throw new Error(
+      `You can only generate ${usage.remaining} more models this month. You selected ${items.length} products.`
+    )
+  }
+
+  // Get Shopify store info once
+  const { createClient: createServiceClient } = await import('@supabase/supabase-js')
+  const serviceSupabase = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const { data: store } = await serviceSupabase
+    .from('shopify_stores')
+    .select('shop_domain')
+    .eq('user_id', user.id)
+    .single()
+
+  const apiUrl = process.env.NEXT_PUBLIC_SITE_URL
+    ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/generate`
+    : 'http://localhost:3000/api/generate'
+
+  const results: { productName: string; success: boolean; error?: string }[] = []
+
+  for (const item of items) {
+    try {
+      // Download image from Shopify
+      const imageResponse = await fetch(item.shopifyImageUrl)
+      if (!imageResponse.ok) throw new Error('Failed to download image')
+      const imageBlob = await imageResponse.blob()
+      const fileName = `shopify_${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`
+
+      const { error: uploadError } = await supabase.storage
+        .from('uploads')
+        .upload(fileName, imageBlob, {
+          contentType: imageBlob.type || 'image/jpeg',
+        })
+
+      if (uploadError) throw new Error(uploadError.message)
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('uploads')
+        .getPublicUrl(fileName)
+
+      // Insert generation record
+      const { data: generation, error: genError } = await supabase
+        .from('generations')
+        .insert({
+          user_id: user.id,
+          input_image_url: publicUrl,
+          status: 'processing',
+          name: item.productName,
+          width_cm: parseFloat(item.dimensions.width),
+          height_cm: parseFloat(item.dimensions.height),
+          depth_cm: parseFloat(item.dimensions.depth),
+        })
+        .select()
+        .single()
+
+      if (genError) throw new Error(genError.message)
+
+      // Create Shopify sync record
+      if (store) {
+        await serviceSupabase.from('shopify_syncs').insert({
+          generation_id: generation.id,
+          shop_domain: store.shop_domain,
+          shopify_product_id: item.shopifyProductId,
+          sync_status: 'pending',
+        })
+      }
+
+      // Trigger generation (fire-and-forget)
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl: publicUrl,
+          dimensions: item.dimensions,
+          generationId: generation.id,
+        }),
+      }).catch((e) => console.error('Failed to trigger generation:', e))
+
+      results.push({ productName: item.productName, success: true })
+    } catch (e: any) {
+      console.error(`Bulk generation failed for ${item.productName}:`, e)
+      results.push({ productName: item.productName, success: false, error: e.message })
+    }
+  }
+
+  revalidatePath('/dashboard')
+  return { results }
+}
+
+/**
  * Create a generation from a Shopify product image.
  * Similar to createGeneration but downloads the image from Shopify first
  * and records the Shopify product association.
