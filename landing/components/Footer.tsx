@@ -26,6 +26,7 @@ export default function Footer({ dict, lang }: { dict: any, lang: string }) {
                 <li><Link href={`/${lang}#features`} className="hover:text-secondary">Features</Link></li>
                 <li><Link href={`/${lang}#pricing`} className="hover:text-secondary">Pricing</Link></li>
                 <li><Link href={`/${lang}#demo`} className="hover:text-secondary">Demo</Link></li>
+                <li><Link href={`/${lang}/blog`} className="hover:text-secondary">Blog</Link></li>
                 <li><Link href="/login" className="hover:text-secondary">Login</Link></li>
             </ul>
           </div>

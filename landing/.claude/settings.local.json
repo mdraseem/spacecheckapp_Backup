@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:getlate.dev)",
+      "Bash(tree:*)",
+      "Bash(npm install:*)",
+      "Bash(sudo rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm run build:*)",
+      "Bash(cat:*)",
+      "Bash(npm run translate:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

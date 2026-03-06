@@ -6,30 +6,34 @@ export const PLAN_LIMITS = {
 } as const
 
 export type PlanType = keyof typeof PLAN_LIMITS
+export type BillingSource = 'stripe' | 'shopify'
 
 export interface UsageInfo {
   currentUsage: number
   limit: number
   planType: PlanType
+  billingSource: BillingSource
   remaining: number
   hasExceeded: boolean
 }
 
 /**
- * Get the user's current monthly usage and limit
+ * Get the user's current monthly usage and limit.
+ * Supports both Stripe and Shopify billing sources.
  */
 export async function getUserUsage(
   supabase: SupabaseClient,
   userId: string
 ): Promise<UsageInfo> {
-  // Get user's plan
+  // Get user's plan (works for both billing sources)
   const { data: profile } = await supabase
     .from('profiles')
-    .select('plan_type, subscription_status')
+    .select('plan_type, subscription_status, billing_source')
     .eq('id', userId)
     .single()
 
   const planType = (profile?.plan_type || 'starter') as PlanType
+  const billingSource = (profile?.billing_source || 'stripe') as BillingSource
   const limit = PLAN_LIMITS[planType]
 
   // Count generations this month
@@ -50,6 +54,7 @@ export async function getUserUsage(
     currentUsage,
     limit,
     planType,
+    billingSource,
     remaining,
     hasExceeded,
   }

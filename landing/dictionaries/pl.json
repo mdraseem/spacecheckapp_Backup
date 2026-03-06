@@ -157,6 +157,24 @@
       "toastModelPathRequired": "Proszę wprowadzić ścieżkę do modelu 3D",
       "toastModelPathFormat": "Ścieżka modelu musi kończyć się na .glb"
     },
+  "blog": {
+    "title": "Blog",
+    "pageTitle": "Blog SpaceCheck",
+    "pageDescription": "Porady, tutoriale i trendy branżowe dotyczące AR, wizualizacji 3D i e-commerce meblowego.",
+    "readMore": "Czytaj więcej",
+    "readingTime": "min czytania",
+    "allPosts": "Wszystkie wpisy",
+    "backToBlog": "Powrót do Bloga",
+    "publishedOn": "Opublikowano",
+    "by": "przez",
+    "tags": "Tagi",
+    "noPosts": "Brak wpisów. Sprawdź ponownie wkrótce!",
+    "relatedPosts": "Powiązane wpisy",
+    "sharePost": "Udostępnij ten wpis",
+    "ctaTitle": "Gotowy na AR w swoim sklepie?",
+    "ctaDescription": "Wygeneruj swój pierwszy model 3D w kilka minut. Bez karty kredytowej.",
+    "ctaButton": "Rozpocznij za darmo"
+  },
   "footer": {
     "description": "Sprawiamy, że AR jest dostępne dla każdego sprzedawcy mebli. Zwiększ sprzedaż dzięki immersyjnej wizualizacji produktów.",
     "product": "Produkt",

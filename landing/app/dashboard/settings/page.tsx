@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
-import { User, Mail, Calendar, Shield, Loader2 } from 'lucide-react'
+import { User, Mail, Calendar, Shield, Loader2, Store } from 'lucide-react'
 import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
 
 export const dynamic = 'force-dynamic'
@@ -12,8 +12,12 @@ export default function SettingsPage() {
   const { dict } = useDashboardLanguage()
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
+  const [hasShopifyStore, setHasShopifyStore] = useState(false)
   const [loading, setLoading] = useState(true)
   const [loadingPortal, setLoadingPortal] = useState(false)
+
+  const billingSource = profile?.billing_source || 'stripe'
+  const isShopifyBilled = billingSource === 'shopify'
 
   useEffect(() => {
     const fetchUserAndProfile = async () => {
@@ -30,6 +34,15 @@ export default function SettingsPage() {
           .single()
 
         setProfile(profileData)
+
+        // Check if user has a connected Shopify store
+        const { data: storeData } = await supabase
+          .from('shopify_stores')
+          .select('shop_domain')
+          .eq('user_id', user.id)
+          .single()
+
+        setHasShopifyStore(!!storeData)
       }
 
       setLoading(false)
@@ -40,6 +53,26 @@ export default function SettingsPage() {
   const handleUpgrade = async () => {
     setLoadingPortal(true)
     try {
+      // If user has a Shopify store connected, use Shopify billing
+      if (hasShopifyStore) {
+        const response = await fetch('/api/shopify/billing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create Shopify subscription')
+        }
+
+        if (data.confirmationUrl) {
+          window.location.href = data.confirmationUrl
+          return
+        }
+      }
+
+      // Otherwise, use Stripe checkout
       const response = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,6 +101,27 @@ export default function SettingsPage() {
   const handleManageSubscription = async () => {
     setLoadingPortal(true)
     try {
+      if (isShopifyBilled) {
+        // Shopify-billed users manage subscription in Shopify admin
+        // Check the connected store domain to build the URL
+        const supabase = createClient()
+        const { data: store } = await supabase
+          .from('shopify_stores')
+          .select('shop_domain')
+          .eq('user_id', user.id)
+          .single()
+
+        if (store?.shop_domain) {
+          window.open(
+            `https://${store.shop_domain}/admin/settings/billing`,
+            '_blank'
+          )
+          setLoadingPortal(false)
+          return
+        }
+      }
+
+      // Stripe-billed users use Stripe portal
       const response = await fetch('/api/create-portal', {
         method: 'POST',
       })
@@ -159,10 +213,16 @@ export default function SettingsPage() {
               <p className="text-white font-medium mb-1">Current Plan</p>
               <p className="text-slate-400 text-sm">Your active subscription plan</p>
             </div>
-            <div>
+            <div className="flex items-center gap-2">
               <span className="px-4 py-2 bg-[#00f0ff]/10 text-[#00f0ff] rounded-full text-sm font-bold uppercase">
                 {profile?.plan_type || 'Starter'}
               </span>
+              {isShopifyBilled && (
+                <span className="px-2 py-1 bg-[#96bf48]/10 text-[#96bf48] rounded text-xs font-medium flex items-center gap-1">
+                  <Store size={12} />
+                  via Shopify
+                </span>
+              )}
             </div>
           </div>
 
@@ -214,8 +274,8 @@ export default function SettingsPage() {
             </button>
           )}
 
-          {/* Show Manage Subscription for paying users */}
-          {profile?.stripe_customer_id && profile?.plan_type === 'growth' && (
+          {/* Show Manage Subscription for paying users (Stripe or Shopify) */}
+          {profile?.plan_type === 'growth' && (profile?.stripe_customer_id || isShopifyBilled) && (
             <button
               onClick={handleManageSubscription}
               disabled={loadingPortal}
@@ -225,6 +285,11 @@ export default function SettingsPage() {
                 <>
                   <Loader2 size={16} className="animate-spin" />
                   Loading...
+                </>
+              ) : isShopifyBilled ? (
+                <>
+                  <Store size={16} />
+                  Manage via Shopify
                 </>
               ) : (
                 'Manage Subscription'

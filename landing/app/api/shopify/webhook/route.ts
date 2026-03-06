@@ -78,6 +78,42 @@ export async function POST(request: Request) {
         break
       }
 
+      case 'app_subscriptions/update': {
+        // Shopify billing: subscription status changed
+        const payload = JSON.parse(body)
+        const subscriptionId = payload?.app_subscription?.admin_graphql_api_id
+        const status = payload?.app_subscription?.status
+
+        if (subscriptionId && status) {
+          // Find the user associated with this shop
+          const { data: store } = await serviceSupabase
+            .from('shopify_stores')
+            .select('user_id')
+            .eq('shop_domain', shopDomain)
+            .single()
+
+          if (store?.user_id) {
+            const isActive = status === 'active' || status === 'ACTIVE'
+            const planType = isActive ? 'growth' : 'starter'
+
+            await serviceSupabase.from('profiles').upsert({
+              id: store.user_id,
+              billing_source: 'shopify',
+              shopify_subscription_id: subscriptionId,
+              shopify_subscription_status: status.toLowerCase(),
+              plan_type: planType,
+              subscription_status: status.toLowerCase(),
+              updated_at: new Date().toISOString(),
+            })
+
+            console.log(
+              `Shopify subscription ${status} for ${shopDomain} (user: ${store.user_id})`
+            )
+          }
+        }
+        break
+      }
+
       default:
         console.log(`Unhandled webhook topic: ${topic} from ${shopDomain}`)
     }

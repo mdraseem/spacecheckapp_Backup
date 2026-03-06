@@ -30,6 +30,7 @@ export default function Navbar({ dict, lang }: { dict: any, lang: string }) {
             <Link href="#features" className="text-gray-600 hover:text-primary transition-colors">{dict.nav.features}</Link>
             <Link href="#how-it-works" className="text-gray-600 hover:text-primary transition-colors">{dict.nav.howItWorks}</Link>
             <Link href="#pricing" className="text-gray-600 hover:text-primary transition-colors">{dict.nav.pricing}</Link>
+            <Link href={`/${lang}/blog`} className="text-gray-600 hover:text-primary transition-colors">{dict.blog?.title ?? 'Blog'}</Link>
             
             {/* Language Switcher */}
             <div className="flex items-center space-x-2 text-sm text-gray-600 border-l border-gray-300 pl-6">

@@ -157,6 +157,24 @@
       "toastModelPathRequired": "Please enter a 3D model path",
       "toastModelPathFormat": "Model path must end with .glb"
     },
+  "blog": {
+    "title": "Blog",
+    "pageTitle": "SpaceCheck Blog",
+    "pageDescription": "Insights, tutorials, and industry trends on AR, 3D visualization, and furniture e-commerce.",
+    "readMore": "Read more",
+    "readingTime": "min read",
+    "allPosts": "All Posts",
+    "backToBlog": "Back to Blog",
+    "publishedOn": "Published on",
+    "by": "by",
+    "tags": "Tags",
+    "noPosts": "No posts yet. Check back soon!",
+    "relatedPosts": "Related Posts",
+    "sharePost": "Share this post",
+    "ctaTitle": "Ready to try AR for your store?",
+    "ctaDescription": "Generate your first 3D model in minutes. No credit card required.",
+    "ctaButton": "Start Free Trial"
+  },
   "footer": {
     "description": "Making AR accessible for every furniture retailer. Boost sales with immersive product visualization.",
     "product": "Product",
