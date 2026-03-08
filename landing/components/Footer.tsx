@@ -35,7 +35,6 @@ export default function Footer({ dict, lang }: { dict: any, lang: string }) {
             <h4 className="font-bold text-primary mb-4">{dict.footer.company}</h4>
             <ul className="space-y-2 text-sm text-gray-600">
                 <li><Link href="/contact" className="hover:text-secondary">Contact</Link></li>
-                <li><a href="mailto:spacecheck@sebastiankotarski.com" className="hover:text-secondary">spacecheck@sebastiankotarski.com</a></li>
                 <li><Link href="/privacy" className="hover:text-secondary">Privacy Policy</Link></li>
                 <li><Link href="/terms" className="hover:text-secondary">Terms of Service</Link></li>
             </ul>

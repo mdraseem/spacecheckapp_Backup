@@ -1,0 +1,58 @@
+---
+title: "Jak przekształcić płaski obraz 2D w model 3D – aktualne techniki"
+description: "Tworzenie modeli 3D nigdy nie było prostsze. Zapomnij o spędzaniu godzin w Blenderze, aby stworzyć proste obiekty. Zrób zdjęcie i wykorzystaj modele AI opisane w tym artykule, aby przygotować model w kilka minut."
+date: "2026-03-15"
+author: "Sebastian Kotarski"
+tags: ["AR", "2D to 3D", "Hunyuan"]
+coverImage: "/blog/2d-image-to-3d-models-techniques/tiger.png"
+---
+
+# Fotogrametria – pierwsze kroki w generowaniu 3D
+
+Przed przełomem w 2022 roku, wywołanym przez ChatGPT, każdy, kto chciał wygenerować model 3D, musiał polegać na technice zwanej fotogrametrią. Celem było uchwycenie wielu zdjęć obiektu pod różnymi kątami, po czym algorytm zajmował się resztą. Kluczowe dla sukcesu były odpowiednie warunki oświetleniowe oraz czyste tło. Apple, na przykład, wciąż wspiera swoje **Object Capture API**, które wykorzystuje AR, aby prowadzić użytkownika przez proces i przygotować wysokiej jakości model 3D z zestawu obrazów.
+
+![Object Capture API](/blog/2d-image-to-3d-models-techniques/object_capture.jpg)
+
+## Gaussian Splatting
+
+**Gaussian Splatting** to technika wynaleziona w latach 90., ale przez długi czas pozostawała niszowa ze względu na ogromne zapotrzebowanie na moc obliczeniową GPU. Wraz ze wzrostem wydajności kart graficznych, metoda ta powróciła do łask. Podejście jest bardzo podobne do tradycyjnej fotogrametrii, jednak pozwala na przechwytywanie nie tylko pojedynczych przedmiotów, ale i całych scen, takich jak wielopokojowe wnętrza. Technika ta jest wykorzystywana m.in. przez firmę **Varjo**, w której miałem przyjemność pracować w zespole Teleport. Podobne rozwiązanie stosuje np. **LumaAI**.
+
+![Varjo](/blog/2d-image-to-3d-models-techniques/varjo.webp)
+
+Swoją drogą, poniżej możecie obejrzeć nagranie z mojej prezentacji na temat silnika Godot w Nantes we Francji, na konferencji Mobilis in Mobile. W minucie **12:45** pokazuję, jak przekonwertowałem **antyczną chińską wazę** w element gry w Godot. Opowiadam tam również nieco szerzej o technice Gaussian Splatting.
+
+<iframe
+    src="https://youtu.be/qXiV2564c68?si=2T6nJcijVphVBDEs&t=765"
+    title="Godot talk"
+    width="100%"
+    height="400"
+/>
+
+# Era generatywnej sztucznej inteligencji
+
+Gdy pod koniec 2022 roku świat zaczął masowo korzystać z GPT-3, idee stojące za modelami **LLM (Transformerami)** przeniknęły do innych kategorii – jedną z nich było generowanie 3D. O ile tworzenie obrazów z tekstu (promptów) szło świetnie, o tyle generowanie modeli 3D okazało się znacznie większym wyzwaniem.
+
+Jedną z pierwszych prób adaptacji AI do generowania 3D podjęło **Stability AI**. To skomplikowane zadanie, ponieważ model 3D to nie tylko prosta siatka pikseli jak w obrazie 2D. Składa się on z poligonów oraz znacznie bardziej złożonych połączeń i relacji między nimi. Wykorzystując mechanizmy dyfuzji, zaprezentowali model **Stable Fast 3D**. Wyniki są obiecujące; choć wciąż potrzebne jest czyste tło i dobre oświetlenie, nowoczesne algorytmy posiadają już parametry pozwalające na automatyczne wykrywanie i usuwanie tła.
+
+![Stable](/blog/2d-image-to-3d-models-techniques/stable.webp)
+
+## Główny konkurent Stability AI
+
+Przez długi czas Stable Fast 3D był uznawany za standard rynkowy (state-of-the-art): wymagał tylko jednego zdjęcia, był szybki i open-source. Jednak w połowie 2025 roku firma **Tencent** zaprezentowała swoją odpowiedź – model **Hunyuan3D**. Oferuje on podobną wydajność, ale w najnowszej wersji pozwala na dołączenie do czterech zdjęć z różnych perspektyw (przód, tył, lewy i prawy bok), co znacznie poprawia dokładność.
+
+Poniżej możecie zobaczyć realny przykład efektu działania modelu Hunyuan3D:
+
+<video controls width="100%">
+  <source src="/blog/2d-image-to-3d-models-techniques/hunyuan.mp4" type="video/mp4" />
+</video>
+
+# Sprawdź model Hunyuan3D ze swoimi zdjęciami!
+
+* **Generuj do trzech modeli miesięcznie**
+* **Przechowuj je na platformie na zawsze**
+* **Generuj link lub przycisk, aby udostępnić swój model**
+* **Funkcja AR w zestawie!** Zeskanuj kod QR na iOS lub Androidzie, aby zobaczyć swój model w rzeczywistości rozszerzonej – bez instalowania żadnej aplikacji!
+
+---
+
+[Wypróbuj SpaceCheck za darmo](/login)

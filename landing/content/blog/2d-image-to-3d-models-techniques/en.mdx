@@ -1,0 +1,58 @@
+---
+title: "How to Transform a Flat 2D Image into a 3D Model: Current Techniques"
+description: "Creating 3D models has never been easier. Forget about spending hours in Blender to create simple objects. Take a photo and, using the AI models mentioned in this article, do it in minutes."
+date: "2026-03-15"
+author: "Sebastian Kotarski"
+tags: ["AR", "2D to 3D", "Hunyuan"]
+coverImage: "/blog/2d-image-to-3d-models-techniques/tiger.png"
+---
+
+# Photogrammetry: The First Steps Toward 3D Generation
+
+Before the 2022 boom caused by ChatGPT, anyone seeking 3D model generation turned to a technique called photogrammetry. The goal was to capture multiple images of an object from different angles, and then let the algorithm do the rest. Lighting conditions and a clear background were crucial for success. Apple, for example, still maintains its **Object Capture API**, which uses AR to guide you and create high-quality 3D models from a set of images.
+
+![Object Capture API](/blog/2d-image-to-3d-models-techniques/object_capture.jpg)
+
+## Gaussian Splats
+
+**Gaussian Splatting** was a technique invented in the 90s, but it remained niche due to its high GPU requirements. As graphics cards became more powerful, the technique resurfaced. While the approach is similar to standard photogrammetry, it allows you to capture not only single objects but also larger scenes, such as entire rooms. This technique is used by companies like **Varjo**, where I had the pleasure of working with the Teleport team. A similar approach is used by platforms like **LumaAI**.
+
+![Varjo](/blog/2d-image-to-3d-models-techniques/varjo.webp)
+
+By the way, you can check out the recording of my talk about the Godot game engine in Nantes, France, at the Mobilis in Mobile conference below. At the **12:45** timestamp, I demonstrate how I converted an **ancient Chinese vase** into a Godot game asset. I also discuss Gaussian splats in more detail there.
+
+<iframe
+    src="https://youtu.be/qXiV2564c68?si=2T6nJcijVphVBDEs&t=765"
+    title="Godot talk"
+    width="100%"
+    height="400"
+/>
+
+# The Generative AI Era
+
+After the public began using GPT-3 in late 2022, the concepts behind **Large Language Models (LLMs)** and **Transformers** expanded into other categories, one of which was 3D generation. While generating images from prompts became highly successful, 3D generation presented a larger challenge.
+
+One of the first attempts to adapt AI to 3D generation was by **Stability AI**. This is a complex task because, unlike a 2D image made of pixels, 3D models consist of polygons with far more intricate connections and relationships. Using diffusion, they introduced **Stable Fast 3D**. The results are promising; while you still need a clear background and good lighting, many modern algorithms now include parameters to automatically detect and remove backgrounds.
+
+![Stable](/blog/2d-image-to-3d-models-techniques/stable.webp)
+
+## Stability AI’s Main Competitor
+
+For a long time, Stable Fast 3D was generally regarded as the state-of-the-art for 3D model generation: it only requires one image, is fast, and is open-source. However, in mid-2025, **Tencent** released their response with the **Hunyuan3D** model. It features similar performance but adds the ability to attach up to four images from different perspectives (front, back, left, and right) for better accuracy.
+
+Below is a real-world example of a result from the Hunyuan3D model:
+
+<video controls width="100%">
+  <source src="/blog/2d-image-to-3d-models-techniques/hunyuan.mp4" type="video/mp4" />
+</video>
+
+# Test the Hunyuan3D Model with Your Own Images!
+
+* **Generate up to three models per month**
+* **Store them forever on the platform**
+* **Generate a link or button to share your model**
+* **AR feature included!** Scan the QR code with iOS or Android to see your model in the real world — no app installation required!
+
+---
+
+[Try SpaceCheck for free](/login)

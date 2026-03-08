@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { ArrowLeft, Calendar, Clock, User } from 'lucide-react';
 import { getDictionary } from '../../../../get-dictionary';
@@ -43,11 +44,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: post.date,
       authors: [post.author],
       tags: post.tags,
+      ...(post.coverImage && {
+        images: [{ url: `https://spacecheck.app${post.coverImage}`, width: 1200, height: 675 }],
+      }),
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
       description: post.description,
+      ...(post.coverImage && {
+        images: [`https://spacecheck.app${post.coverImage}`],
+      }),
     },
   };
 }
@@ -88,6 +95,9 @@ export default async function BlogPostPage({ params }: Props) {
     },
     inLanguage: lang === 'pl' ? 'pl' : 'en',
     keywords: post.tags.join(', '),
+    ...(post.coverImage && {
+      image: `https://spacecheck.app${post.coverImage}`,
+    }),
   };
 
   return (
@@ -146,6 +156,21 @@ export default async function BlogPostPage({ params }: Props) {
               {post.readingTime}
             </span>
           </div>
+
+          {/* Cover image */}
+          {post.coverImage && (
+            <div className="relative rounded-xl overflow-hidden mt-6 bg-gray-50">
+              <Image
+                src={post.coverImage}
+                alt={post.title}
+                width={720}
+                height={405}
+                className="w-full h-auto rounded-xl"
+                sizes="(max-width: 768px) 100vw, 720px"
+                priority
+              />
+            </div>
+          )}
         </header>
 
         {/* MDX Content */}

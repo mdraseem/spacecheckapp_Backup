@@ -85,14 +85,43 @@ export const mdxComponents: MDXComponents = {
   em: ({ children }) => (
     <em className="italic text-gray-600">{children}</em>
   ),
-  img: (props) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      {...props}
-      alt={props.alt ?? ''}
-      className="rounded-lg my-6 w-full shadow-sm"
-      loading="lazy"
-    />
+  img: (props) => {
+    const src = props.src ?? '';
+    const isVideo = /\.(mp4|webm|ogg)$/i.test(src);
+
+    if (isVideo) {
+      return (
+        <video
+          src={src}
+          controls
+          playsInline
+          muted
+          loop
+          className="rounded-lg my-6 w-full shadow-sm"
+        >
+          {props.alt}
+        </video>
+      );
+    }
+
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        {...props}
+        alt={props.alt ?? ''}
+        className="rounded-lg my-6 w-full shadow-sm"
+        loading="lazy"
+      />
+    );
+  },
+  iframe: (props) => (
+    <div className="relative aspect-video rounded-lg overflow-hidden my-6 shadow-sm">
+      <iframe
+        {...props}
+        className="absolute inset-0 w-full h-full"
+        allowFullScreen
+      />
+    </div>
   ),
   table: ({ children }) => (
     <div className="overflow-x-auto mb-6">

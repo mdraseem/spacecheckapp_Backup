@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import type { BlogPostMeta } from '@/utils/blog';
 
@@ -19,9 +20,21 @@ export default function BlogPostCard({ post, lang, dict }: BlogPostCardProps) {
 
   return (
     <article className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-secondary/20 transition-all duration-300">
-      {/* Cover image placeholder — replace with actual images when available */}
-      <div className="aspect-[16/9] bg-gradient-to-br from-primary/5 to-secondary/10 flex items-center justify-center">
-        <div className="text-6xl opacity-20 select-none">📐</div>
+      {/* Cover image */}
+      <div className="aspect-[16/9] bg-gradient-to-br from-primary/5 to-secondary/10 relative overflow-hidden">
+        {post.coverImage ? (
+          <Image
+            src={post.coverImage}
+            alt={post.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-6xl opacity-20 select-none">📐</div>
+          </div>
+        )}
       </div>
 
       <div className="p-6">
