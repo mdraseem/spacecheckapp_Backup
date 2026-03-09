@@ -8,7 +8,6 @@ import DemoSection from '@/components/DemoSection';
 import PricingWithCheckout from '@/components/PricingWithCheckout';
 import FAQ from '@/components/FAQ';
 import Footer from '@/components/Footer';
-import CookieBanner from '@/components/CookieBanner';
 import PageViewTracker from '@/components/PageViewTracker';
 
 export default async function Home({ params }: { params: { lang: 'en' | 'pl' } }) {
@@ -27,7 +26,6 @@ export default async function Home({ params }: { params: { lang: 'en' | 'pl' } }
       <PricingWithCheckout dict={dict} />
       <FAQ dict={dict} />
       <Footer dict={dict} lang={lang} />
-      <CookieBanner lang={lang} />
     </main>
   );
 }

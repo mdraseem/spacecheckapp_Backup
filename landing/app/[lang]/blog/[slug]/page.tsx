@@ -10,6 +10,7 @@ import { mdxComponents } from '@/components/blog/MdxComponents';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BlogCta from '@/components/blog/BlogCta';
+import BlogPageTracker from '@/components/blog/BlogPageTracker';
 
 type Props = {
   params: Promise<{ lang: 'en' | 'pl'; slug: string }>;
@@ -73,6 +74,32 @@ export default async function BlogPostPage({ params }: Props) {
     { year: 'numeric', month: 'long', day: 'numeric' }
   );
 
+  // BreadcrumbList JSON-LD for Google search breadcrumbs
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `https://spacecheck.app/${lang}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: `https://spacecheck.app/${lang}/blog`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title,
+        item: `https://spacecheck.app/${lang}/blog/${slug}`,
+      },
+    ],
+  };
+
   // Article JSON-LD structured data for SEO
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -102,8 +129,13 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-white">
+      <BlogPageTracker slug={slug} title={post.title} />
       <Navbar dict={dict} lang={lang} />
 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

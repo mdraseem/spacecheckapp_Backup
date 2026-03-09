@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import CookieBanner from '@/components/CookieBanner';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,6 +56,7 @@ export default async function RootLayout({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {children}
+      <CookieBanner lang={lang} />
     </>
   );
 }
