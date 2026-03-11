@@ -1,0 +1,120 @@
+# SpaceCheck
+
+> SpaceCheck is an AI-powered SaaS platform that converts 2D furniture product photos into photorealistic 3D augmented reality models. Furniture retailers use SpaceCheck to embed AR viewers on their e-commerce product pages and generate QR code posters for physical showrooms — enabling customers to visualize furniture in their own space before buying. No 3D skills, scanning equipment, or app downloads required.
+
+SpaceCheck targets furniture retailers (e-commerce and physical stores) who want to increase online conversion rates and reduce product returns through AR visualization. The platform integrates with Shopify, WooCommerce, Magento, and custom e-commerce stacks via a simple embed code.
+
+Website: https://spacecheck.app
+Founded by: Sebastian Kotarski
+Languages: English, Polish
+
+## How It Works
+
+SpaceCheck uses a 3-step process to go from product photo to live AR experience:
+
+1. **Upload a product photo** — Retailer uploads a high-quality product image and enters furniture dimensions (width, height, depth in cm or inches). No 3D scanning equipment needed.
+2. **AI generates 3D model** — SpaceCheck's AI (powered by Hunyuan3D-2.1) analyzes geometry and textures to reconstruct a photorealistic 3D model. It also generates a print-ready QR poster for in-store use.
+3. **Embed AR viewer or print QR poster** — Copy a code snippet to any product page for online AR, or print QR posters to place on showroom furniture so customers can scan and visualize at home.
+
+The generated models are served as GLB (Android/Scene Viewer) and USDZ (iOS/Quick Look) files. Customers view AR directly in their phone browser — no app download required.
+
+## Key Features
+
+- AI 3D model generation from a single product photo
+- AR viewer compatible with iOS (Apple Quick Look) and Android (Google Scene Viewer)
+- Automatic GLB and USDZ file format conversion
+- Automatic QR code poster generation for in-store displays
+- One-line embed code for Shopify, WooCommerce, Magento, and custom stacks
+- Custom branding for the AR viewer interface
+- Analytics dashboard tracking AR engagement and viewer interactions
+- Secure CDN-hosted 3D assets with encryption
+- High fidelity 4K textures preserving fabric details and material properties
+- Bilingual platform (English and Polish)
+
+## Pricing
+
+SpaceCheck offers three pricing tiers (USD):
+
+- **Starter (Free, $0/month)**: 3 product uploads per month, standard resolution textures, web AR viewer, community support. No credit card required.
+- **Growth ($49/month)**: 50 product uploads per month, high resolution 4K textures, custom branding, analytics dashboard, priority email support. Most popular plan.
+- **Enterprise (Custom pricing)**: Unlimited uploads, API access, white-label solution, dedicated success manager, SLA guarantee. Contact sales for pricing.
+
+All plans include permanent model hosting — AR links, QR codes, and embedded viewers continue working even after downgrading or cancellation.
+
+## Use Cases
+
+- **E-commerce product pages**: Add an "View in AR" button to any online furniture listing so customers can place the item in their room before purchasing.
+- **Physical showroom displays**: Print QR code posters and place them next to furniture in-store. Customers who need to "go home and measure" can scan and visualize immediately.
+- **Catalog digitization**: Bulk-convert existing product photography into AR-ready 3D assets to modernize an entire furniture catalog.
+- **Reducing returns**: Let customers verify size, fit, and appearance in their actual space, reducing the mismatch between expectation and reality.
+
+## Competitive Positioning
+
+SpaceCheck differentiates from traditional 3D modeling services and AR platforms by:
+
+- Requiring only a single product photo (not multi-angle scans or 3D expertise)
+- Generating models in minutes rather than hours or days
+- Offering both online (embed code) and offline (QR poster) distribution channels
+- Starting free with no credit card requirement
+- Supporting both iOS and Android AR without any app installation
+
+## Technology
+
+- **3D Generation**: Hunyuan3D-2.1 (Tencent) via Replicate API
+- **Model Processing**: Trimesh for dimensional resizing, Blender for GLB-to-USDZ conversion
+- **AR Rendering**: Google Model Viewer (web component), Apple Quick Look (USDZ), Google Scene Viewer (GLB)
+- **Frontend**: Next.js (React), TypeScript, Tailwind CSS, deployed on Vercel
+- **Backend**: Modal.com serverless functions, Supabase (PostgreSQL + Auth + Storage)
+- **Payments**: Stripe (subscriptions and checkout)
+
+## Pages
+
+- [Home](https://spacecheck.app): Landing page with product overview, features, demo, pricing, and FAQ
+- [Login / Sign Up](https://spacecheck.app/login): Authentication for dashboard access
+- [Blog](https://spacecheck.app/en/blog): Articles on AR, 3D visualization, and furniture e-commerce
+- [Contact](https://spacecheck.app/contact): Contact form for sales and support inquiries
+- [Privacy Policy](https://spacecheck.app/privacy): Data handling and privacy practices
+- [Terms of Service](https://spacecheck.app/terms): Platform usage terms
+
+## Blog
+
+- [How to Transform a Flat 2D Image into a 3D Model: Current Techniques](https://spacecheck.app/en/blog/2d-image-to-3d-models-techniques): Overview of photogrammetry, Gaussian splatting, and generative AI approaches to 3D model creation — including Stability AI's Stable Fast 3D and Tencent's Hunyuan3D-2.1.
+
+## FAQ
+
+**What do I need to create an AR model?**
+Just a clear product photo and the furniture dimensions (width, height, depth). Upload through the dashboard, enter dimensions, and SpaceCheck's AI generates the 3D model automatically. No scanning equipment or 3D skills required.
+
+**How do I share AR models with customers?**
+Two options: 1) Download a QR code poster to print and display on furniture in your physical store, or 2) Copy HTML embed code to add an AR button to your website. Both work on iPhone and Android without any app download.
+
+**Can customers use AR on their phones?**
+Yes. SpaceCheck generates USDZ files for iPhones (Apple AR Quick Look) and GLB files for Android (Google Scene Viewer). Customers scan a QR code or tap the AR button to visualize furniture in their space — no app needed.
+
+**What happens to my models if I cancel?**
+Your 3D models remain accessible indefinitely. All AR links, QR codes, and embedded viewers continue working after cancellation. You can still view and share existing models — you'll just be limited to the Starter plan's 3 uploads per month for new models.
+
+## Optional
+
+### Integration Details
+
+SpaceCheck provides a simple HTML embed code that works with any website. For supported platforms:
+
+- **Shopify**: Paste the embed code into your product template's custom HTML section
+- **WooCommerce**: Add the code snippet to your product description or custom field
+- **Magento**: Insert via CMS block or product attribute
+- **Custom stacks**: Drop the `<model-viewer>` web component anywhere in your HTML
+
+### Supported File Formats
+
+- **GLB** (GL Binary): Standard 3D format for web and Android AR (Google Scene Viewer)
+- **USDZ** (Universal Scene Description Zip): Apple's AR format for iOS Quick Look
+
+### AR Viewer
+
+The AR viewer is a hosted web page at `spacecheck.app/viewer.html` powered by Google's `<model-viewer>` web component. It supports:
+
+- 3D model rotation, zoom, and pan on desktop
+- AR placement on real surfaces via phone camera
+- Automatic device detection (iOS vs Android)
+- Custom branding options (colors, logo)

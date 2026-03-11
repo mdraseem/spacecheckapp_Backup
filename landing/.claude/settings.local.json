@@ -8,7 +8,14 @@
       "Bash(mkdir:*)",
       "Bash(npm run build:*)",
       "Bash(cat:*)",
-      "Bash(npm run translate:*)"
+      "Bash(npm run translate:*)",
+      "WebSearch",
+      "WebFetch(domain:llmstxt.org)",
+      "Bash(find:*)",
+      "WebFetch(domain:schema.org)",
+      "WebFetch(domain:docs.stripe.com)",
+      "WebFetch(domain:vercel.com)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []
