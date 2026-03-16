@@ -15,7 +15,8 @@
       "WebFetch(domain:schema.org)",
       "WebFetch(domain:docs.stripe.com)",
       "WebFetch(domain:vercel.com)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(npx shopify:*)"
     ],
     "deny": [],
     "ask": []

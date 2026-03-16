@@ -78,7 +78,9 @@ SpaceCheck differentiates from traditional 3D modeling services and AR platforms
 
 ## Blog
 
+- [How to Reduce Return Rates with Shopify 3D Models and AR](https://spacecheck.app/en/blog/reduce-return-rate-with-shopify-3d-models): Shopify's data shows that using 3D/AR leads to 94% higher conversion rates and up to a 40% reduction in return rates. Covers why AR helps bridge the expectation-reality gap, how Shopify supports 3D models on desktop and mobile, and how to generate models automatically with SpaceCheck.
 - [How to Transform a Flat 2D Image into a 3D Model: Current Techniques](https://spacecheck.app/en/blog/2d-image-to-3d-models-techniques): Overview of photogrammetry, Gaussian splatting, and generative AI approaches to 3D model creation — including Stability AI's Stable Fast 3D and Tencent's Hunyuan3D-2.1.
+- [The Best Models for 3D Generation from a Single Image](https://spacecheck.app/en/blog/best-models-for-3d-generation): Comparison of AI models for single-image 3D generation in 2026 — from Google's DreamFusion to Stability AI's Stable Fast 3D and Tencent's Hunyuan3D 2.0, with benchmarks on quality and speed.
 
 ## FAQ
 
