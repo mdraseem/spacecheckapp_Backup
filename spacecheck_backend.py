@@ -46,90 +46,167 @@ BLENDER_PATH = "/usr/local/blender/blender"
 
 # --- Helper Functions (Resize & Convert) ---
 
+# Minimum bounding box dimension (meters) to consider a model valid
+MIN_DIMENSION_M = 1e-6
+# Scale factor bounds — anything outside this range suggests a unit mismatch
+MAX_SCALE_FACTOR = 500.0
+MIN_SCALE_FACTOR = 0.002
+
+
 def resize_glb(input_path, target_dims_cm, output_path):
+    """
+    Resize a GLB model to target dimensions (width, height, depth in cm).
+
+    Uses axis-aware scaling: the model's bounding-box axes are matched to the
+    target dimensions by size (largest-to-largest, smallest-to-smallest) so that
+    AI-generated models with unpredictable orientation are handled correctly.
+    """
     import trimesh
+
     print(f"Loading GLB for resize: {input_path}")
-    try:
-        scene = trimesh.load(input_path, force='mesh')
-    except Exception as e:
-        scene = trimesh.load(input_path)
-    
-    if isinstance(scene, trimesh.Scene):
-        bounds = scene.bounds
-        current_dims = bounds[1] - bounds[0]
-    else:
-        mesh = scene
-        bounds = mesh.bounds
-        current_dims = bounds[1] - bounds[0]
 
-    print(f"Original Dims: {current_dims}")
-    
-    # Target in meters
-    target_w_m = target_dims_cm[0] / 100.0
-    target_h_m = target_dims_cm[1] / 100.0
-    target_d_m = target_dims_cm[2] / 100.0
-    
-    # Handle zero dimension edge cases
-    cur_x = current_dims[0] if current_dims[0] > 0 else 1.0
-    cur_y = current_dims[1] if current_dims[1] > 0 else 1.0
-    cur_z = current_dims[2] if current_dims[2] > 0 else 1.0
+    # Load as scene to preserve materials, textures, and multi-object structure.
+    # Do NOT use force='mesh' — it merges sub-meshes and can destroy materials.
+    scene = trimesh.load(input_path)
 
-    scale_x = target_w_m / cur_x
-    scale_y = target_h_m / cur_y
-    scale_z = target_d_m / cur_z
+    # Normalise to Scene so all downstream code has one path
+    if not isinstance(scene, trimesh.Scene):
+        # Wrap a bare Trimesh in a Scene
+        scene = trimesh.Scene(geometry={'mesh': scene})
 
-    print(f"Scaling to: {target_w_m:.2f}, {target_h_m:.2f}, {target_d_m:.2f}")
+    bounds = scene.bounds
+    if bounds is None:
+        raise ValueError("Model has no geometry (bounds is None)")
 
+    current_dims = bounds[1] - bounds[0]  # [x, y, z] extents in model units
+    print(f"Original dims (model units): {current_dims}")
+
+    # --- Degenerate model check ---
+    for i, dim in enumerate(current_dims):
+        if dim < MIN_DIMENSION_M:
+            raise ValueError(
+                f"Model has near-zero extent on axis {i} ({dim:.2e}). "
+                "The generated 3D model is degenerate and cannot be resized."
+            )
+
+    # --- Convert target from cm to meters (glTF standard unit) ---
+    target = np.array([
+        target_dims_cm[0] / 100.0,
+        target_dims_cm[1] / 100.0,
+        target_dims_cm[2] / 100.0,
+    ])
+
+    # --- Axis-aware scaling ---
+    # AI generators produce models with unpredictable axis orientation.
+    # Instead of assuming X=width, Y=height, Z=depth, we match by magnitude:
+    # sort both current and target dims, map largest-to-largest, etc.
+    current_sorted_indices = np.argsort(current_dims)   # ascending order
+    target_sorted_indices = np.argsort(target)           # ascending order
+
+    # Build a mapping: for each model axis, which target value should it get?
+    # axis_map[model_axis_rank] = target_axis_rank
+    scale_factors = np.ones(3)
+    for rank in range(3):
+        model_axis = current_sorted_indices[rank]
+        target_axis = target_sorted_indices[rank]
+        scale_factors[model_axis] = target[target_axis] / current_dims[model_axis]
+
+    print(f"Target dims (m): {target}")
+    print(f"Axis mapping (model sorted indices): {current_sorted_indices}")
+    print(f"Scale factors: {scale_factors}")
+
+    # --- Scale factor sanity check ---
+    for i, sf in enumerate(scale_factors):
+        if sf > MAX_SCALE_FACTOR or sf < MIN_SCALE_FACTOR:
+            print(
+                f"WARNING: Scale factor on axis {i} is {sf:.4f} "
+                f"(allowed range {MIN_SCALE_FACTOR}–{MAX_SCALE_FACTOR}). "
+                "This may indicate a unit mismatch in the generated model."
+            )
+
+    # --- Apply transform ---
     matrix = np.eye(4)
-    matrix[0,0] = scale_x
-    matrix[1,1] = scale_y
-    matrix[2,2] = scale_z
-    
-    if isinstance(scene, trimesh.Scene):
-        scene.apply_transform(matrix)
-        scene.export(output_path)
-    else:
-        mesh.apply_transform(matrix)
-        mesh.export(output_path)
+    matrix[0, 0] = scale_factors[0]
+    matrix[1, 1] = scale_factors[1]
+    matrix[2, 2] = scale_factors[2]
+
+    scene.apply_transform(matrix)
+
+    # --- Post-resize validation ---
+    new_bounds = scene.bounds
+    if new_bounds is None:
+        raise ValueError("Model has no geometry after transform")
+    new_dims = new_bounds[1] - new_bounds[0]
+    print(f"Final dims (m): {new_dims}")
+    print(f"Final dims (cm): {new_dims * 100}")
+
+    # Verify the output dimensions match the target within 1 % tolerance
+    sorted_new = np.sort(new_dims)
+    sorted_target = np.sort(target)
+    for i in range(3):
+        if sorted_target[i] > 0:
+            error_pct = abs(sorted_new[i] - sorted_target[i]) / sorted_target[i] * 100
+            if error_pct > 1.0:
+                print(
+                    f"WARNING: Dimension mismatch after resize — "
+                    f"expected {sorted_target[i]:.4f} m, got {sorted_new[i]:.4f} m "
+                    f"({error_pct:.1f}% error)"
+                )
+
+    # --- Export ---
+    scene.export(output_path)
+
+    # Final output file check
+    if not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
+        raise IOError(f"Resize failed: output file missing or empty at {output_path}")
 
 def convert_to_usdz(glb_path, usdz_path):
+    import json
+
+    # Use json.dumps to safely escape file paths (handles quotes, backslashes, unicode)
+    safe_glb = json.dumps(os.path.abspath(glb_path))
+    safe_usdz = json.dumps(os.path.abspath(usdz_path))
+
     blender_script = f"""
 import bpy
 import sys
-import os
 
 def convert():
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    glb_in = "{os.path.abspath(glb_path)}"
-    usdz_out = "{os.path.abspath(usdz_path)}"
-    
+    glb_in = {safe_glb}
+    usdz_out = {safe_usdz}
+
     try:
         bpy.ops.import_scene.gltf(filepath=glb_in)
     except Exception as e:
+        print(f"Import error: {{e}}")
         sys.exit(1)
-        
+
     try:
         bpy.ops.wm.usd_export(filepath=usdz_out)
     except Exception as e:
+        print(f"Export error: {{e}}")
         sys.exit(1)
 
 if __name__ == "__main__":
     convert()
 """
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-        f.write(blender_script)
-        script_path = f.name
-        
-    cmd = [BLENDER_PATH, "--background", "--python", script_path]
-    result = subprocess.run(cmd, check=False, capture_output=True, text=True)
-    
-    if result.returncode != 0:
-        print("Blender Error:", result.stderr)
-        print("Blender Stdout:", result.stdout)
-    
-    if os.path.exists(script_path):
-        os.remove(script_path)
-    
+    script_path = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            f.write(blender_script)
+            script_path = f.name
+
+        cmd = [BLENDER_PATH, "--background", "--python", script_path]
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+
+        if result.returncode != 0:
+            print("Blender Error:", result.stderr)
+            print("Blender Stdout:", result.stdout)
+    finally:
+        if script_path and os.path.exists(script_path):
+            os.remove(script_path)
+
     return os.path.exists(usdz_path)
 
 
