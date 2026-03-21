@@ -210,20 +210,129 @@ if __name__ == "__main__":
     return os.path.exists(usdz_path)
 
 
+# --- Replicate Helper ---
+
+# Max time to wait for Replicate prediction (seconds)
+REPLICATE_POLL_TIMEOUT = 900  # 15 minutes
+REPLICATE_POLL_INTERVAL = 5   # seconds between status checks
+REPLICATE_MAX_RETRIES = 3     # retry on transient errors
+
+
+def run_replicate_with_polling(image_url):
+    """
+    Create a Replicate prediction and poll until it completes.
+
+    Uses predictions.create + manual polling instead of replicate.run()
+    to avoid httpx read timeouts on long-running 3D generation jobs.
+    Retries up to REPLICATE_MAX_RETRIES times on transient errors.
+    """
+    import replicate
+
+    model_version = "ndreca/hunyuan3d-2.1:895e514f953d39e8b5bfb859df9313481ad3fa3a8631e5c54c7e5c9c85a6aa9f"
+    model_input = {
+        "seed": 1234,
+        "image": image_url,
+        "steps": 50,
+        "num_chunks": 8000,
+        "max_facenum": 20000,
+        "guidance_scale": 7.5,
+        "generate_texture": True,
+        "octree_resolution": 256,
+        "remove_background": True,
+    }
+
+    last_error = None
+    for attempt in range(1, REPLICATE_MAX_RETRIES + 1):
+        try:
+            print(f"Creating Replicate prediction (attempt {attempt}/{REPLICATE_MAX_RETRIES})...")
+            prediction = replicate.predictions.create(
+                model=model_version,
+                input=model_input,
+            )
+            print(f"Prediction created: {prediction.id} (status: {prediction.status})")
+
+            # Poll until terminal state
+            elapsed = 0
+            while prediction.status not in ("succeeded", "failed", "canceled"):
+                if elapsed >= REPLICATE_POLL_TIMEOUT:
+                    # Cancel the prediction so it doesn't run forever
+                    try:
+                        prediction.cancel()
+                    except Exception:
+                        pass
+                    raise TimeoutError(
+                        f"Replicate prediction {prediction.id} did not complete "
+                        f"within {REPLICATE_POLL_TIMEOUT}s (last status: {prediction.status})"
+                    )
+
+                time.sleep(REPLICATE_POLL_INTERVAL)
+                elapsed += REPLICATE_POLL_INTERVAL
+                prediction.reload()
+
+                if elapsed % 30 == 0:
+                    print(f"  Still waiting... {elapsed}s elapsed (status: {prediction.status})")
+
+            if prediction.status == "failed":
+                error_msg = getattr(prediction, "error", None) or "Unknown prediction error"
+                raise Exception(f"Replicate prediction failed: {error_msg}")
+
+            if prediction.status == "canceled":
+                raise Exception("Replicate prediction was canceled")
+
+            print(f"Prediction succeeded after ~{elapsed}s")
+            return prediction.output
+
+        except TimeoutError:
+            raise  # don't retry timeouts — the job is still running on Replicate
+        except Exception as e:
+            last_error = e
+            error_str = str(e)
+            # Retry on transient network errors
+            is_transient = any(keyword in error_str.lower() for keyword in [
+                "timed out", "read timeout", "connection", "502", "503", "429"
+            ])
+            if is_transient and attempt < REPLICATE_MAX_RETRIES:
+                wait_time = attempt * 10
+                print(f"Transient error: {e}. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+                continue
+            raise
+
+    raise last_error
+
+
+def extract_glb_url(output):
+    """Extract GLB URL from various Replicate output formats."""
+    if isinstance(output, str):
+        return output
+    elif isinstance(output, dict):
+        url = output.get("glb") or output.get("model") or output.get("mesh")
+        if url:
+            # Handle FileOutput objects inside dicts
+            return str(url)
+        return None
+    elif isinstance(output, list):
+        return str(output[0]) if output else None
+    else:
+        # Handle FileOutput or other objects with a url attribute
+        if hasattr(output, "url"):
+            return str(output.url)
+        return str(output)
+
+
 # --- API Worker (CPU is fine, calling external API) ---
 
 @app.function(timeout=1800, secrets=[modal.Secret.from_name("spacecheck-secrets")])
 def process_generation(item: dict):
     import requests
     from supabase import create_client, Client
-    import replicate
 
     print(f"Processing: {item.get('generationId')}")
-    
+
     image_url = item.get("imageUrl")
     dims = item.get("dimensions")
     gen_id = item.get("generationId")
-    
+
     # Init Supabase
     url: str = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
     if url and not url.endswith("/"): url += "/"
@@ -236,35 +345,13 @@ def process_generation(item: dict):
             "status": "processing"
         }).eq("id", gen_id).execute()
 
-        # Generate 3D model using the working Hunyuan3D-2.1 version with user-provided parameters
+        # Generate 3D model via Replicate with polling (avoids httpx timeout)
         print(f"Generating 3D model from image: {image_url}")
-
-        output = replicate.run(
-            "ndreca/hunyuan3d-2.1:895e514f953d39e8b5bfb859df9313481ad3fa3a8631e5c54c7e5c9c85a6aa9f",
-            input={
-                "seed": 1234,
-                "image": image_url,
-                "steps": 50,
-                "num_chunks": 8000,
-                "max_facenum": 20000,
-                "guidance_scale": 7.5,
-                "generate_texture": True,
-                "octree_resolution": 256,
-                "remove_background": True
-            }
-        )
-
+        output = run_replicate_with_polling(image_url)
         print(f"Hunyuan3D-2.1 output: {output}")
 
         # Extract GLB URL from output
-        if isinstance(output, str):
-            generated_glb_url = output
-        elif isinstance(output, dict):
-            generated_glb_url = output.get('glb') or output.get('model') or output.get('mesh')
-        elif isinstance(output, list):
-            generated_glb_url = output[0]
-        else:
-            raise Exception(f"Unexpected output format: {output}")
+        generated_glb_url = extract_glb_url(output)
 
         if not generated_glb_url:
             raise Exception(f"No GLB URL in output: {output}")
