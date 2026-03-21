@@ -239,7 +239,7 @@ def run_replicate_with_polling(image_url):
         "guidance_scale": 7.5,
         "generate_texture": True,
         "octree_resolution": 256,
-        "remove_background": True,
+        "remove_background": False,
     }
 
     last_error = None
