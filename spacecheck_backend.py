@@ -228,7 +228,8 @@ def run_replicate_with_polling(image_url):
     """
     import replicate
 
-    model_version = "ndreca/hunyuan3d-2.1:895e514f953d39e8b5bfb859df9313481ad3fa3a8631e5c54c7e5c9c85a6aa9f"
+    # predictions.create() requires the version hash separately (not "owner/name:hash")
+    version_hash = "895e514f953d39e8b5bfb859df9313481ad3fa3a8631e5c54c7e5c9c85a6aa9f"
     model_input = {
         "seed": 1234,
         "image": image_url,
@@ -246,7 +247,7 @@ def run_replicate_with_polling(image_url):
         try:
             print(f"Creating Replicate prediction (attempt {attempt}/{REPLICATE_MAX_RETRIES})...")
             prediction = replicate.predictions.create(
-                model=model_version,
+                version=version_hash,
                 input=model_input,
             )
             print(f"Prediction created: {prediction.id} (status: {prediction.status})")
