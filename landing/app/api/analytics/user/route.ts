@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
     const { data: userGenerations, error: genError } = await supabase
       .from('generations')
       .select('glb_url')
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .is('deleted_at', null);
 
     if (genError) {
       throw new Error(`Failed to fetch user models: ${genError.message}`);

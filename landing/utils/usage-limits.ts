@@ -36,7 +36,10 @@ export async function getUserUsage(
   const billingSource = (profile?.billing_source || 'stripe') as BillingSource
   const limit = PLAN_LIMITS[planType]
 
-  // Count generations this month
+  // Count generations this month.
+  // IMPORTANT: Do NOT filter out soft-deleted records here.
+  // Deleted generations must still count toward the monthly limit,
+  // otherwise users could delete and regenerate to bypass quotas.
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 

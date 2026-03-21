@@ -164,9 +164,11 @@ export async function deleteGeneration(generationId: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
+  // Soft-delete: set deleted_at instead of removing the row.
+  // The row must still exist so it counts toward monthly usage limits.
   const { error } = await supabase
     .from('generations')
-    .delete()
+    .update({ deleted_at: new Date().toISOString() })
     .eq('id', generationId)
     .eq('user_id', user.id)
 

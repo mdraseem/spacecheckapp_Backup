@@ -137,9 +137,11 @@ export function ModelCard({ model }: { model: Generation }) {
       const { createClient } = await import('@/utils/supabase/client')
       const supabase = createClient()
 
+      // Soft-delete: mark as deleted instead of removing the row,
+      // so it still counts toward monthly usage limits.
       const { error } = await supabase
         .from('generations')
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', model.id)
 
       if (error) {
