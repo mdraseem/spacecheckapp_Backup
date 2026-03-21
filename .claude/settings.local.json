@@ -15,7 +15,10 @@
       "Bash(git check-ignore:*)",
       "Bash(/Users/home/Developer/furnite-ar-app/landing/.gitignore)",
       "Bash(npm install:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(/Users/home/Library/Python/3.9/bin/modal deploy spacecheck_backend.py)",
+      "WebFetch(domain:replicate.com)",
+      "WebFetch(domain:www.3daistudio.com)"
     ],
     "deny": [],
     "ask": []

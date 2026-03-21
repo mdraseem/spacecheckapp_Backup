@@ -225,21 +225,18 @@ def run_replicate_with_polling(image_url):
     Uses predictions.create + manual polling instead of replicate.run()
     to avoid httpx read timeouts on long-running 3D generation jobs.
     Retries up to REPLICATE_MAX_RETRIES times on transient errors.
+
+    Model: tencent/hunyuan-3d-3.1 (upgraded from hunyuan3d-2.1)
     """
     import replicate
 
-    # predictions.create() requires the version hash separately (not "owner/name:hash")
-    version_hash = "895e514f953d39e8b5bfb859df9313481ad3fa3a8631e5c54c7e5c9c85a6aa9f"
+    # Hunyuan3D 3.1 is an official Replicate model — use model= instead of version=
+    model_id = "tencent/hunyuan-3d-3.1"
     model_input = {
-        "seed": 1234,
         "image": image_url,
-        "steps": 50,
-        "num_chunks": 8000,
-        "max_facenum": 20000,
-        "guidance_scale": 7.5,
-        "generate_texture": True,
-        "octree_resolution": 256,
-        "remove_background": False,
+        "enable_pbr": False,
+        "face_count": 500000,
+        "generate_type": "Normal",
     }
 
     last_error = None
@@ -247,7 +244,7 @@ def run_replicate_with_polling(image_url):
         try:
             print(f"Creating Replicate prediction (attempt {attempt}/{REPLICATE_MAX_RETRIES})...")
             prediction = replicate.predictions.create(
-                version=version_hash,
+                model=model_id,
                 input=model_input,
             )
             print(f"Prediction created: {prediction.id} (status: {prediction.status})")
@@ -349,7 +346,7 @@ def process_generation(item: dict):
         # Generate 3D model via Replicate with polling (avoids httpx timeout)
         print(f"Generating 3D model from image: {image_url}")
         output = run_replicate_with_polling(image_url)
-        print(f"Hunyuan3D-2.1 output: {output}")
+        print(f"Hunyuan3D-3.1 output: {output}")
 
         # Extract GLB URL from output
         generated_glb_url = extract_glb_url(output)

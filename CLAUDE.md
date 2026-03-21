@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**SpaceCheck** - A Furniture AR SaaS application that generates 3D models from product photos using AI (Hunyuan3D-2.1 via Replicate) and serves them in augmented reality via Google Model Viewer. The production app lives at `https://spacecheck.app`.
+**SpaceCheck** - A Furniture AR SaaS application that generates 3D models from product photos using AI (Hunyuan3D-3.1 via Replicate) and serves them in augmented reality via Google Model Viewer. The production app lives at `https://spacecheck.app`.
 
 ## Development Commands
 
@@ -42,7 +42,7 @@ Next.js 16 Frontend (Vercel)
         ├── Supabase (Auth + PostgreSQL + File Storage)
         ├── Stripe (Subscriptions: starter=3/mo, growth=50/mo)
         └── Modal.com Backend (spacecheck_backend.py)
-              └── Replicate API (Hunyuan3D-2.1) → Trimesh resize → Blender GLB→USDZ
+              └── Replicate API (Hunyuan3D-3.1) → Trimesh resize → Blender GLB→USDZ
 ```
 
 ### Generation Pipeline
