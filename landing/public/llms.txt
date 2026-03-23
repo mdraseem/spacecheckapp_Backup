@@ -13,7 +13,7 @@ Languages: English, Polish
 SpaceCheck uses a 3-step process to go from product photo to live AR experience:
 
 1. **Upload a product photo** — Retailer uploads a high-quality product image and enters furniture dimensions (width, height, depth in cm or inches). No 3D scanning equipment needed.
-2. **AI generates 3D model** — SpaceCheck's AI (powered by Hunyuan3D-2.1) analyzes geometry and textures to reconstruct a photorealistic 3D model. It also generates a print-ready QR poster for in-store use.
+2. **AI generates 3D model** — SpaceCheck's AI (powered by Hunyuan3D-3.0) analyzes geometry and textures to reconstruct a photorealistic 3D model. It also generates a print-ready QR poster for in-store use.
 3. **Embed AR viewer or print QR poster** — Copy a code snippet to any product page for online AR, or print QR posters to place on showroom furniture so customers can scan and visualize at home.
 
 The generated models are served as GLB (Android/Scene Viewer) and USDZ (iOS/Quick Look) files. Customers view AR directly in their phone browser — no app download required.
@@ -60,7 +60,7 @@ SpaceCheck differentiates from traditional 3D modeling services and AR platforms
 
 ## Technology
 
-- **3D Generation**: Hunyuan3D-2.1 (Tencent) via Replicate API
+- **3D Generation**: Hunyuan3D-3.0 (Tencent) via Replicate API
 - **Model Processing**: Trimesh for dimensional resizing, Blender for GLB-to-USDZ conversion
 - **AR Rendering**: Google Model Viewer (web component), Apple Quick Look (USDZ), Google Scene Viewer (GLB)
 - **Frontend**: Next.js (React), TypeScript, Tailwind CSS, deployed on Vercel
@@ -78,6 +78,7 @@ SpaceCheck differentiates from traditional 3D modeling services and AR platforms
 
 ## Blog
 
+- [Hunyuan 3D 3.0: What's New?](https://spacecheck.app/en/blog/hunyuan-3d-whats-new): Tencent's September 2025 upgrade to Hunyuan 3D — now the largest open-source 3D model generator. Covers the new rough-to-fine geometry approach, 1536³ resolution for professional-grade output, and multimodal text+image input for more precise 3D assets.
 - [How to Reduce Return Rates with Shopify 3D Models and AR](https://spacecheck.app/en/blog/reduce-return-rate-with-shopify-3d-models): Shopify's data shows that using 3D/AR leads to 94% higher conversion rates and up to a 40% reduction in return rates. Covers why AR helps bridge the expectation-reality gap, how Shopify supports 3D models on desktop and mobile, and how to generate models automatically with SpaceCheck.
 - [How to Transform a Flat 2D Image into a 3D Model: Current Techniques](https://spacecheck.app/en/blog/2d-image-to-3d-models-techniques): Overview of photogrammetry, Gaussian splatting, and generative AI approaches to 3D model creation — including Stability AI's Stable Fast 3D and Tencent's Hunyuan3D-2.1.
 - [The Best Models for 3D Generation from a Single Image](https://spacecheck.app/en/blog/best-models-for-3d-generation): Comparison of AI models for single-image 3D generation in 2026 — from Google's DreamFusion to Stability AI's Stable Fast 3D and Tencent's Hunyuan3D 2.0, with benchmarks on quality and speed.
