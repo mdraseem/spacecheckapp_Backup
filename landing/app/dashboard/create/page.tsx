@@ -156,27 +156,17 @@ export default function CreatePage() {
           shopifyProductId
         )
       } else {
-        // Regular mode: upload file to R2 via presigned URL
-        const fileExt = file!.name.split('.').pop()
+        // Regular mode: upload file to R2 via server-side API
+        const formData = new FormData()
+        formData.append('file', file!)
 
-        // Get presigned upload URL from our API
-        const urlRes = await fetch('/api/upload-url', {
+        const uploadRes = await fetch('/api/upload-url', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fileName: file!.name, contentType: file!.type }),
-        })
-
-        if (!urlRes.ok) throw new Error('Failed to get upload URL')
-        const { presignedUrl, publicUrl, key } = await urlRes.json()
-
-        // Upload directly to R2 using presigned URL
-        const uploadRes = await fetch(presignedUrl, {
-          method: 'PUT',
-          headers: { 'Content-Type': file!.type },
-          body: file!,
+          body: formData,
         })
 
         if (!uploadRes.ok) throw new Error('Failed to upload file')
+        const { key } = await uploadRes.json()
 
         await createGeneration(key, dimensionsInCm, productName)
       }

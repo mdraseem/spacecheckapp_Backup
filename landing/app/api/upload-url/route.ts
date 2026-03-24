@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
-import { getPresignedUploadUrl, getR2PublicUrl } from '@/utils/r2'
+import { uploadToR2 } from '@/utils/r2'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,26 +12,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { fileName, contentType } = await request.json()
+    const formData = await request.formData()
+    const file = formData.get('file') as File | null
 
-    if (!fileName || !contentType) {
-      return NextResponse.json(
-        { error: 'Missing fileName or contentType' },
-        { status: 400 }
-      )
+    if (!file) {
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
     // Generate a unique key to prevent collisions
-    const key = `${Math.random().toString(36).slice(2)}_${Date.now()}.${fileName.split('.').pop()}`
+    const ext = file.name.split('.').pop() || 'jpg'
+    const key = `${Math.random().toString(36).slice(2)}_${Date.now()}.${ext}`
 
-    const presignedUrl = await getPresignedUploadUrl(key, contentType, 600) // 10 min expiry
-    const publicUrl = getR2PublicUrl(key)
+    // Upload to R2 server-side (avoids CORS issues)
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const publicUrl = await uploadToR2(key, buffer, file.type || 'image/jpeg')
 
-    return NextResponse.json({ presignedUrl, publicUrl, key })
+    return NextResponse.json({ publicUrl, key })
   } catch (error) {
-    console.error('Upload URL error:', error)
+    console.error('Upload error:', error)
     return NextResponse.json(
-      { error: 'Failed to generate upload URL' },
+      { error: 'Failed to upload file' },
       { status: 500 }
     )
   }
