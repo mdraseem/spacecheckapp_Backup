@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { uploadToR2, getR2PublicUrl } from '@/utils/r2'
 
 interface Dimensions {
   width: string
@@ -24,10 +25,8 @@ export async function createGeneration(imagePath: string, dimensions: Dimensions
     throw new Error(limitError || 'Generation limit exceeded')
   }
 
-  // Construct public URL (assuming public bucket)
-  const { data: { publicUrl } } = supabase.storage
-    .from('uploads')
-    .getPublicUrl(imagePath)
+  // Construct public URL from R2
+  const publicUrl = getR2PublicUrl(imagePath)
 
   // Insert into DB with dimensions stored in cm
   const { data: generation, error } = await supabase
@@ -275,23 +274,14 @@ export async function bulkCreateGenerationsFromShopify(
 
   for (const item of items) {
     try {
-      // Download image from Shopify
+      // Download image from Shopify and upload to R2
       const imageResponse = await fetch(item.shopifyImageUrl)
       if (!imageResponse.ok) throw new Error('Failed to download image')
-      const imageBlob = await imageResponse.blob()
+      const imageBuffer = Buffer.from(await (await imageResponse.blob()).arrayBuffer())
       const fileName = `shopify_${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`
+      const contentType = imageResponse.headers.get('content-type') || 'image/jpeg'
 
-      const { error: uploadError } = await supabase.storage
-        .from('uploads')
-        .upload(fileName, imageBlob, {
-          contentType: imageBlob.type || 'image/jpeg',
-        })
-
-      if (uploadError) throw new Error(uploadError.message)
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('uploads')
-        .getPublicUrl(fileName)
+      const publicUrl = await uploadToR2(fileName, imageBuffer, contentType)
 
       // Insert generation record
       const { data: generation, error: genError } = await supabase
@@ -366,24 +356,14 @@ export async function createGenerationFromShopify(
     throw new Error(limitError || 'Generation limit exceeded')
   }
 
-  // Download image from Shopify and upload to Supabase Storage
+  // Download image from Shopify and upload to R2
   const imageResponse = await fetch(shopifyImageUrl)
   if (!imageResponse.ok) throw new Error('Failed to download product image from Shopify')
-  const imageBlob = await imageResponse.blob()
-  const fileExt = 'jpg'
-  const fileName = `shopify_${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`
+  const imageBuffer = Buffer.from(await (await imageResponse.blob()).arrayBuffer())
+  const fileName = `shopify_${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`
+  const contentType = imageResponse.headers.get('content-type') || 'image/jpeg'
 
-  const { error: uploadError } = await supabase.storage
-    .from('uploads')
-    .upload(fileName, imageBlob, {
-      contentType: imageBlob.type || 'image/jpeg',
-    })
-
-  if (uploadError) throw new Error(uploadError.message)
-
-  const { data: { publicUrl } } = supabase.storage
-    .from('uploads')
-    .getPublicUrl(fileName)
+  const publicUrl = await uploadToR2(fileName, imageBuffer, contentType)
 
   // Insert generation record
   const { data: generation, error: genError } = await supabase

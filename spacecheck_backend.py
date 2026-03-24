@@ -30,13 +30,14 @@ image = (
         "rm blender-3.6.5-linux-x64.tar.xz"
     )
     .pip_install(
-        "trimesh", 
-        "numpy", 
-        "supabase", 
-        "requests", 
-        "Pillow", 
+        "trimesh",
+        "numpy",
+        "supabase",
+        "requests",
+        "Pillow",
         "fastapi",
-        "replicate" 
+        "replicate",
+        "boto3"
     )
 )
 
@@ -378,25 +379,46 @@ def process_generation(item: dict):
             usdz_path = os.path.join(temp_dir, "model.usdz")
             usdz_success = convert_to_usdz(resized_glb_path, usdz_path)
 
-            # Upload GLB
-            print("Uploading...")
+            # Upload GLB to Cloudflare R2
+            print("Uploading to R2...")
+            import boto3
+            r2_account_id = os.environ.get("R2_ACCOUNT_ID")
+            r2_access_key = os.environ.get("R2_ACCESS_KEY_ID")
+            r2_secret_key = os.environ.get("R2_SECRET_ACCESS_KEY")
+            r2_bucket = os.environ.get("R2_BUCKET_NAME", "spacecheck-uploads")
+            r2_public_url = os.environ.get("R2_PUBLIC_URL", "").rstrip("/")
+
+            s3 = boto3.client(
+                service_name="s3",
+                endpoint_url=f"https://{r2_account_id}.r2.cloudflarestorage.com",
+                aws_access_key_id=r2_access_key,
+                aws_secret_access_key=r2_secret_key,
+                region_name="auto",
+            )
+
             glb_filename = f"{gen_id}/model.glb"
             with open(resized_glb_path, "rb") as f:
-                supabase.storage.from_("uploads").upload(
-                    glb_filename, f, {"content-type": "model/gltf-binary", "upsert": "true"}
+                s3.put_object(
+                    Bucket=r2_bucket,
+                    Key=glb_filename,
+                    Body=f,
+                    ContentType="model/gltf-binary",
                 )
 
-            glb_public_url = supabase.storage.from_("uploads").get_public_url(glb_filename)
+            glb_public_url = f"{r2_public_url}/{glb_filename}"
 
             # Upload USDZ if successful
             usdz_public_url = None
             if usdz_success and os.path.exists(usdz_path):
                 usdz_filename = f"{gen_id}/model.usdz"
                 with open(usdz_path, "rb") as f:
-                    supabase.storage.from_("uploads").upload(
-                        usdz_filename, f, {"content-type": "model/vnd.usdz+zip", "upsert": "true"}
+                    s3.put_object(
+                        Bucket=r2_bucket,
+                        Key=usdz_filename,
+                        Body=f,
+                        ContentType="model/vnd.usdz+zip",
                     )
-                usdz_public_url = supabase.storage.from_("uploads").get_public_url(usdz_filename)
+                usdz_public_url = f"{r2_public_url}/{usdz_filename}"
 
             # Update to completed
             supabase.table("generations").update({

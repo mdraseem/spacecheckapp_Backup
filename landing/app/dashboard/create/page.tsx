@@ -156,18 +156,29 @@ export default function CreatePage() {
           shopifyProductId
         )
       } else {
-        // Regular mode: upload file to storage first
+        // Regular mode: upload file to R2 via presigned URL
         const fileExt = file!.name.split('.').pop()
-        const fileName = `${Math.random()}.${fileExt}`
-        const filePath = `${fileName}`
 
-        const { error: uploadError } = await supabase.storage
-          .from('uploads')
-          .upload(filePath, file!)
+        // Get presigned upload URL from our API
+        const urlRes = await fetch('/api/upload-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileName: file!.name, contentType: file!.type }),
+        })
 
-        if (uploadError) throw uploadError
+        if (!urlRes.ok) throw new Error('Failed to get upload URL')
+        const { presignedUrl, publicUrl, key } = await urlRes.json()
 
-        await createGeneration(filePath, dimensionsInCm, productName)
+        // Upload directly to R2 using presigned URL
+        const uploadRes = await fetch(presignedUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file!.type },
+          body: file!,
+        })
+
+        if (!uploadRes.ok) throw new Error('Failed to upload file')
+
+        await createGeneration(key, dimensionsInCm, productName)
       }
     } catch (error: any) {
       // Ignore Next.js Redirect errors
