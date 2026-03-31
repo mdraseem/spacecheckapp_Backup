@@ -13,7 +13,7 @@
     "subtitle": "SpaceCheck automatyzuje tworzenie modeli 3D dla sprzedawców mebli. Zwiększ konwersję o 40% i zmniejsz liczbę zwrotów, pozwalając klientom zobaczyć produkty w ich domach.",
     "ctaStart": "Rozpocznij Za Darmo",
     "ctaDemo": "Zobacz Demo",
-    "disclaimer": "Bez karty kredytowej • 3 modele za darmo",
+    "disclaimer": "1 darmowy model w zestawie • Bez subskrypcji na start",
     "photoLabel": "Zwykłe Zdjęcie",
     "arLabel": "Widok AR Aktywny",
     "livePreview": "Podgląd AR na Żywo"
@@ -90,29 +90,38 @@
     "mobileBtn": "Lub Kliknij Tutaj (Mobile)"
   },
   "pricing": {
-    "title": "Prosty, Przejrzysty Cennik",
-    "subtitle": "Zacznij za darmo, rozszerzaj w miarę wzrostu. Żadnych ukrytych opłat.",
+    "title": "Płać Tylko za To, Czego Używasz",
+    "subtitle": "Kupuj kredyty do generowania modeli. Subskrybuj, aby utrzymać linki AR aktywne.",
     "period": "/mies",
-    "mostPopular": "Najpopularniejszy",
+    "perModel": "/model",
+    "mostPopular": "Najlepsza Wartość",
     "currencyNote": "Ceny w USD. Twój bank automatycznie przelicza na PLN przy płatności.",
-    "starter": {
-      "name": "Starter",
-      "desc": "Idealny na start.",
-      "cta": "Rozpocznij Za Darmo",
-      "features": ["3 Wgrania Produktów/mies", "Standardowa Rozdzielczość", "Przeglądarka Web AR", "Wsparcie Społeczności"]
+    "creditsLabel": "Kredyty Generowania",
+    "hostingLabel": "Hosting AR",
+    "payAsYouGo": {
+      "name": "Pay as You Go",
+      "desc": "Generuj modele 3D na żądanie. Bez konieczności subskrypcji.",
+      "cta": "Kup Kredyty",
+      "packs": [
+        {"credits": 1, "price": "$15", "perUnit": "$15/model"},
+        {"credits": 5, "price": "$59", "perUnit": "$11.80/model"},
+        {"credits": 20, "price": "$199", "perUnit": "$9.95/model"}
+      ],
+      "features": ["1 darmowy kredyt w zestawie", "Generowanie 3D przez AI", "Formaty GLB + USDZ", "7-dniowy darmowy hosting", "Kod QR i kod embed"]
     },
-    "growth": {
-      "name": "Wzrost",
-      "desc": "Dla rosnących sklepów e-commerce.",
-      "cta": "Darmowy Okres Próbny",
-      "features": ["50 Wgrań Produktów/mies", "Wysoka Rozdzielczość Tekstur 4K", "Własny Branding", "Panel Analityczny", "Priorytetowe Wsparcie Email"]
+    "proStore": {
+      "name": "Pro Store",
+      "desc": "Utrzymuj wszystkie linki AR aktywne i dostępne 24/7.",
+      "price": "$29",
+      "cta": "Aktywuj Hosting",
+      "features": ["Nieograniczone aktywne linki AR", "Kody QR zawsze działające", "Kody embed zawsze aktywne", "Panel analityczny", "Priorytetowe wsparcie email", "Własny branding"]
     },
     "enterprise": {
       "name": "Enterprise",
       "desc": "Dla dużych katalogów i potrzeb niestandardowych.",
       "price": "Indywidualnie",
       "cta": "Skontaktuj się z Działem Sprzedaży",
-      "features": ["Nielimitowane Wgrania", "Dostęp do API", "Rozwiązanie White-label", "Dedykowany Opiekun Klienta", "Gwarancja SLA"]
+      "features": ["Zniżki na duże pakiety kredytów", "Dostęp do API", "Rozwiązanie White-label", "Dedykowany Opiekun Klienta", "Gwarancja SLA"]
     }
   },
   "faq": {
@@ -124,8 +133,10 @@
     "a2": "Masz dwie opcje: 1) Pobierz plakat z kodem QR do wydruku i wyświetlenia na meblach w swoim sklepie stacjonarnym, lub 2) Skopiuj kod HTML do osadzenia przycisku AR na swojej stronie. Oba działają na iPhone i Android bez konieczności pobierania aplikacji.",
     "q3": "Czy klienci mogą używać AR na swoich telefonach?",
     "a3": "Tak. Generujemy pliki USDZ dla iPhone'ów (korzystając z Apple AR Quick Look) i pliki GLB dla urządzeń Android (korzystając z Google Scene Viewer). Klienci po prostu skanują kod QR lub dotykają przycisku na Twojej stronie, aby zobaczyć meble w swoim otoczeniu.",
-    "q4": "Co się dzieje z moimi modelami po anulowaniu subskrypcji?",
-    "a4": "Twoje modele 3D pozostają dostępne nawet po anulowaniu! Wszystkie linki AR, kody QR i osadzone przeglądarki działają bezterminowo. Nadal możesz przeglądać i udostępniać swoje istniejące modele. Jedynym ograniczeniem jest to, że będziesz mieć limit 3 wgrań modeli miesięcznie (plan Starter) dla tworzenia nowych modeli."
+    "q4": "Co się dzieje z moimi modelami po anulowaniu hostingu?",
+    "a4": "Twoje modele 3D nigdy nie są usuwane. Jednak bez aktywnej subskrypcji hostingu ($29/mies), publiczne linki AR i kody QR będą wyświetlać stronę 'Wstrzymane' zamiast modelu 3D. Twoje niewykorzystane kredyty nie wygasają. Po prostu aktywuj ponownie hosting, aby natychmiast przywrócić wszystkie linki AR.",
+    "q5": "Jak działają kredyty i hosting razem?",
+    "a5": "Kredyty to Twoje 'paliwo' -- każdy kredyt generuje jeden model 3D ($15/model lub mniej w pakietach). Hosting to Twój 'silnik' -- subskrypcja za $29/mies utrzymuje wszystkie Twoje linki AR, kody QR i embedy aktywne. Dostajesz 1 darmowy kredyt i 7 dni darmowego hostingu na próbę."
     },
     "generator": {
       "headerTitle": "Generator Kodów QR AR",

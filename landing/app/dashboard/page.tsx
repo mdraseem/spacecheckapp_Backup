@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/utils/supabase/client'
 import { ModelCard } from '@/components/dashboard/ModelCard'
 import { UsageBadge } from '@/components/dashboard/UsageBadge'
-import { PlusCircle, Box, CheckCircle, X } from 'lucide-react'
+import { PlusCircle, Box, CheckCircle, Zap, Server, X } from 'lucide-react'
 import Link from 'next/link'
 import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
 import { useSearchParams } from 'next/navigation'
@@ -15,15 +15,21 @@ export const dynamic = 'force-dynamic'
 export default function DashboardPage() {
   const supabase = createClient()
   const { dict } = useDashboardLanguage()
+  const c = dict.credits || {} as any
   const searchParams = useSearchParams()
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const [showSuccessMessage, setShowSuccessMessage] = useState<string | null>(null)
   const [showCanceledMessage, setShowCanceledMessage] = useState(false)
 
   useEffect(() => {
-    if (searchParams.get('success') === 'true') {
-      setShowSuccessMessage(true)
-      // Auto-hide after 10 seconds
-      setTimeout(() => setShowSuccessMessage(false), 10000)
+    if (searchParams.get('credits_purchased') === 'true') {
+      setShowSuccessMessage('credits')
+      setTimeout(() => setShowSuccessMessage(null), 10000)
+    } else if (searchParams.get('hosting_activated') === 'true') {
+      setShowSuccessMessage('hosting')
+      setTimeout(() => setShowSuccessMessage(null), 10000)
+    } else if (searchParams.get('success') === 'true') {
+      setShowSuccessMessage('generic')
+      setTimeout(() => setShowSuccessMessage(null), 10000)
     }
     if (searchParams.get('canceled') === 'true') {
       setShowCanceledMessage(true)
@@ -89,14 +95,32 @@ export default function DashboardPage() {
         <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-green-400" />
+              {showSuccessMessage === 'credits' ? (
+                <Zap className="w-5 h-5 text-green-400" />
+              ) : showSuccessMessage === 'hosting' ? (
+                <Server className="w-5 h-5 text-green-400" />
+              ) : (
+                <CheckCircle className="w-5 h-5 text-green-400" />
+              )}
             </div>
             <div>
-              <p className="text-green-400 font-semibold">Payment Successful!</p>
-              <p className="text-green-400/80 text-sm">Your subscription has been activated. Welcome aboard! 🎉</p>
+              <p className="text-green-400 font-semibold">
+                {showSuccessMessage === 'credits'
+                  ? (c.creditsPurchased || 'Credits Added!')
+                  : showSuccessMessage === 'hosting'
+                  ? (c.hostingActivated || 'Hosting Activated!')
+                  : 'Payment Successful!'}
+              </p>
+              <p className="text-green-400/80 text-sm">
+                {showSuccessMessage === 'credits'
+                  ? (c.creditsPurchasedDesc || 'Your credits have been added to your account. You can now generate new models.')
+                  : showSuccessMessage === 'hosting'
+                  ? (c.hostingActivatedDesc || 'Your AR links are now live and publicly accessible.')
+                  : (c.paymentSuccess || 'Your payment has been processed successfully.')}
+              </p>
             </div>
           </div>
-          <button onClick={() => setShowSuccessMessage(false)} className="text-green-400 hover:text-green-300">
+          <button onClick={() => setShowSuccessMessage(null)} className="text-green-400 hover:text-green-300">
             <X size={20} />
           </button>
         </div>

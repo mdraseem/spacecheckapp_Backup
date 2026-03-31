@@ -1,194 +1,275 @@
 'use client'
 
-import { Check, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
-import SectionTracker from './SectionTracker';
-import { trackLandingEvent, trackConversion } from '@/utils/track';
+import { Check, Zap, Server, Building2, Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import { createClient } from '@/utils/supabase/client'
+import { useRouter } from 'next/navigation'
+import SectionTracker from './SectionTracker'
+import { trackLandingEvent, trackConversion } from '@/utils/track'
 
 export default function PricingWithCheckout({ dict }: { dict: any }) {
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const router = useRouter();
-  const supabase = createClient();
+  const [loading, setLoading] = useState<string | null>(null)
+  const router = useRouter()
+  const supabase = createClient()
+  const p = dict.pricing
 
-  const plans = [
-    {
-      name: dict.pricing.starter.name,
-      price: "$0",
-      period: dict.pricing.period,
-      description: dict.pricing.starter.desc,
-      features: dict.pricing.starter.features,
-      cta: dict.pricing.starter.cta,
-      highlighted: false,
-      priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER || '',
-      planType: 'starter'
-    },
-    {
-      name: dict.pricing.growth.name,
-      price: "$49",
-      period: dict.pricing.period,
-      description: dict.pricing.growth.desc,
-      features: dict.pricing.growth.features,
-      cta: dict.pricing.growth.cta,
-      highlighted: true,
-      priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_GROWTH || '',
-      planType: 'growth'
-    },
-    {
-      name: dict.pricing.enterprise.name,
-      price: dict.pricing.enterprise.price,
-      period: "",
-      description: dict.pricing.enterprise.desc,
-      features: dict.pricing.enterprise.features,
-      cta: dict.pricing.enterprise.cta,
-      highlighted: false,
-      priceId: '',
-      planType: 'enterprise'
-    }
-  ];
-
-  const handlePlanSelect = async (plan: typeof plans[0]) => {
-    // Track pricing CTA click
-    trackLandingEvent('pricing_cta_clicked', {
-      plan_type: plan.planType,
-      plan_name: plan.name,
-      price: plan.price,
-      cta_text: plan.cta,
-    });
-
-    setLoadingPlan(plan.planType);
-
+  const handleBuyCredits = async (packIndex: number) => {
+    setLoading(`credit-${packIndex}`)
     try {
-      // Check if user is authenticated
-      const { data: { user } } = await supabase.auth.getUser();
+      trackLandingEvent('pricing_cta_clicked', {
+        plan_type: 'credits',
+        pack_index: packIndex,
+        source: 'pricing_section',
+      })
+
+      const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        // Track signup initiation
-        trackConversion('signup', 'initiated', {
-          source: 'pricing_section',
-          plan_type: plan.planType,
-        });
-
-        // Redirect to login
-        router.push('/login');
-        return;
+        trackConversion('signup', 'initiated', { source: 'pricing_credits' })
+        router.push('/login')
+        return
       }
 
-      // Free plan - just redirect to dashboard
-      if (plan.planType === 'starter') {
-        router.push('/dashboard');
-        return;
+      const priceIds = [
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDIT_1,
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDIT_5,
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDIT_20,
+      ]
+
+      const priceId = priceIds[packIndex]
+      if (!priceId) {
+        alert('Credit pack not configured. Set NEXT_PUBLIC_STRIPE_PRICE_CREDIT_* env vars.')
+        return
       }
 
-      // Enterprise - redirect to contact
-      if (plan.planType === 'enterprise') {
-        trackLandingEvent('cta_contact_clicked', {
-          source: 'pricing_enterprise',
-        });
-        router.push('/contact');
-        return;
-      }
-
-      // Track checkout initiation
       trackConversion('checkout', 'initiated', {
-        plan_type: plan.planType,
-        price_id: plan.priceId,
-        price: plan.price,
-      });
+        plan_type: 'credits',
+        price_id: priceId,
+      })
 
-      // Paid plan - create checkout session
+      const response = await fetch('/api/create-checkout-credits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to create checkout')
+      if (data.url) window.location.href = data.url
+    } catch (error: any) {
+      console.error('Credit checkout error:', error)
+      alert(error.message || 'Failed to start checkout')
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const handleActivateHosting = async () => {
+    setLoading('hosting')
+    try {
+      trackLandingEvent('pricing_cta_clicked', {
+        plan_type: 'hosting',
+        source: 'pricing_section',
+      })
+
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        trackConversion('signup', 'initiated', { source: 'pricing_hosting' })
+        router.push('/login')
+        return
+      }
+
+      const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_HOSTING
+      if (!priceId) {
+        alert('Hosting plan not configured. Set NEXT_PUBLIC_STRIPE_PRICE_HOSTING env var.')
+        return
+      }
+
+      trackConversion('checkout', 'initiated', {
+        plan_type: 'hosting',
+        price_id: priceId,
+      })
+
       const response = await fetch('/api/create-checkout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId: plan.priceId,
-        }),
-      });
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      })
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout');
-      }
-
-      if (data.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      }
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to create checkout')
+      if (data.url) window.location.href = data.url
+      else if (data.message) alert(data.message)
     } catch (error: any) {
-      console.error('Checkout error:', error);
-      alert(error.message || 'Failed to start checkout. Please try again.');
+      console.error('Hosting checkout error:', error)
+      alert(error.message || 'Failed to start checkout')
     } finally {
-      setLoadingPlan(null);
+      setLoading(null)
     }
-  };
+  }
+
+  const handleContactSales = () => {
+    trackLandingEvent('cta_contact_clicked', { source: 'pricing_enterprise' })
+    router.push('/contact')
+  }
 
   return (
     <SectionTracker sectionName="pricing" event="pricing_section_viewed">
       <section id="pricing" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-primary mb-4">{dict.pricing.title}</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              {dict.pricing.subtitle}
-            </p>
+            <h2 className="text-3xl font-bold text-primary mb-4">{p.title}</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">{p.subtitle}</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {plans.map((plan, index) => (
-            <div key={index} className={`relative rounded-2xl p-8 border ${plan.highlighted ? 'border-secondary shadow-xl scale-105 z-10' : 'border-gray-200 shadow-sm'} bg-white flex flex-col`}>
-              {plan.highlighted && (
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-secondary text-white px-4 py-1 rounded-full text-sm font-bold shadow-md">
-                  {dict.pricing.mostPopular}
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
+            {/* TIER 1: Pay as You Go (Credits) */}
+            <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-secondary" />
                 </div>
-              )}
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-primary">{plan.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">{plan.description}</p>
+                <h3 className="text-xl font-bold text-primary">{p.payAsYouGo.name}</h3>
               </div>
-              <div className="mb-8">
-                <span className="text-4xl font-bold text-primary">{plan.price}</span>
-                <span className="text-gray-500">{plan.period}</span>
+              <p className="text-gray-500 text-sm mb-6">{p.payAsYouGo.desc}</p>
+
+              {/* Credit Packs */}
+              <div className="space-y-3 mb-6">
+                {p.payAsYouGo.packs.map((pack: any, i: number) => (
+                  <button
+                    key={i}
+                    onClick={() => handleBuyCredits(i)}
+                    disabled={loading !== null}
+                    className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                      i === 1
+                        ? 'border-secondary bg-secondary/5 hover:bg-secondary/10'
+                        : 'border-gray-200 hover:border-secondary/50 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="text-left">
+                      <span className="text-base font-bold text-primary">
+                        {pack.credits} {pack.credits === 1 ? 'Credit' : 'Credits'}
+                      </span>
+                      {i === 1 && (
+                        <span className="ml-2 text-xs font-bold bg-secondary text-white px-2 py-0.5 rounded-full">
+                          {p.mostPopular}
+                        </span>
+                      )}
+                      <p className="text-xs text-gray-500 mt-0.5">{pack.perUnit}</p>
+                    </div>
+                    <div className="text-right">
+                      {loading === `credit-${i}` ? (
+                        <Loader2 className="w-5 h-5 animate-spin text-secondary" />
+                      ) : (
+                        <span className="text-xl font-bold text-primary">{pack.price}</span>
+                      )}
+                    </div>
+                  </button>
+                ))}
               </div>
-              <ul className="space-y-4 mb-8 flex-1">
-                {plan.features.map((feature: string, i: number) => (
+
+              {/* Features */}
+              <ul className="space-y-3 flex-1">
+                {p.payAsYouGo.features.map((feature: string, i: number) => (
                   <li key={i} className="flex items-start gap-3 text-gray-600 text-sm">
                     <Check size={18} className="text-secondary flex-shrink-0 mt-0.5" />
                     <span>{feature}</span>
                   </li>
                 ))}
               </ul>
+            </div>
+
+            {/* TIER 2: Pro Store (Hosting) — Highlighted */}
+            <div className="relative bg-white rounded-2xl p-8 border-2 border-secondary shadow-xl md:scale-105 z-10 flex flex-col">
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-secondary text-white px-4 py-1 rounded-full text-sm font-bold shadow-md">
+                {p.hostingLabel}
+              </div>
+
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center">
+                  <Server className="w-5 h-5 text-secondary" />
+                </div>
+                <h3 className="text-xl font-bold text-primary">{p.proStore.name}</h3>
+              </div>
+              <p className="text-gray-500 text-sm mb-6">{p.proStore.desc}</p>
+
+              {/* Price */}
+              <div className="mb-6">
+                <span className="text-5xl font-bold text-primary">{p.proStore.price}</span>
+                <span className="text-gray-500">{p.period}</span>
+              </div>
+
+              {/* CTA */}
               <button
-                onClick={() => handlePlanSelect(plan)}
-                disabled={loadingPlan === plan.planType}
-                className={`w-full py-3 rounded-xl font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${plan.highlighted ? 'bg-secondary text-white hover:bg-secondary/90' : 'bg-gray-100 text-primary hover:bg-gray-200'}`}
+                onClick={handleActivateHosting}
+                disabled={loading !== null}
+                className="w-full bg-secondary text-white font-bold py-4 rounded-xl hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-6"
               >
-                {loadingPlan === plan.planType ? (
+                {loading === 'hosting' ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
                     Loading...
                   </>
                 ) : (
-                  plan.cta
+                  p.proStore.cta
                 )}
               </button>
-            </div>
-          ))}
-        </div>
 
-        {/* Currency Note */}
-        {dict.pricing.currencyNote && (
-          <div className="text-center mt-8">
-            <p className="text-sm text-gray-500">
-              {dict.pricing.currencyNote}
-            </p>
+              {/* Features */}
+              <ul className="space-y-3 flex-1">
+                {p.proStore.features.map((feature: string, i: number) => (
+                  <li key={i} className="flex items-start gap-3 text-gray-600 text-sm">
+                    <Check size={18} className="text-secondary flex-shrink-0 mt-0.5" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* TIER 3: Enterprise */}
+            <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <Building2 className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold text-primary">{p.enterprise.name}</h3>
+              </div>
+              <p className="text-gray-500 text-sm mb-6">{p.enterprise.desc}</p>
+
+              {/* Price */}
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-primary">{p.enterprise.price}</span>
+              </div>
+
+              {/* CTA */}
+              <button
+                onClick={handleContactSales}
+                className="w-full bg-gray-100 text-primary font-bold py-4 rounded-xl hover:bg-gray-200 transition-all mb-6"
+              >
+                {p.enterprise.cta}
+              </button>
+
+              {/* Features */}
+              <ul className="space-y-3 flex-1">
+                {p.enterprise.features.map((feature: string, i: number) => (
+                  <li key={i} className="flex items-start gap-3 text-gray-600 text-sm">
+                    <Check size={18} className="text-primary flex-shrink-0 mt-0.5" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        )}
-      </div>
-    </section>
+
+          {/* Currency Note */}
+          {p.currencyNote && (
+            <div className="text-center mt-8">
+              <p className="text-sm text-gray-500">{p.currencyNote}</p>
+            </div>
+          )}
+        </div>
+      </section>
     </SectionTracker>
-  );
+  )
 }

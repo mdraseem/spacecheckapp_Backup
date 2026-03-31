@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, HOSTING_PRICE_ID, PRICE_IDS } from '@/lib/stripe';
+import { stripe, CREDIT_PRICE_IDS } from '@/lib/stripe';
 import { createClient } from '@/utils/supabase/server';
 
 /**
- * Creates a Stripe Checkout session for the monthly hosting subscription ($29/mo).
- * This is the "Engine" part of the Fuel & Engine model.
+ * Creates a Stripe Checkout session for one-time credit pack purchases.
+ * Expects: { priceId: string } (one of the CREDIT_PRICE_IDS values)
  */
 export async function POST(req: NextRequest) {
   try {
@@ -18,28 +18,20 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { priceId } = body;
 
-    // Accept both the new hosting price ID and legacy growth price ID
-    const validPriceIds = [HOSTING_PRICE_ID, PRICE_IDS.growth].filter(Boolean);
-
-    if (!priceId || !validPriceIds.includes(priceId)) {
-      return NextResponse.json({ error: 'Invalid price ID' }, { status: 400 });
-    }
-
-    // Check if user already has an active hosting subscription
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('stripe_customer_id, hosting_status, stripe_subscription_id')
-      .eq('id', user.id)
-      .single();
-
-    if (profile?.hosting_status === 'active' && profile?.stripe_subscription_id) {
-      return NextResponse.json({
-        message: 'You already have an active hosting subscription. Manage it from Settings.',
-      });
+    // Validate price ID is a valid credit pack
+    const validCreditPriceIds = Object.values(CREDIT_PRICE_IDS).filter(Boolean);
+    if (!priceId || !validCreditPriceIds.includes(priceId)) {
+      return NextResponse.json({ error: 'Invalid credit pack' }, { status: 400 });
     }
 
     // Create or retrieve Stripe customer
     let customerId: string;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('stripe_customer_id')
+      .eq('id', user.id)
+      .single();
 
     if (profile?.stripe_customer_id) {
       customerId = profile.stripe_customer_id;
@@ -61,14 +53,10 @@ export async function POST(req: NextRequest) {
         });
     }
 
-    // Create Checkout Session for hosting subscription
+    // Create one-time payment Checkout Session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_update: {
-        address: 'auto',
-        name: 'auto',
-      },
-      mode: 'subscription',
+      mode: 'payment', // One-time payment, NOT subscription
       payment_method_types: ['card'],
       line_items: [
         {
@@ -76,32 +64,23 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      subscription_data: {
-        metadata: {
-          user_id: user.id,
-          subscription_type: 'hosting',
-        },
-      },
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || req.headers.get('origin')}/dashboard?hosting_activated=true`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || req.headers.get('origin')}/dashboard?credits_purchased=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || req.headers.get('origin')}/dashboard?canceled=true`,
       allow_promotion_codes: true,
-      billing_address_collection: 'required',
-      tax_id_collection: {
-        enabled: true,
-      },
       automatic_tax: {
         enabled: true,
       },
       metadata: {
         user_id: user.id,
-        purchase_type: 'hosting',
+        purchase_type: 'credits',
+        price_id: priceId,
       },
     });
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
 
   } catch (error: any) {
-    console.error('Hosting checkout error:', error);
+    console.error('Credit checkout error:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to create checkout session' },
       { status: 500 }

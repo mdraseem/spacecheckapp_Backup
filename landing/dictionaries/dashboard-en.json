@@ -29,7 +29,8 @@
     "delete": "Delete",
     "deleteConfirm": "Are you sure you want to delete",
     "failedToDelete": "Failed to delete model",
-    "generatingModel": "Generating 3D model..."
+    "generatingModel": "Generating 3D model...",
+    "arPaused": "AR Paused"
   },
   "qrModal": {
     "title": "Share AR Experience",
@@ -137,5 +138,31 @@
     "notVerified": "Not Verified",
     "supportNote": "Need to update your email or password? Please contact support at spacecheck@sebastiankotarski.com",
     "loading": "Loading..."
+  },
+  "credits": {
+    "title": "Credits & Hosting",
+    "creditsAvailable": "Credits Available",
+    "creditsDesc": "Each credit generates one 3D model",
+    "buyCredits": "Buy Credits",
+    "hostingStatus": "Hosting Status",
+    "hostingDesc": "Controls whether your AR links are publicly accessible",
+    "hostingActive": "Active",
+    "hostingTrial": "Trial",
+    "hostingPaused": "Paused",
+    "hostingExpires": "Expires",
+    "activateHosting": "Activate Hosting",
+    "manageHosting": "Manage Hosting",
+    "activeModels": "Active AR Links",
+    "archivedModels": "Paused AR Links",
+    "noCredits": "No credits remaining",
+    "noCreditsDesc": "Purchase more credits to generate new 3D models.",
+    "hostingPausedDesc": "Your AR links are not publicly accessible. Activate hosting to make them live.",
+    "trialExpiring": "Your free trial expires on",
+    "freeTrialNote": "7-day free hosting trial included with your first model",
+    "creditsPurchased": "Credits Added!",
+    "creditsPurchasedDesc": "Your credits have been added to your account. You can now generate new models.",
+    "hostingActivated": "Hosting Activated!",
+    "hostingActivatedDesc": "Your AR links are now live and publicly accessible.",
+    "paymentSuccess": "Your payment has been processed successfully."
   }
 }

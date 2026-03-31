@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader2, AlertCircle, Download, Eye, RefreshCw, QrCode, BarChart3, MoreVertical, Edit2, Trash2, Store } from 'lucide-react'
+import { Loader2, AlertCircle, Download, Eye, RefreshCw, QrCode, BarChart3, MoreVertical, Edit2, Trash2, Store, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import { retryGeneration, deleteGeneration } from '@/app/dashboard/actions'
 import { useState, useRef, useEffect } from 'react'
@@ -22,6 +22,8 @@ interface Generation {
   width_cm?: number | null
   height_cm?: number | null
   depth_cm?: number | null
+  is_public?: boolean
+  archived_at?: string | null
 }
 
 export function ModelCard({ model }: { model: Generation }) {
@@ -192,9 +194,19 @@ export function ModelCard({ model }: { model: Generation }) {
             </div>
           )}
 
-          {model.status === 'completed' && (
+          {model.status === 'completed' && model.is_public !== false && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="bg-[#00f0ff] text-[#050a14] text-xs font-bold px-2 py-1 rounded">{dict.modelCard.ready}</span>
+            </div>
+          )}
+
+          {/* Archived / Hosting Paused badge */}
+          {model.status === 'completed' && model.is_public === false && (
+            <div className="absolute top-2 right-2">
+              <span className="flex items-center gap-1 bg-orange-500/90 text-white text-xs font-bold px-2 py-1 rounded">
+                <EyeOff size={12} />
+                {dict.modelCard.arPaused || 'AR Paused'}
+              </span>
             </div>
           )}
         </div>

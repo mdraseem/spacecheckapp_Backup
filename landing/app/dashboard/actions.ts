@@ -17,13 +17,19 @@ export async function createGeneration(imagePath: string, dimensions: Dimensions
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Check usage limits
-  const { canCreateGeneration } = await import('@/utils/usage-limits')
-  const { allowed, usage, error: limitError } = await canCreateGeneration(supabase, user.id)
+  // Check credit balance
+  const { canCreateGeneration, deductCredit, activateHostingTrial } = await import('@/utils/usage-limits')
+  const { allowed, error: limitError } = await canCreateGeneration(supabase, user.id)
 
   if (!allowed) {
-    throw new Error(limitError || 'Generation limit exceeded')
+    throw new Error(limitError || 'No credits remaining')
   }
+
+  // Deduct 1 credit
+  await deductCredit(supabase, user.id)
+
+  // Activate 7-day hosting trial on first generation (no-op if already active)
+  await activateHostingTrial(supabase, user.id)
 
   // Construct public URL from R2
   const publicUrl = getR2PublicUrl(imagePath)
@@ -38,7 +44,8 @@ export async function createGeneration(imagePath: string, dimensions: Dimensions
       name: productName,
       width_cm: parseFloat(dimensions.width),
       height_cm: parseFloat(dimensions.height),
-      depth_cm: parseFloat(dimensions.depth)
+      depth_cm: parseFloat(dimensions.depth),
+      is_public: true,
     })
     .select()
     .single()
@@ -48,20 +55,11 @@ export async function createGeneration(imagePath: string, dimensions: Dimensions
   }
 
   // Trigger the Modal Backend via Next.js API Route
-  // We do this via fetch to our own API to keep the server action clean 
-  // and handle the fire-and-forget logic there if needed, 
-  // OR strictly we can just fetch the Modal URL here if we had the env var exposed to the server.
-  // Using the API route allows us to keep the logic central.
-  
-  const apiUrl = process.env.NEXT_PUBLIC_SITE_URL 
+  const apiUrl = process.env.NEXT_PUBLIC_SITE_URL
     ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/generate`
     : 'http://localhost:3000/api/generate'
 
   try {
-      // We don't await this to avoid blocking the UI redirect, 
-      // but in Server Actions, usually we should await. 
-      // Since the API route handles the "fire-and-forget" to Modal,
-      // this fetch will return quickly (as soon as API route says "queued").
       await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -73,8 +71,6 @@ export async function createGeneration(imagePath: string, dimensions: Dimensions
       })
   } catch (e) {
       console.error("Failed to trigger generation:", e)
-      // We still redirect because the record is created, 
-      // user will see "Processing" (or we should update to 'failed' if we could catch it)
   }
 
   revalidatePath('/dashboard')
@@ -155,7 +151,7 @@ export async function retryGeneration(generationId: string) {
 
   }
 
-  
+
 
 export async function deleteGeneration(generationId: string) {
   const supabase = await createClient()
@@ -164,7 +160,6 @@ export async function deleteGeneration(generationId: string) {
   if (!user) throw new Error('Unauthorized')
 
   // Soft-delete: set deleted_at instead of removing the row.
-  // The row must still exist so it counts toward monthly usage limits.
   const { error } = await supabase
     .from('generations')
     .update({ deleted_at: new Date().toISOString() })
@@ -243,13 +238,13 @@ export async function bulkCreateGenerationsFromShopify(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Check usage limits upfront
-  const { canCreateGeneration, getUserUsage } = await import('@/utils/usage-limits')
-  const usage = await getUserUsage(supabase, user.id)
+  // Check credit balance upfront
+  const { getUserCreditsAndHosting, deductCredit, activateHostingTrial } = await import('@/utils/usage-limits')
+  const info = await getUserCreditsAndHosting(supabase, user.id)
 
-  if (usage.remaining < items.length) {
+  if (info.creditBalance < items.length) {
     throw new Error(
-      `You can only generate ${usage.remaining} more models this month. You selected ${items.length} products.`
+      `You only have ${info.creditBalance} credits remaining. You selected ${items.length} products. Purchase more credits to continue.`
     )
   }
 
@@ -274,6 +269,12 @@ export async function bulkCreateGenerationsFromShopify(
 
   for (const item of items) {
     try {
+      // Deduct 1 credit per model
+      await deductCredit(supabase, user.id)
+
+      // Activate hosting trial on first generation
+      await activateHostingTrial(supabase, user.id)
+
       // Download image from Shopify and upload to R2
       const imageResponse = await fetch(item.shopifyImageUrl)
       if (!imageResponse.ok) throw new Error('Failed to download image')
@@ -294,6 +295,7 @@ export async function bulkCreateGenerationsFromShopify(
           width_cm: parseFloat(item.dimensions.width),
           height_cm: parseFloat(item.dimensions.height),
           depth_cm: parseFloat(item.dimensions.depth),
+          is_public: true,
         })
         .select()
         .single()
@@ -348,13 +350,19 @@ export async function createGenerationFromShopify(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Check usage limits
-  const { canCreateGeneration } = await import('@/utils/usage-limits')
+  // Check credit balance
+  const { canCreateGeneration, deductCredit, activateHostingTrial } = await import('@/utils/usage-limits')
   const { allowed, error: limitError } = await canCreateGeneration(supabase, user.id)
 
   if (!allowed) {
-    throw new Error(limitError || 'Generation limit exceeded')
+    throw new Error(limitError || 'No credits remaining')
   }
+
+  // Deduct 1 credit
+  await deductCredit(supabase, user.id)
+
+  // Activate hosting trial on first generation
+  await activateHostingTrial(supabase, user.id)
 
   // Download image from Shopify and upload to R2
   const imageResponse = await fetch(shopifyImageUrl)
@@ -376,6 +384,7 @@ export async function createGenerationFromShopify(
       width_cm: parseFloat(dimensions.width),
       height_cm: parseFloat(dimensions.height),
       depth_cm: parseFloat(dimensions.depth),
+      is_public: true,
     })
     .select()
     .single()

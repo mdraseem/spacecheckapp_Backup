@@ -18,6 +18,10 @@ export default function FAQ({ dict }: { dict: any }) {
     {
       question: dict.faq.q4,
       answer: dict.faq.a4
+    },
+    {
+      question: dict.faq.q5,
+      answer: dict.faq.a5
     }
   ];
 

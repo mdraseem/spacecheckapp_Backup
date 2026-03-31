@@ -6,13 +6,13 @@
     <title>AR Quick Look</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { 
-            margin: 0; 
-            padding: 0; 
-            width: 100vw; 
-            height: 100vh; 
-            overflow: hidden; 
-            background-color: #f5f5f5; 
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #f5f5f5;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             flex-direction: column;
@@ -20,9 +20,9 @@
             justify-content: center;
         }
 
-        model-viewer { 
-            width: 100%; 
-            height: 100%; 
+        model-viewer {
+            width: 100%;
+            height: 100%;
             --poster-color: transparent;
         }
 
@@ -166,15 +166,119 @@
             transform: scale(1.05);
         }
 
+        /* ==========================================
+           HOSTING PAUSED OVERLAY
+           ========================================== */
+        .hosting-paused-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: linear-gradient(135deg, #0a0f1c 0%, #1a1f3c 50%, #0a0f1c 100%);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hosting-paused-overlay.visible {
+            display: flex;
+        }
+
+        .paused-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 165, 0, 0.15);
+            border: 2px solid rgba(255, 165, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .paused-icon svg {
+            width: 40px;
+            height: 40px;
+            color: #ffa500;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        .paused-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.75rem;
+        }
+
+        .paused-message {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 400px;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .paused-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #00f0ff;
+            color: #0a0f1c;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .paused-cta:hover {
+            background: #00d4e0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .paused-brand {
+            position: absolute;
+            bottom: 2rem;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
     </style>
 </head>
 <body>
+
+    <!-- Hosting Paused Overlay -->
+    <div class="hosting-paused-overlay" id="hostingPausedOverlay">
+        <div class="paused-icon">
+            <svg viewBox="0 0 24 24">
+                <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+                <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+            </svg>
+        </div>
+        <div class="paused-title" id="pausedTitle">AR Experience Paused</div>
+        <p class="paused-message" id="pausedMessage">
+            This AR experience is temporarily unavailable. The store owner needs to reactivate their hosting subscription.
+        </p>
+        <a href="https://spacecheck.app" class="paused-cta">
+            Learn more about SpaceCheck
+        </a>
+        <div class="paused-brand">Powered by SpaceCheck.app</div>
+    </div>
 
     <button class="lang-switch" onclick="toggleLanguage()" id="langSwitchBtn">PL</button>
 
     <div id="error-message"></div>
     <div class="ar-instructions" id="arInstructions">
-        <span id="instructionText">👇 Tap "View in AR" button below to launch AR experience</span>
+        <span id="instructionText"></span>
     </div>
 
     <model-viewer
@@ -187,8 +291,8 @@
         auto-rotate
         ar-scale="fixed"
         ar-placement="floor"
-        shadow-intensity="1" 
-        camera-controls 
+        shadow-intensity="1"
+        camera-controls
         touch-action="pan-y"
     >
         <!-- Loading Progress -->
@@ -268,7 +372,7 @@
         async function trackEvent(eventName, extraData = {}) {
             // Only track if user has consented
             if (!hasAnalyticsConsent()) {
-                console.log('📊 Analytics disabled - no consent');
+                console.log('Analytics disabled - no consent');
                 return;
             }
 
@@ -279,7 +383,7 @@
                 timestamp: new Date().toISOString(),
                 ...extraData
             };
-            console.log('📊 Tracking:', payload);
+            console.log('Tracking:', payload);
 
             try {
                 // Send to Vercel Serverless Function
@@ -298,28 +402,32 @@
 
         const translations = {
             en: {
-                instruction: '👇 Tap "View in AR" button below to launch AR experience',
+                instruction: 'Tap "View in AR" button below to launch AR experience',
                 viewInAr: 'View in AR',
                 launching: 'Launching...',
-                openingAr: 'Otwieranie AR...', 
+                openingAr: 'Opening AR...',
                 arLaunched: 'AR Launched!',
                 arNotAvailable: 'AR Not Available',
                 error: 'Error',
                 errorArNotAvailable: 'AR is not available on this device or browser. Make sure you\'re using HTTPS and a supported browser.',
                 errorLoading: 'Error loading model. Please check file format or connection.',
-                errorLaunching: 'Error launching AR'
+                errorLaunching: 'Error launching AR',
+                pausedTitle: 'AR Experience Paused',
+                pausedMessage: 'This AR experience is temporarily unavailable. The store owner needs to reactivate their hosting subscription.'
             },
             pl: {
-                instruction: '👇 Dotknij przycisku "Zobacz w AR" poniżej, aby uruchomić AR',
+                instruction: 'Dotknij przycisku "Zobacz w AR" poniżej, aby uruchomić AR',
                 viewInAr: 'Zobacz w AR',
-                launching: 'Uruchamianie...', 
-                openingAr: 'Otwieranie AR...', 
+                launching: 'Uruchamianie...',
+                openingAr: 'Otwieranie AR...',
                 arLaunched: 'AR uruchomione!',
                 arNotAvailable: 'AR niedostępne',
                 error: 'Błąd',
                 errorArNotAvailable: 'AR nie jest dostępne na tym urządzeniu lub przeglądarce. Upewnij się, że używasz HTTPS i obsługiwanej przeglądarki.',
                 errorLoading: 'Błąd ładowania modelu. Sprawdź format pliku lub połączenie.',
-                errorLaunching: 'Błąd uruchamiania AR'
+                errorLaunching: 'Błąd uruchamiania AR',
+                pausedTitle: 'Doświadczenie AR Wstrzymane',
+                pausedMessage: 'To doświadczenie AR jest tymczasowo niedostępne. Właściciel sklepu musi ponownie aktywować subskrypcję hostingu.'
             }
         };
 
@@ -342,6 +450,10 @@
             document.getElementById('langSwitchBtn').innerText = lang === 'en' ? 'PL' : 'EN';
             document.getElementById('instructionText').innerText = t.instruction;
             document.getElementById('buttonText').innerText = t.viewInAr;
+
+            // Update paused overlay text if visible
+            document.getElementById('pausedTitle').innerText = t.pausedTitle;
+            document.getElementById('pausedMessage').innerText = t.pausedMessage;
         }
 
         function getTrans(key) {
@@ -351,98 +463,139 @@
         // Initialize language
         detectAndSetLanguage();
 
-        // Detect iOS
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        // ==========================================
+        // HOSTING CHECK — verify before loading model
+        // ==========================================
+        async function checkHostingStatus() {
+            try {
+                const checkUrl = `/api/viewer-check?modelUrl=${encodeURIComponent(modelPath)}`;
+                const response = await fetch(checkUrl);
+                const data = await response.json();
 
-        // 2. Set the model src dynamically
-        console.log('Loading model:', modelPath);
-        modelViewer.src = modelPath;
+                if (!data.active) {
+                    // Show paused overlay
+                    const overlay = document.getElementById('hostingPausedOverlay');
+                    overlay.classList.add('visible');
 
-        // Set ios-src for iOS devices, replacing .glb with .usdz
-        if (isIOS) {
-            const iosSrc = modelPath.replace(/\.glb$/i, '.usdz');
-            modelViewer.setAttribute('ios-src', iosSrc);
+                    // Use localized message if available
+                    if (currentLang === 'pl' && data.messagepl) {
+                        document.getElementById('pausedMessage').innerText = data.messagepl;
+                    } else if (data.message) {
+                        document.getElementById('pausedMessage').innerText = data.message;
+                    }
+
+                    trackEvent('hosting_paused_shown', { model: modelName });
+                    return false;
+                }
+
+                return true;
+            } catch (err) {
+                console.warn('Hosting check failed, loading model anyway:', err);
+                return true; // Fail open
+            }
         }
 
-        // --- Progress Bar Handling ---
-        const onProgress = (event) => {
-            const progressBar = event.target.querySelector('.progress-bar');
-            const updatingBar = event.target.querySelector('.update-bar');
-            if (updatingBar) {
-                updatingBar.style.width = `${event.detail.totalProgress * 100}%`;
+        // Run hosting check, then load model
+        async function initViewer() {
+            const isActive = await checkHostingStatus();
+            if (!isActive) return;
+
+            // Detect iOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+            // Set the model src dynamically
+            console.log('Loading model:', modelPath);
+            modelViewer.src = modelPath;
+
+            // Set ios-src for iOS devices, replacing .glb with .usdz
+            if (isIOS) {
+                const iosSrc = modelPath.replace(/\.glb$/i, '.usdz');
+                modelViewer.setAttribute('ios-src', iosSrc);
             }
-            if (event.detail.totalProgress === 1) {
-                progressBar.classList.add('hide');
-            }
-        };
 
-        modelViewer.addEventListener('progress', onProgress);
+            // --- Progress Bar Handling ---
+            const onProgress = (event) => {
+                const progressBar = event.target.querySelector('.progress-bar');
+                const updatingBar = event.target.querySelector('.update-bar');
+                if (updatingBar) {
+                    updatingBar.style.width = `${event.detail.totalProgress * 100}%`;
+                }
+                if (event.detail.totalProgress === 1) {
+                    progressBar.classList.add('hide');
+                }
+            };
 
-        // --- Error Handling ---
-        modelViewer.addEventListener('error', (event) => {
-            console.error('Model loading error:', event);
-            trackEvent('model_load_error', {
-                model: modelName,
-                error: event.detail ? event.detail.message : 'Unknown error'
+            modelViewer.addEventListener('progress', onProgress);
+
+            // --- Error Handling ---
+            modelViewer.addEventListener('error', (event) => {
+                console.error('Model loading error:', event);
+                trackEvent('model_load_error', {
+                    model: modelName,
+                    error: event.detail ? event.detail.message : 'Unknown error'
+                });
+                errorMessage.innerText = getTrans('errorLoading');
+                errorMessage.style.display = 'block';
             });
-            errorMessage.innerText = getTrans('errorLoading');
-            errorMessage.style.display = 'block';
-        });
 
-        // --- AR Button Click Handler ---
-        customArButton.addEventListener('click', async () => {
-            // Track AR Button Click
-            trackEvent('click_ar_view', {
-                canActivateAR: modelViewer.canActivateAR,
-                ios: isIOS,
-                userAgent: navigator.userAgent
-            });
+            // --- AR Button Click Handler ---
+            customArButton.addEventListener('click', async () => {
+                // Track AR Button Click
+                trackEvent('click_ar_view', {
+                    canActivateAR: modelViewer.canActivateAR,
+                    ios: isIOS,
+                    userAgent: navigator.userAgent
+                });
 
-            try {
-                if (modelViewer.canActivateAR) {
-                    customArButton.querySelector('#buttonText').innerText = getTrans('launching');
-                    await modelViewer.activateAR();
-                    trackEvent('ar_activated_success', { model: modelName });
-                    customArButton.querySelector('#buttonText').innerText = getTrans('arLaunched');
-                    setTimeout(() => {
-                        customArButton.querySelector('#buttonText').innerText = getTrans('viewInAr');
-                    }, 2000);
-                } else {
-                    trackEvent('ar_not_available', { reason: 'canActivateAR_false' });
-                    errorMessage.innerText = getTrans('errorArNotAvailable');
+                try {
+                    if (modelViewer.canActivateAR) {
+                        customArButton.querySelector('#buttonText').innerText = getTrans('launching');
+                        await modelViewer.activateAR();
+                        trackEvent('ar_activated_success', { model: modelName });
+                        customArButton.querySelector('#buttonText').innerText = getTrans('arLaunched');
+                        setTimeout(() => {
+                            customArButton.querySelector('#buttonText').innerText = getTrans('viewInAr');
+                        }, 2000);
+                    } else {
+                        trackEvent('ar_not_available', { reason: 'canActivateAR_false' });
+                        errorMessage.innerText = getTrans('errorArNotAvailable');
+                        errorMessage.style.display = 'block';
+                        setTimeout(() => {
+                            errorMessage.style.display = 'none';
+                        }, 5000);
+                    }
+                } catch (error) {
+                    console.error('AR activation error:', error);
+                    trackEvent('ar_activation_error', { error: error.message });
+                    errorMessage.innerText = getTrans('errorLaunching');
                     errorMessage.style.display = 'block';
                     setTimeout(() => {
                         errorMessage.style.display = 'none';
                     }, 5000);
                 }
-            } catch (error) {
-                console.error('AR activation error:', error);
-                trackEvent('ar_activation_error', { error: error.message });
-                errorMessage.innerText = getTrans('errorLaunching');
-                errorMessage.style.display = 'block';
-                setTimeout(() => {
-                    errorMessage.style.display = 'none';
-                }, 5000);
-            }
-        });
-
-        // --- Model Load Complete ---
-        modelViewer.addEventListener('load', () => {
-            console.log('Model loaded successfully');
-            trackEvent('model_loaded', {
-                model: modelName,
-                modelPath: modelPath
             });
-        });
 
-        // --- Track Page View (On Load) ---
-        trackEvent('view_page', {
-            userAgent: navigator.userAgent,
-            referrer: document.referrer,
-            language: navigator.language,
-            model: modelName,
-            isIOS: isIOS
-        });
+            // --- Model Load Complete ---
+            modelViewer.addEventListener('load', () => {
+                console.log('Model loaded successfully');
+                trackEvent('model_loaded', {
+                    model: modelName,
+                    modelPath: modelPath
+                });
+            });
+
+            // --- Track Page View (On Load) ---
+            trackEvent('view_page', {
+                userAgent: navigator.userAgent,
+                referrer: document.referrer,
+                language: navigator.language,
+                model: modelName,
+                isIOS: isIOS
+            });
+        }
+
+        // Start initialization
+        initViewer();
     </script>
 
 </body>

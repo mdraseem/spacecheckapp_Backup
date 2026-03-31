@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { stripe, CREDIT_AMOUNTS } from '@/lib/stripe';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 
@@ -41,110 +41,250 @@ export async function POST(req: NextRequest) {
 
   try {
     switch (event.type) {
+      // ==================================================
+      // CHECKOUT COMPLETED — handle both credits and hosting
+      // ==================================================
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
+        const purchaseType = session.metadata?.purchase_type;
+        const userId = session.metadata?.user_id;
 
-        // Retrieve the subscription to get its status (could be 'trialing' or 'active')
-        const subscription = await stripe.subscriptions.retrieve(
-          session.subscription as string
-        );
+        if (!userId) {
+          console.error('Webhook: No user_id in session metadata');
+          break;
+        }
 
-        // Update user subscription
-        await supabase
-          .from('profiles')
-          .upsert({
-            id: session.metadata?.user_id,
-            stripe_customer_id: session.customer as string,
-            stripe_subscription_id: session.subscription as string,
-            subscription_status: subscription.status, // Will be 'trialing' if trial is active
-            plan_type: 'growth', // Determine based on price ID
-            updated_at: new Date().toISOString(),
-          });
+        if (purchaseType === 'credits') {
+          // ----- ONE-TIME CREDIT PURCHASE -----
+          const priceId = session.metadata?.price_id;
+          const creditAmount = priceId ? (CREDIT_AMOUNTS[priceId] || 0) : 0;
 
-        // Track subscription activation in analytics
-        await supabase
-          .from('analytics')
-          .insert({
-            event_type: 'subscription_activated',
-            user_id: session.metadata?.user_id,
-            metadata: {
-              subscription_id: session.subscription,
-              customer_id: session.customer,
-              status: subscription.status,
-              plan_type: 'growth',
-            },
-          });
+          if (creditAmount > 0) {
+            // Add credits to user's balance
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('credit_balance')
+              .eq('id', userId)
+              .single();
 
-        console.log('Subscription created:', session.id, 'Status:', subscription.status);
+            const currentBalance = profile?.credit_balance || 0;
+
+            await supabase
+              .from('profiles')
+              .upsert({
+                id: userId,
+                stripe_customer_id: session.customer as string,
+                credit_balance: currentBalance + creditAmount,
+                updated_at: new Date().toISOString(),
+              });
+
+            // Track analytics
+            await supabase
+              .from('analytics')
+              .insert({
+                event_type: 'credits_purchased',
+                user_id: userId,
+                metadata: {
+                  credits_added: creditAmount,
+                  new_balance: currentBalance + creditAmount,
+                  price_id: priceId,
+                  session_id: session.id,
+                  amount_total: session.amount_total,
+                },
+              });
+
+            console.log(`Credits purchased: +${creditAmount} for user ${userId} (new balance: ${currentBalance + creditAmount})`);
+          }
+
+        } else if (purchaseType === 'hosting' || session.subscription) {
+          // ----- HOSTING SUBSCRIPTION -----
+          const subscription = await stripe.subscriptions.retrieve(
+            session.subscription as string
+          );
+
+          await supabase
+            .from('profiles')
+            .upsert({
+              id: userId,
+              stripe_customer_id: session.customer as string,
+              stripe_subscription_id: session.subscription as string,
+              subscription_status: subscription.status,
+              hosting_status: 'active',
+              plan_type: 'pro',
+              updated_at: new Date().toISOString(),
+            });
+
+          // Reactivate all archived models for this user
+          await supabase
+            .from('generations')
+            .update({ is_public: true, archived_at: null })
+            .eq('user_id', userId)
+            .eq('is_public', false)
+            .not('archived_at', 'is', null);
+
+          // Track analytics
+          await supabase
+            .from('analytics')
+            .insert({
+              event_type: 'hosting_activated',
+              user_id: userId,
+              metadata: {
+                subscription_id: session.subscription,
+                customer_id: session.customer,
+                status: subscription.status,
+              },
+            });
+
+          console.log('Hosting subscription created:', session.id, 'Status:', subscription.status);
+        }
         break;
       }
 
+      // ==================================================
+      // SUBSCRIPTION UPDATED (status changes)
+      // ==================================================
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
 
+        const updateData: Record<string, any> = {
+          subscription_status: subscription.status,
+          updated_at: new Date().toISOString(),
+        };
+
+        // If subscription becomes active, ensure hosting is active
+        if (subscription.status === 'active') {
+          updateData.hosting_status = 'active';
+        }
+
         await supabase
           .from('profiles')
-          .update({
-            subscription_status: subscription.status,
-            updated_at: new Date().toISOString(),
-          })
+          .update(updateData)
           .eq('stripe_subscription_id', subscription.id);
 
-        console.log('Subscription updated:', subscription.id);
+        // If reactivated, also reactivate models
+        if (subscription.status === 'active') {
+          // Find user_id from profiles
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('stripe_subscription_id', subscription.id)
+            .single();
+
+          if (profile) {
+            await supabase
+              .from('generations')
+              .update({ is_public: true, archived_at: null })
+              .eq('user_id', profile.id)
+              .eq('is_public', false)
+              .not('archived_at', 'is', null);
+          }
+        }
+
+        console.log('Subscription updated:', subscription.id, 'Status:', subscription.status);
         break;
       }
 
+      // ==================================================
+      // SUBSCRIPTION DELETED — THE KILL SWITCH
+      // ==================================================
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
 
+        // Find the user
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('stripe_subscription_id', subscription.id)
+          .single();
+
+        // Pause hosting + archive all models
         await supabase
           .from('profiles')
           .update({
             subscription_status: 'canceled',
             stripe_subscription_id: null,
-            plan_type: 'starter',
+            hosting_status: 'paused',
+            plan_type: 'free',
             updated_at: new Date().toISOString(),
           })
           .eq('stripe_subscription_id', subscription.id);
+
+        // Archive all models (the kill switch)
+        if (profile) {
+          await supabase
+            .from('generations')
+            .update({
+              is_public: false,
+              archived_at: new Date().toISOString(),
+            })
+            .eq('user_id', profile.id)
+            .eq('is_public', true)
+            .is('deleted_at', null);
+
+          console.log(`Kill switch: Archived all models for user ${profile.id}`);
+        }
 
         console.log('Subscription canceled:', subscription.id);
         break;
       }
 
+      // ==================================================
+      // PAYMENT SUCCESS
+      // ==================================================
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
-
-        // Invoice successfully paid
-        // You can store invoice details, send custom notifications, etc.
         console.log('Invoice paid:', invoice.id);
         console.log('Invoice PDF:', invoice.invoice_pdf);
         console.log('Invoice URL:', invoice.hosted_invoice_url);
-
-        // Note: Subscription status is already handled by
-        // customer.subscription.updated event, no need to update here
         break;
       }
 
+      // ==================================================
+      // PAYMENT FAILED — PAUSE HOSTING
+      // ==================================================
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
+
+        // Find the user and pause their hosting
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('stripe_customer_id', invoice.customer as string)
+          .single();
 
         await supabase
           .from('profiles')
           .update({
             subscription_status: 'past_due',
+            hosting_status: 'paused',
             updated_at: new Date().toISOString(),
           })
           .eq('stripe_customer_id', invoice.customer as string);
 
+        // Archive all models
+        if (profile) {
+          await supabase
+            .from('generations')
+            .update({
+              is_public: false,
+              archived_at: new Date().toISOString(),
+            })
+            .eq('user_id', profile.id)
+            .eq('is_public', true)
+            .is('deleted_at', null);
+
+          console.log(`Payment failed: Archived all models for user ${profile.id}`);
+        }
+
         console.log('Payment failed:', invoice.id);
-        // TODO: Send email notification to user about failed payment
         break;
       }
 
+      // ==================================================
+      // INVOICE FINALIZED
+      // ==================================================
       case 'invoice.finalized': {
         const invoice = event.data.object as Stripe.Invoice;
-
-        // Invoice is finalized and ready to be sent to customer
         console.log('Invoice finalized:', invoice.id);
         console.log('Invoice number:', invoice.number);
         break;

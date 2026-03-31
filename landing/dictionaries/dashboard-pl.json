@@ -29,7 +29,8 @@
     "delete": "Usuń",
     "deleteConfirm": "Czy na pewno chcesz usunąć",
     "failedToDelete": "Nie udało się usunąć modelu",
-    "generatingModel": "Generowanie modelu 3D..."
+    "generatingModel": "Generowanie modelu 3D...",
+    "arPaused": "AR Wstrzymane"
   },
   "qrModal": {
     "title": "Udostępnij Doświadczenie AR",
@@ -137,5 +138,31 @@
     "notVerified": "Niezweryfikowany",
     "supportNote": "Potrzebujesz zmienić email lub hasło? Skontaktuj się z nami na spacecheck@sebastiankotarski.com",
     "loading": "Ładowanie..."
+  },
+  "credits": {
+    "title": "Kredyty i Hosting",
+    "creditsAvailable": "Dostępne Kredyty",
+    "creditsDesc": "Każdy kredyt generuje jeden model 3D",
+    "buyCredits": "Kup Kredyty",
+    "hostingStatus": "Status Hostingu",
+    "hostingDesc": "Kontroluje, czy Twoje linki AR są publicznie dostępne",
+    "hostingActive": "Aktywny",
+    "hostingTrial": "Okres Próbny",
+    "hostingPaused": "Wstrzymany",
+    "hostingExpires": "Wygasa",
+    "activateHosting": "Aktywuj Hosting",
+    "manageHosting": "Zarządzaj Hostingiem",
+    "activeModels": "Aktywne Linki AR",
+    "archivedModels": "Wstrzymane Linki AR",
+    "noCredits": "Brak kredytów",
+    "noCreditsDesc": "Kup więcej kredytów, aby generować nowe modele 3D.",
+    "hostingPausedDesc": "Twoje linki AR nie są publicznie dostępne. Aktywuj hosting, aby je uruchomić.",
+    "trialExpiring": "Twój darmowy okres próbny wygasa",
+    "freeTrialNote": "7-dniowy darmowy hosting w zestawie z pierwszym modelem",
+    "creditsPurchased": "Kredyty Dodane!",
+    "creditsPurchasedDesc": "Kredyty zostały dodane do Twojego konta. Możesz teraz generować nowe modele.",
+    "hostingActivated": "Hosting Aktywowany!",
+    "hostingActivatedDesc": "Twoje linki AR są teraz aktywne i publicznie dostępne.",
+    "paymentSuccess": "Płatność została przetworzona pomyślnie."
   }
 }
