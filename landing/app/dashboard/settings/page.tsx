@@ -89,19 +89,7 @@ export default function SettingsPage() {
   const handleActivateHosting = async () => {
     setLoadingAction('hosting')
     try {
-      if (hasShopifyStore) {
-        const response = await fetch('/api/shopify/billing', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        })
-        const data = await response.json()
-        if (!response.ok) throw new Error(data.error || 'Failed to create Shopify subscription')
-        if (data.confirmationUrl) {
-          window.location.href = data.confirmationUrl
-          return
-        }
-      }
-
+      // Always use Stripe for hosting — Shopify Managed Pricing apps cannot use Billing API
       const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_HOSTING
       if (!priceId) {
         alert('Hosting plan not configured.')

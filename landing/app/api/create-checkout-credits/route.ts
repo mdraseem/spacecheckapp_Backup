@@ -56,6 +56,10 @@ export async function POST(req: NextRequest) {
     // Create one-time payment Checkout Session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
+      customer_update: {
+        address: 'auto',
+        name: 'auto',
+      },
       mode: 'payment', // One-time payment, NOT subscription
       payment_method_types: ['card'],
       line_items: [
@@ -67,6 +71,7 @@ export async function POST(req: NextRequest) {
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL || req.headers.get('origin')}/dashboard?credits_purchased=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || req.headers.get('origin')}/dashboard?canceled=true`,
       allow_promotion_codes: true,
+      billing_address_collection: 'required',
       automatic_tax: {
         enabled: true,
       },
