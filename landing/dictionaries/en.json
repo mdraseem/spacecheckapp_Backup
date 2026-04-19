@@ -13,7 +13,7 @@
     "subtitle": "SpaceCheck automates 3D model creation for furniture retailers. Increase conversion by 40% and reduce returns by letting customers visualize products in their homes.",
     "ctaStart": "Start Free",
     "ctaDemo": "View Demo",
-    "disclaimer": "1 free model included • No subscription required to start",
+    "disclaimer": "Free 3D generation • Pay only to download & share",
     "photoLabel": "Standard Photo",
     "arLabel": "AR View Active",
     "livePreview": "Live AR Preview"
@@ -90,31 +90,31 @@
     "mobileBtn": "Or Click Here (Mobile)"
   },
   "pricing": {
-    "title": "Pay Only for What You Use",
-    "subtitle": "Buy credits to generate models. Subscribe to keep your AR links live.",
+    "title": "Generate Free, Pay to Download",
+    "subtitle": "Create 3D models for free. Only pay when you want to download, share, or get QR codes.",
     "period": "/month",
     "perModel": "/model",
     "mostPopular": "Best Value",
     "currencyNote": "Prices in USD. Your bank will convert to your local currency at checkout.",
-    "creditsLabel": "Generation Credits",
-    "hostingLabel": "AR Hosting",
+    "creditsLabel": "Unlock Credits",
+    "unlockLabel": "Generate Free",
     "payAsYouGo": {
-      "name": "Pay as You Go",
-      "desc": "Generate 3D models on demand. No subscription needed.",
-      "cta": "Buy Credits",
+      "name": "Unlock Credits",
+      "desc": "Each credit unlocks one model for download, sharing, and QR codes.",
+      "cta": "Start Generating Free",
       "packs": [
-        {"credits": 1, "price": "$15", "perUnit": "$15/model"},
-        {"credits": 5, "price": "$59", "perUnit": "$11.80/model"},
-        {"credits": 20, "price": "$199", "perUnit": "$9.95/model"}
+        {"credits": 1, "price": "$7", "perUnit": "$7/model"},
+        {"credits": 5, "price": "$29", "perUnit": "$5.80/model"},
+        {"credits": 20, "price": "$99", "perUnit": "$4.95/model"}
       ],
-      "features": ["1 free credit included", "AI-powered 3D generation", "GLB + USDZ formats", "7-day free hosting trial", "QR code & embed code"]
+      "features": ["1 credit = 1 model unlocked", "Download GLB + USDZ files", "Shareable AR links", "QR codes for print & display", "No subscription required"]
     },
-    "proStore": {
-      "name": "Pro Store",
-      "desc": "Keep all your AR links live and accessible 24/7.",
-      "price": "$29",
-      "cta": "Activate Hosting",
-      "features": ["Unlimited active AR links", "QR codes always scannable", "Embed codes always working", "Analytics dashboard", "Priority email support", "Custom branding"]
+    "unlock": {
+      "name": "How It Works",
+      "desc": "Generate unlimited 3D models for free. Preview results, then unlock the ones you like.",
+      "price": "Free",
+      "cta": "Start Generating Free",
+      "features": ["Unlimited free 3D generation", "Preview every model for free", "Use 1 credit to unlock downloads", "Shareable AR links & QR codes", "Analytics dashboard", "Permanent access — no subscription"]
     },
     "enterprise": {
       "name": "Enterprise",
@@ -133,10 +133,10 @@
     "a2": "You get two options: 1) Download a QR code poster to print and display on furniture in your physical store, or 2) Copy HTML embed code to add an AR button to your website. Both work on iPhone and Android without requiring any app download.",
     "q3": "Can customers use AR on their phones?",
     "a3": "Yes. We generate both USDZ files for iPhones (using Apple's AR Quick Look) and GLB files for Android devices (using Google's Scene Viewer). Customers simply scan the QR code or tap the button on your website to view furniture in their space.",
-    "q4": "What happens to my models if I cancel hosting?",
-    "a4": "Your 3D models are never deleted. However, without an active hosting subscription ($29/mo), public AR links and QR codes will show a 'Paused' page instead of the 3D model. Your unused credits never expire. Simply reactivate hosting to restore all your AR links instantly.",
-    "q5": "How do credits and hosting work together?",
-    "a5": "Credits are your 'fuel' -- each credit generates one 3D model ($15/model or less with bundles). Hosting is your 'engine' -- the $29/month subscription keeps all your AR links, QR codes, and embeds live. You get 1 free credit and 7 days of free hosting to try it out."
+    "q4": "What happens if I don't unlock a model?",
+    "a4": "Your 3D model stays in your dashboard and you can preview it anytime. However, to share AR links publicly, download GLB/USDZ files, or generate QR codes, you need to unlock the model with 1 credit. Your unused credits never expire.",
+    "q5": "How do credits and unlocking work together?",
+    "a5": "Generating 3D models is completely free — create as many as you want. When you find a model you like and want to download or share it, use 1 credit to unlock it ($7/credit or less with bundles). Unlocking gives you shareable AR links, QR codes, and downloadable GLB/USDZ files. No subscription needed."
     },
     "generator": {
       "headerTitle": "AR QR Code Generator",

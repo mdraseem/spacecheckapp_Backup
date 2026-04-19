@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Zap, Server, Building2, Loader2 } from 'lucide-react'
+import { Check, Zap, Unlock, Building2, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -64,49 +64,12 @@ export default function PricingWithCheckout({ dict }: { dict: any }) {
     }
   }
 
-  const handleActivateHosting = async () => {
-    setLoading('hosting')
-    try {
-      trackLandingEvent('pricing_cta_clicked', {
-        plan_type: 'hosting',
-        source: 'pricing_section',
-      })
-
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (!user) {
-        trackConversion('signup', 'initiated', { source: 'pricing_hosting' })
-        router.push('/login')
-        return
-      }
-
-      const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_HOSTING
-      if (!priceId) {
-        alert('Hosting plan not configured. Set NEXT_PUBLIC_STRIPE_PRICE_HOSTING env var.')
-        return
-      }
-
-      trackConversion('checkout', 'initiated', {
-        plan_type: 'hosting',
-        price_id: priceId,
-      })
-
-      const response = await fetch('/api/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId }),
-      })
-
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Failed to create checkout')
-      if (data.url) window.location.href = data.url
-      else if (data.message) alert(data.message)
-    } catch (error: any) {
-      console.error('Hosting checkout error:', error)
-      alert(error.message || 'Failed to start checkout')
-    } finally {
-      setLoading(null)
-    }
+  const handleGetStarted = () => {
+    trackLandingEvent('pricing_cta_clicked', {
+      plan_type: 'unlock',
+      source: 'pricing_section',
+    })
+    router.push('/login')
   }
 
   const handleContactSales = () => {
@@ -124,7 +87,7 @@ export default function PricingWithCheckout({ dict }: { dict: any }) {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
-            {/* TIER 1: Pay as You Go (Credits) */}
+            {/* TIER 1: Generate (Credits) */}
             <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center">
@@ -180,45 +143,39 @@ export default function PricingWithCheckout({ dict }: { dict: any }) {
               </ul>
             </div>
 
-            {/* TIER 2: Pro Store (Hosting) — Highlighted */}
+            {/* TIER 2: Unlock Per Model — Highlighted */}
             <div className="relative bg-white rounded-2xl p-8 border-2 border-secondary shadow-xl md:scale-105 z-10 flex flex-col">
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-secondary text-white px-4 py-1 rounded-full text-sm font-bold shadow-md">
-                {p.hostingLabel}
+                {p.unlockLabel || 'Try Before You Buy'}
               </div>
 
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center">
-                  <Server className="w-5 h-5 text-secondary" />
+                  <Unlock className="w-5 h-5 text-secondary" />
                 </div>
-                <h3 className="text-xl font-bold text-primary">{p.proStore.name}</h3>
+                <h3 className="text-xl font-bold text-primary">{p.unlock.name}</h3>
               </div>
-              <p className="text-gray-500 text-sm mb-6">{p.proStore.desc}</p>
+              <p className="text-gray-500 text-sm mb-6">{p.unlock.desc}</p>
 
               {/* Price */}
               <div className="mb-6">
-                <span className="text-5xl font-bold text-primary">{p.proStore.price}</span>
-                <span className="text-gray-500">{p.period}</span>
+                <span className="text-5xl font-bold text-primary">{p.unlock.price}</span>
+                {p.unlock.price !== 'Free' && p.unlock.price !== 'Za Darmo' && (
+                  <span className="text-gray-500">{p.perModel}</span>
+                )}
               </div>
 
               {/* CTA */}
               <button
-                onClick={handleActivateHosting}
-                disabled={loading !== null}
-                className="w-full bg-secondary text-white font-bold py-4 rounded-xl hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-6"
+                onClick={handleGetStarted}
+                className="w-full bg-secondary text-white font-bold py-4 rounded-xl hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20 flex items-center justify-center gap-2 mb-6"
               >
-                {loading === 'hosting' ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    Loading...
-                  </>
-                ) : (
-                  p.proStore.cta
-                )}
+                {p.unlock.cta}
               </button>
 
               {/* Features */}
               <ul className="space-y-3 flex-1">
-                {p.proStore.features.map((feature: string, i: number) => (
+                {p.unlock.features.map((feature: string, i: number) => (
                   <li key={i} className="flex items-start gap-3 text-gray-600 text-sm">
                     <Check size={18} className="text-secondary flex-shrink-0 mt-0.5" />
                     <span>{feature}</span>

@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader2, AlertCircle, Download, Eye, RefreshCw, QrCode, BarChart3, MoreVertical, Edit2, Trash2, Store, EyeOff } from 'lucide-react'
+import { Loader2, AlertCircle, Download, Eye, RefreshCw, QrCode, BarChart3, MoreVertical, Edit2, Trash2, Store, Lock, Unlock } from 'lucide-react'
 import Image from 'next/image'
 import { retryGeneration, deleteGeneration } from '@/app/dashboard/actions'
 import { useState, useRef, useEffect } from 'react'
@@ -23,6 +23,7 @@ interface Generation {
   height_cm?: number | null
   depth_cm?: number | null
   is_public?: boolean
+  is_unlocked?: boolean
   archived_at?: string | null
 }
 
@@ -38,10 +39,13 @@ export function ModelCard({ model }: { model: Generation }) {
   const [showMenu, setShowMenu] = useState(false)
   const [isEditingName, setIsEditingName] = useState(false)
   const [editedName, setEditedName] = useState(model.name || '')
+  const [isUnlocking, setIsUnlocking] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   // Check if model is in an active processing state
   const isProcessing = model.status === 'processing'
+  const isUnlocked = model.is_unlocked === true
+  const isCompleted = model.status === 'completed'
 
   const progressMessage = dict.modelCard.generatingModel
 
@@ -69,10 +73,39 @@ export function ModelCard({ model }: { model: Generation }) {
 
   const handleViewInAR = () => {
     if (model.glb_url) {
-      // Use full URL for dashboard models
       const displayName = model.name || `Generation #${model.id.slice(0, 6)}`
       const viewerUrl = `/viewer.html?modelUrl=${encodeURIComponent(model.glb_url)}&name=${encodeURIComponent(displayName)}`
       window.open(viewerUrl, '_blank')
+    }
+  }
+
+  const handleUnlockModel = async () => {
+    setIsUnlocking(true)
+    try {
+      const response = await fetch('/api/unlock-model', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ generationId: model.id }),
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        if (data.code === 'NO_CREDITS') {
+          // Redirect to settings page to buy credits
+          window.location.href = '/dashboard/settings'
+          return
+        }
+        throw new Error(data.error || 'Failed to unlock model')
+      }
+
+      // Refresh data to show unlocked state
+      queryClient.invalidateQueries({ queryKey: ['generations'] })
+      queryClient.invalidateQueries({ queryKey: ['usage'] })
+    } catch (error: any) {
+      console.error('Unlock error:', error)
+      alert(error.message || 'Failed to unlock model')
+    } finally {
+      setIsUnlocking(false)
     }
   }
 
@@ -139,8 +172,6 @@ export function ModelCard({ model }: { model: Generation }) {
       const { createClient } = await import('@/utils/supabase/client')
       const supabase = createClient()
 
-      // Soft-delete: mark as deleted instead of removing the row,
-      // so it still counts toward monthly usage limits.
       const { error } = await supabase
         .from('generations')
         .update({ deleted_at: new Date().toISOString() })
@@ -150,7 +181,6 @@ export function ModelCard({ model }: { model: Generation }) {
         throw new Error(error.message)
       }
 
-      // Invalidate and refetch the generations query
       queryClient.invalidateQueries({ queryKey: ['generations'] })
     } catch (error) {
       console.error('Failed to delete:', error)
@@ -194,18 +224,22 @@ export function ModelCard({ model }: { model: Generation }) {
             </div>
           )}
 
-          {model.status === 'completed' && model.is_public !== false && (
+          {/* Unlocked badge */}
+          {isCompleted && isUnlocked && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="bg-[#00f0ff] text-[#050a14] text-xs font-bold px-2 py-1 rounded">{dict.modelCard.ready}</span>
+              <span className="flex items-center gap-1 bg-[#00f0ff] text-[#050a14] text-xs font-bold px-2 py-1 rounded">
+                <Unlock size={12} />
+                {dict.modelCard.ready}
+              </span>
             </div>
           )}
 
-          {/* Archived / Hosting Paused badge */}
-          {model.status === 'completed' && model.is_public === false && (
+          {/* Locked badge */}
+          {isCompleted && !isUnlocked && (
             <div className="absolute top-2 right-2">
-              <span className="flex items-center gap-1 bg-orange-500/90 text-white text-xs font-bold px-2 py-1 rounded">
-                <EyeOff size={12} />
-                {dict.modelCard.arPaused || 'AR Paused'}
+              <span className="flex items-center gap-1 bg-amber-500/90 text-white text-xs font-bold px-2 py-1 rounded">
+                <Lock size={12} />
+                {dict.modelCard.locked || 'Locked'}
               </span>
             </div>
           )}
@@ -267,7 +301,7 @@ export function ModelCard({ model }: { model: Generation }) {
                     <Edit2 size={14} />
                     {dict.modelCard.editName}
                   </button>
-                  {model.status === 'completed' && (
+                  {isCompleted && isUnlocked && (
                     <button
                       onClick={() => {
                         setShowShopifyPicker(true)
@@ -291,44 +325,84 @@ export function ModelCard({ model }: { model: Generation }) {
             </div>
           </div>
 
-          {model.status === 'completed' ? (
-            <div className="space-y-2">
-              {/* Primary Action - View in AR */}
-              <button
-                onClick={handleViewInAR}
-                className="w-full flex items-center justify-center gap-2 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] text-sm font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.3)]"
-              >
-                <Eye size={16} /> {dict.modelCard.viewInAR}
-              </button>
+          {isCompleted ? (
+            isUnlocked ? (
+              /* ===== UNLOCKED MODEL: Full actions ===== */
+              <div className="space-y-2">
+                {/* Primary Action - View in AR */}
+                <button
+                  onClick={handleViewInAR}
+                  className="w-full flex items-center justify-center gap-2 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] text-sm font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+                >
+                  <Eye size={16} /> {dict.modelCard.viewInAR}
+                </button>
 
-              {/* Secondary Actions */}
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => setShowQRModal(true)}
-                  className="flex flex-col items-center justify-center gap-1 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white text-xs py-2 rounded-lg transition-colors"
-                  title="Generate QR Code"
-                >
-                  <QrCode size={16} />
-                  <span>QR</span>
-                </button>
-                <button
-                  onClick={() => setShowAnalyticsModal(true)}
-                  className="flex flex-col items-center justify-center gap-1 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white text-xs py-2 rounded-lg transition-colors"
-                  title="View Analytics"
-                >
-                  <BarChart3 size={16} />
-                  <span>Stats</span>
-                </button>
-                <button
-                  onClick={() => window.open(model.glb_url!, '_blank')}
-                  className="flex flex-col items-center justify-center gap-1 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white text-xs py-2 rounded-lg transition-colors"
-                  title="Download GLB"
-                >
-                  <Download size={16} />
-                  <span>GLB</span>
-                </button>
+                {/* Secondary Actions */}
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    onClick={() => setShowQRModal(true)}
+                    className="flex flex-col items-center justify-center gap-1 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white text-xs py-2 rounded-lg transition-colors"
+                    title="Generate QR Code"
+                  >
+                    <QrCode size={16} />
+                    <span>QR</span>
+                  </button>
+                  <button
+                    onClick={() => setShowAnalyticsModal(true)}
+                    className="flex flex-col items-center justify-center gap-1 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white text-xs py-2 rounded-lg transition-colors"
+                    title="View Analytics"
+                  >
+                    <BarChart3 size={16} />
+                    <span>Stats</span>
+                  </button>
+                  <button
+                    onClick={() => window.open(model.glb_url!, '_blank')}
+                    className="flex flex-col items-center justify-center gap-1 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white text-xs py-2 rounded-lg transition-colors"
+                    title="Download GLB"
+                  >
+                    <Download size={16} />
+                    <span>GLB</span>
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              /* ===== LOCKED MODEL: Show unlock CTA ===== */
+              <div className="space-y-2">
+                {/* Preview button — user can see the model but it's not shareable */}
+                <button
+                  onClick={handleViewInAR}
+                  className="w-full flex items-center justify-center gap-2 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white text-sm font-medium py-2.5 rounded-lg transition-all border border-[#1e293b]"
+                >
+                  <Eye size={16} /> {dict.modelCard.preview || 'Preview'}
+                </button>
+
+                {/* Unlock CTA */}
+                <button
+                  onClick={handleUnlockModel}
+                  disabled={isUnlocking}
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-sm font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isUnlocking ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <Unlock size={16} />
+                      {dict.modelCard.unlockModel || 'Unlock for $5'}
+                    </>
+                  )}
+                </button>
+
+                {/* Locked features hint */}
+                <div className="flex items-center justify-center gap-3 text-xs text-slate-500 pt-1">
+                  <span className="flex items-center gap-1"><QrCode size={12} /> QR</span>
+                  <span className="flex items-center gap-1"><Download size={12} /> GLB</span>
+                  <span className="flex items-center gap-1"><BarChart3 size={12} /> Stats</span>
+                </div>
+              </div>
+            )
           ) : model.status === 'failed' ? (
             <button
               onClick={handleRetry}

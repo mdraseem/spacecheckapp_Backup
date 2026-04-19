@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/utils/supabase/client'
 import { ModelCard } from '@/components/dashboard/ModelCard'
 import { UsageBadge } from '@/components/dashboard/UsageBadge'
-import { PlusCircle, Box, CheckCircle, Zap, Server, X } from 'lucide-react'
+import { PlusCircle, Box, CheckCircle, Zap, Server, Unlock, X } from 'lucide-react'
 import Link from 'next/link'
 import { useDashboardLanguage } from '@/contexts/DashboardLanguageContext'
 import { useSearchParams } from 'next/navigation'
@@ -26,6 +26,9 @@ export default function DashboardPage() {
       setTimeout(() => setShowSuccessMessage(null), 10000)
     } else if (searchParams.get('hosting_activated') === 'true') {
       setShowSuccessMessage('hosting')
+      setTimeout(() => setShowSuccessMessage(null), 10000)
+    } else if (searchParams.get('model_unlocked') === 'true') {
+      setShowSuccessMessage('unlock')
       setTimeout(() => setShowSuccessMessage(null), 10000)
     } else if (searchParams.get('success') === 'true') {
       setShowSuccessMessage('generic')
@@ -99,6 +102,8 @@ export default function DashboardPage() {
                 <Zap className="w-5 h-5 text-green-400" />
               ) : showSuccessMessage === 'hosting' ? (
                 <Server className="w-5 h-5 text-green-400" />
+              ) : showSuccessMessage === 'unlock' ? (
+                <Unlock className="w-5 h-5 text-green-400" />
               ) : (
                 <CheckCircle className="w-5 h-5 text-green-400" />
               )}
@@ -109,6 +114,8 @@ export default function DashboardPage() {
                   ? (c.creditsPurchased || 'Credits Added!')
                   : showSuccessMessage === 'hosting'
                   ? (c.hostingActivated || 'Hosting Activated!')
+                  : showSuccessMessage === 'unlock'
+                  ? (c.modelUnlocked || 'Model Unlocked!')
                   : 'Payment Successful!'}
               </p>
               <p className="text-green-400/80 text-sm">
@@ -116,6 +123,8 @@ export default function DashboardPage() {
                   ? (c.creditsPurchasedDesc || 'Your credits have been added to your account. You can now generate new models.')
                   : showSuccessMessage === 'hosting'
                   ? (c.hostingActivatedDesc || 'Your AR links are now live and publicly accessible.')
+                  : showSuccessMessage === 'unlock'
+                  ? (c.modelUnlockedDesc || 'Your model is now unlocked! You can share it, download files, and generate QR codes.')
                   : (c.paymentSuccess || 'Your payment has been processed successfully.')}
               </p>
             </div>

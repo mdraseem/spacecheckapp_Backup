@@ -1,7 +1,10 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 
 // ==========================================
-// Credit + Active Hosting business logic
+// Business model:
+//   - Generation is FREE (no credits needed)
+//   - Credits are used to UNLOCK models (download, share, QR)
+//   - Credit packs: 1 for $7, 5 for $29, 20 for $99
 // ==========================================
 
 export type HostingStatus = 'active' | 'trial' | 'paused'
@@ -15,6 +18,8 @@ export interface CreditAndHostingInfo {
   activeModels: number
   archivedModels: number
   totalModels: number
+  unlockedModels: number
+  lockedModels: number
 }
 
 export interface UsageInfo {
@@ -25,16 +30,18 @@ export interface UsageInfo {
   billingSource: BillingSource
   remaining: number
   hasExceeded: boolean
-  // New credit + hosting fields
+  // Credit fields
   creditBalance: number
   hostingStatus: HostingStatus
   hostingExpiresAt: string | null
   activeModels: number
   archivedModels: number
+  unlockedModels: number
+  lockedModels: number
 }
 
 /**
- * Get the user's credit balance, hosting status, and model counts.
+ * Get the user's credit balance, model counts, and unlock status.
  */
 export async function getUserCreditsAndHosting(
   supabase: SupabaseClient,
@@ -48,25 +55,31 @@ export async function getUserCreditsAndHosting(
     .single()
 
   const creditBalance = profile?.credit_balance ?? 1
-  let hostingStatus = (profile?.hosting_status || 'trial') as HostingStatus
+  // Keep hosting status for legacy subscribers, but default to 'active' for new model
+  const hostingStatus = (profile?.hosting_status || 'active') as HostingStatus
   const hostingExpiresAt = profile?.hosting_expires_at || null
   const billingSource = (profile?.billing_source || 'stripe') as BillingSource
 
-  // Check if trial has expired
-  if (hostingStatus === 'trial' && hostingExpiresAt) {
-    const expiresAt = new Date(hostingExpiresAt)
-    if (expiresAt < new Date()) {
-      hostingStatus = 'paused'
-      // Update in DB (fire-and-forget)
-      supabase
-        .from('profiles')
-        .update({ hosting_status: 'paused' })
-        .eq('id', userId)
-        .then(() => {})
-    }
-  }
+  // Count total non-deleted models
+  const { count: totalCount } = await supabase
+    .from('generations')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .is('deleted_at', null)
 
-  // Count models
+  // Count unlocked models
+  const { count: unlockedCount } = await supabase
+    .from('generations')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('is_unlocked', true)
+    .is('deleted_at', null)
+
+  const totalModels = totalCount || 0
+  const unlockedModels = unlockedCount || 0
+  const lockedModels = totalModels - unlockedModels
+
+  // Legacy: count active/archived for backward compat
   const { count: activeCount } = await supabase
     .from('generations')
     .select('*', { count: 'exact', head: true })
@@ -92,13 +105,14 @@ export async function getUserCreditsAndHosting(
     billingSource,
     activeModels,
     archivedModels,
-    totalModels: activeModels + archivedModels,
+    totalModels,
+    unlockedModels,
+    lockedModels,
   }
 }
 
 /**
- * Get legacy-compatible usage info (for backward compatibility with existing UI).
- * Maps the new credit system into the old interface shape.
+ * Get legacy-compatible usage info.
  */
 export async function getUserUsage(
   supabase: SupabaseClient,
@@ -107,24 +121,27 @@ export async function getUserUsage(
   const info = await getUserCreditsAndHosting(supabase, userId)
 
   return {
-    // Legacy fields — creditBalance acts as "remaining"
+    // Legacy fields
     currentUsage: 0,
     limit: info.creditBalance,
     planType: info.hostingStatus === 'active' ? 'pro' : 'free',
     billingSource: info.billingSource,
     remaining: info.creditBalance,
     hasExceeded: info.creditBalance <= 0,
-    // New fields
+    // Credit fields
     creditBalance: info.creditBalance,
     hostingStatus: info.hostingStatus,
     hostingExpiresAt: info.hostingExpiresAt,
     activeModels: info.activeModels,
     archivedModels: info.archivedModels,
+    unlockedModels: info.unlockedModels,
+    lockedModels: info.lockedModels,
   }
 }
 
 /**
- * Check if user can create a new generation (has credits available).
+ * Check if user can create a new generation.
+ * Generation is always FREE — no credits needed.
  */
 export async function canCreateGeneration(
   supabase: SupabaseClient,
@@ -132,19 +149,40 @@ export async function canCreateGeneration(
 ): Promise<{ allowed: boolean; creditBalance: number; usage: UsageInfo; error?: string }> {
   const usage = await getUserUsage(supabase, userId)
 
-  if (usage.creditBalance <= 0) {
+  // Generation is free — always allowed
+  return {
+    allowed: true,
+    creditBalance: usage.creditBalance,
+    usage,
+  }
+}
+
+/**
+ * Check if user can unlock a model (has credits available).
+ */
+export async function canUnlockModel(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<{ allowed: boolean; creditBalance: number; error?: string }> {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('credit_balance')
+    .eq('id', userId)
+    .single()
+
+  const creditBalance = profile?.credit_balance ?? 0
+
+  if (creditBalance <= 0) {
     return {
       allowed: false,
-      creditBalance: usage.creditBalance,
-      usage,
-      error: 'You have no credits remaining. Purchase more credits to generate a new model.',
+      creditBalance,
+      error: 'No credits remaining. Purchase credits to unlock this model.',
     }
   }
 
   return {
     allowed: true,
-    creditBalance: usage.creditBalance,
-    usage,
+    creditBalance,
   }
 }
 
@@ -156,7 +194,6 @@ export async function deductCredit(
   supabase: SupabaseClient,
   userId: string
 ): Promise<number> {
-  // Use RPC or a direct update with check
   const { data: profile, error: fetchError } = await supabase
     .from('profiles')
     .select('credit_balance')
@@ -218,8 +255,41 @@ export async function addCredits(
 }
 
 /**
- * Check if a user's hosting is active (for the AR viewer).
- * Returns true if the user has an active or valid trial hosting status.
+ * Check if a model is unlocked (for the AR viewer / share / download).
+ */
+export async function isModelUnlocked(
+  supabase: SupabaseClient,
+  generationId: string
+): Promise<boolean> {
+  const { data: generation } = await supabase
+    .from('generations')
+    .select('is_unlocked')
+    .eq('id', generationId)
+    .single()
+
+  return generation?.is_unlocked === true
+}
+
+/**
+ * Unlock a model (after payment).
+ */
+export async function unlockModel(
+  supabase: SupabaseClient,
+  generationId: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('generations')
+    .update({ is_unlocked: true, is_public: true })
+    .eq('id', generationId)
+
+  if (error) {
+    throw new Error('Failed to unlock model')
+  }
+}
+
+/**
+ * Legacy: Check if a user's hosting is active.
+ * Kept for backward compatibility with existing subscribers.
  */
 export async function isHostingActive(
   supabase: SupabaseClient,
@@ -245,30 +315,13 @@ export async function isHostingActive(
 }
 
 /**
- * Activate the 7-day free hosting trial for a user (on first generation).
+ * Legacy: Activate the 7-day free hosting trial.
+ * No longer called for new users, kept for backward compat.
  */
 export async function activateHostingTrial(
   supabase: SupabaseClient,
   userId: string
 ): Promise<void> {
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('hosting_status, hosting_expires_at')
-    .eq('id', userId)
-    .single()
-
-  // Only activate trial if user hasn't had one yet and isn't already a subscriber
-  if (profile?.hosting_status === 'active') return
-  if (profile?.hosting_expires_at) return // Already had a trial
-
-  const trialExpiry = new Date()
-  trialExpiry.setDate(trialExpiry.getDate() + 7)
-
-  await supabase
-    .from('profiles')
-    .update({
-      hosting_status: 'trial',
-      hosting_expires_at: trialExpiry.toISOString(),
-    })
-    .eq('id', userId)
+  // No-op in new model — hosting trial is no longer used
+  return
 }

@@ -17,24 +17,13 @@ export async function createGeneration(imagePath: string, dimensions: Dimensions
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Check credit balance
-  const { canCreateGeneration, deductCredit, activateHostingTrial } = await import('@/utils/usage-limits')
-  const { allowed, error: limitError } = await canCreateGeneration(supabase, user.id)
-
-  if (!allowed) {
-    throw new Error(limitError || 'No credits remaining')
-  }
-
-  // Deduct 1 credit
-  await deductCredit(supabase, user.id)
-
-  // Activate 7-day hosting trial on first generation (no-op if already active)
-  await activateHostingTrial(supabase, user.id)
+  // Generation is free — no credit check or deduction needed
 
   // Construct public URL from R2
   const publicUrl = getR2PublicUrl(imagePath)
 
   // Insert into DB with dimensions stored in cm
+  // Models are created locked (is_unlocked: false) — user must spend 1 credit to unlock share/download
   const { data: generation, error } = await supabase
     .from('generations')
     .insert({
@@ -45,7 +34,8 @@ export async function createGeneration(imagePath: string, dimensions: Dimensions
       width_cm: parseFloat(dimensions.width),
       height_cm: parseFloat(dimensions.height),
       depth_cm: parseFloat(dimensions.depth),
-      is_public: true,
+      is_public: false,
+      is_unlocked: false,
     })
     .select()
     .single()
@@ -238,15 +228,7 @@ export async function bulkCreateGenerationsFromShopify(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Check credit balance upfront
-  const { getUserCreditsAndHosting, deductCredit, activateHostingTrial } = await import('@/utils/usage-limits')
-  const info = await getUserCreditsAndHosting(supabase, user.id)
-
-  if (info.creditBalance < items.length) {
-    throw new Error(
-      `You only have ${info.creditBalance} credits remaining. You selected ${items.length} products. Purchase more credits to continue.`
-    )
-  }
+  // Generation is free — no credit check needed
 
   // Get Shopify store info once
   const { createClient: createServiceClient } = await import('@supabase/supabase-js')
@@ -269,11 +251,7 @@ export async function bulkCreateGenerationsFromShopify(
 
   for (const item of items) {
     try {
-      // Deduct 1 credit per model
-      await deductCredit(supabase, user.id)
-
-      // Activate hosting trial on first generation
-      await activateHostingTrial(supabase, user.id)
+      // Generation is free — no credit deduction
 
       // Download image from Shopify and upload to R2
       const imageResponse = await fetch(item.shopifyImageUrl)
@@ -284,7 +262,7 @@ export async function bulkCreateGenerationsFromShopify(
 
       const publicUrl = await uploadToR2(fileName, imageBuffer, contentType)
 
-      // Insert generation record
+      // Insert generation record (locked by default)
       const { data: generation, error: genError } = await supabase
         .from('generations')
         .insert({
@@ -295,7 +273,8 @@ export async function bulkCreateGenerationsFromShopify(
           width_cm: parseFloat(item.dimensions.width),
           height_cm: parseFloat(item.dimensions.height),
           depth_cm: parseFloat(item.dimensions.depth),
-          is_public: true,
+          is_public: false,
+          is_unlocked: false,
         })
         .select()
         .single()
@@ -350,19 +329,7 @@ export async function createGenerationFromShopify(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Check credit balance
-  const { canCreateGeneration, deductCredit, activateHostingTrial } = await import('@/utils/usage-limits')
-  const { allowed, error: limitError } = await canCreateGeneration(supabase, user.id)
-
-  if (!allowed) {
-    throw new Error(limitError || 'No credits remaining')
-  }
-
-  // Deduct 1 credit
-  await deductCredit(supabase, user.id)
-
-  // Activate hosting trial on first generation
-  await activateHostingTrial(supabase, user.id)
+  // Generation is free — no credit check or deduction needed
 
   // Download image from Shopify and upload to R2
   const imageResponse = await fetch(shopifyImageUrl)
@@ -373,7 +340,7 @@ export async function createGenerationFromShopify(
 
   const publicUrl = await uploadToR2(fileName, imageBuffer, contentType)
 
-  // Insert generation record
+  // Insert generation record (locked by default)
   const { data: generation, error: genError } = await supabase
     .from('generations')
     .insert({
@@ -384,7 +351,8 @@ export async function createGenerationFromShopify(
       width_cm: parseFloat(dimensions.width),
       height_cm: parseFloat(dimensions.height),
       depth_cm: parseFloat(dimensions.depth),
-      is_public: true,
+      is_public: false,
+      is_unlocked: false,
     })
     .select()
     .single()

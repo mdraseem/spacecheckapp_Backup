@@ -10,14 +10,17 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 // ==========================================
-// Credit + Active Hosting pricing model
+// Credit pricing model:
+//   - Generation is FREE
+//   - Credits are used to UNLOCK models (download, share, QR)
+//   - Credit packs: 1 for $7, 5 for $29, 20 for $99
 // ==========================================
 
 // One-time credit packs (Stripe "payment" mode)
 export const CREDIT_PRICE_IDS = {
-  credit_1: process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDIT_1 || '',   // 1 credit  - $15
-  credit_5: process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDIT_5 || '',   // 5 credits - $59 ($11.80/ea)
-  credit_20: process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDIT_20 || '', // 20 credits - $199 ($9.95/ea)
+  credit_1: process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDIT_1 || '',   // 1 credit  - $7
+  credit_5: process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDIT_5 || '',   // 5 credits - $29 ($5.80/ea)
+  credit_20: process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDIT_20 || '', // 20 credits - $99 ($4.95/ea)
 } as const;
 
 // Credit amounts per price ID (for webhook fulfillment)
@@ -27,7 +30,7 @@ export const CREDIT_AMOUNTS: Record<string, number> = {
   [process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDIT_20 || '']: 20,
 };
 
-// Monthly hosting subscription (Stripe "subscription" mode)
+// Legacy: Monthly hosting subscription (kept for backward compatibility with existing subscribers)
 export const HOSTING_PRICE_ID = process.env.NEXT_PUBLIC_STRIPE_PRICE_HOSTING || '';
 
 // Legacy price IDs (kept for backward compatibility with existing subscribers)
