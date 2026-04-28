@@ -1,4 +1,5 @@
 import "./globals.css";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 export default async function RootLayout({
   children,
@@ -13,6 +14,7 @@ export default async function RootLayout({
     <html lang={lang || 'en'}>
       <head />
       <body className="antialiased">
+        <GoogleAnalytics />
         {children}
       </body>
     </html>
