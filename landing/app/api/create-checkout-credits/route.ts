@@ -34,7 +34,22 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (profile?.stripe_customer_id) {
-      customerId = profile.stripe_customer_id;
+      // Verify the customer still exists in Stripe
+      try {
+        await stripe.customers.retrieve(profile.stripe_customer_id);
+        customerId = profile.stripe_customer_id;
+      } catch {
+        // Customer was deleted or doesn't exist — create a new one
+        const customer = await stripe.customers.create({
+          email: user.email,
+          metadata: { supabase_user_id: user.id },
+        });
+        customerId = customer.id;
+        await supabase
+          .from('profiles')
+          .update({ stripe_customer_id: customerId })
+          .eq('id', user.id);
+      }
     } else {
       const customer = await stripe.customers.create({
         email: user.email,
