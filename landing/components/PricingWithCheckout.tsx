@@ -54,6 +54,22 @@ export default function PricingWithCheckout({ dict }: { dict: any }) {
       })
 
       const data = await response.json()
+
+      // Shopify-installed merchants are blocked from Stripe by the API. Redirect
+      // them to their Shopify Managed Pricing page instead.
+      if (response.status === 403 && data?.code === 'shopify_managed_pricing_required') {
+        const shopifyResp = await fetch('/api/shopify/billing', { method: 'POST' })
+        const shopifyData = await shopifyResp.json()
+        const shopifyUrl = shopifyData?.url || shopifyData?.confirmationUrl
+        if (shopifyUrl) {
+          window.location.href = shopifyUrl
+          return
+        }
+        throw new Error(
+          shopifyData?.error || 'Please manage your subscription from the Shopify admin.'
+        )
+      }
+
       if (!response.ok) throw new Error(data.error || 'Failed to create checkout')
       if (data.url) window.location.href = data.url
     } catch (error: any) {

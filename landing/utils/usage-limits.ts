@@ -158,19 +158,37 @@ export async function canCreateGeneration(
 }
 
 /**
- * Check if user can unlock a model (has credits available).
+ * Check if user can unlock a model.
+ *
+ * Shopify-billed users with an active subscription get unlimited unlocks
+ * (their plan, not credits, gates usage). Direct (Stripe) users need credits.
  */
 export async function canUnlockModel(
   supabase: SupabaseClient,
   userId: string
-): Promise<{ allowed: boolean; creditBalance: number; error?: string }> {
+): Promise<{ allowed: boolean; creditBalance: number; error?: string; bypassCredit?: boolean }> {
   const { data: profile } = await supabase
     .from('profiles')
-    .select('credit_balance')
+    .select('credit_balance, billing_source, shopify_subscription_status, plan_type')
     .eq('id', userId)
     .single()
 
   const creditBalance = profile?.credit_balance ?? 0
+
+  // Shopify-billed users with an active subscription bypass the credit system.
+  // Their plan (configured in Shopify Managed Pricing) governs usage instead.
+  const isShopifyActive =
+    profile?.billing_source === 'shopify' &&
+    (profile?.shopify_subscription_status === 'active' ||
+      profile?.plan_type === 'growth')
+
+  if (isShopifyActive) {
+    return {
+      allowed: true,
+      creditBalance,
+      bypassCredit: true,
+    }
+  }
 
   if (creditBalance <= 0) {
     return {

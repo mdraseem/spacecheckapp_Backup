@@ -83,6 +83,22 @@ export default function SettingsPage() {
     }
   }
 
+  const handleManageShopifyBilling = async () => {
+    setLoadingAction('shopify-billing')
+    try {
+      const response = await fetch('/api/shopify/billing', { method: 'POST' })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to open Shopify billing')
+      const url = data.url || data.confirmationUrl
+      if (url) window.location.href = url
+    } catch (error: any) {
+      console.error('Shopify billing error:', error)
+      alert(error.message || 'Failed to open Shopify billing')
+    } finally {
+      setLoadingAction(null)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -146,74 +162,109 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Credits Section */}
-      <div className="bg-[#0f172a] border border-[#1e293b] rounded-xl p-6 mb-6">
-        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-          <Zap size={20} className="text-[#00f0ff]" />
-          {c.title || 'Credits'}
-        </h2>
+      {/* Billing Section — Shopify merchants get Managed Pricing only.
+          Direct (non-Shopify) users see Stripe credit packs. */}
+      {hasShopifyStore ? (
+        <div className="bg-[#0f172a] border border-[#1e293b] rounded-xl p-6 mb-6">
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Store size={20} className="text-[#00f0ff]" />
+            {s.shopifyBillingTitle || 'Subscription'}
+          </h2>
 
-        {/* Current Balance */}
-        <div className={`p-4 rounded-lg border mb-6 ${
-          creditBalance <= 0
-            ? 'bg-red-500/10 border-red-500/30'
-            : 'bg-[#0a0f1c] border-[#1e293b]'
-        }`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{c.creditsAvailable || 'Credits Available'}</p>
-              <p className={`text-3xl font-bold ${creditBalance <= 0 ? 'text-red-400' : 'text-white'}`}>
-                {creditBalance}
-              </p>
-              <p className="text-xs text-slate-400 mt-1">{c.creditsDesc || 'Each credit unlocks one 3D model for download & sharing'}</p>
+          <div className="p-4 bg-[#0a0f1c] rounded-lg border border-[#1e293b] mb-4">
+            <p className="text-sm text-slate-300 mb-2">
+              {s.shopifyBillingDesc ||
+                'Your subscription is managed by Shopify. Plans, billing details, and cancellation are handled in your Shopify admin.'}
+            </p>
+            <p className="text-xs text-slate-500">
+              {profile?.shopify_subscription_status
+                ? `${s.shopifyStatusLabel || 'Status'}: ${profile.shopify_subscription_status}`
+                : (s.shopifyNoActivePlan || 'No active plan yet — pick one to unlock model downloads, AR links, and QR codes.')}
+            </p>
+          </div>
+
+          <button
+            onClick={handleManageShopifyBilling}
+            disabled={loadingAction !== null}
+            className="w-full flex items-center justify-center gap-2 bg-[#00f0ff] text-[#050a14] px-4 py-3 rounded-lg font-bold hover:bg-[#00f0ff]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loadingAction === 'shopify-billing' ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Store className="w-5 h-5" />
+            )}
+            {s.manageOnShopify || 'Manage subscription on Shopify'}
+          </button>
+        </div>
+      ) : (
+        <div className="bg-[#0f172a] border border-[#1e293b] rounded-xl p-6 mb-6">
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Zap size={20} className="text-[#00f0ff]" />
+            {c.title || 'Credits'}
+          </h2>
+
+          {/* Current Balance */}
+          <div className={`p-4 rounded-lg border mb-6 ${
+            creditBalance <= 0
+              ? 'bg-red-500/10 border-red-500/30'
+              : 'bg-[#0a0f1c] border-[#1e293b]'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{c.creditsAvailable || 'Credits Available'}</p>
+                <p className={`text-3xl font-bold ${creditBalance <= 0 ? 'text-red-400' : 'text-white'}`}>
+                  {creditBalance}
+                </p>
+                <p className="text-xs text-slate-400 mt-1">{c.creditsDesc || 'Each credit unlocks one 3D model for download & sharing'}</p>
+              </div>
+              <Zap className={`w-8 h-8 ${creditBalance <= 0 ? 'text-red-400' : 'text-[#00f0ff]'}`} />
             </div>
-            <Zap className={`w-8 h-8 ${creditBalance <= 0 ? 'text-red-400' : 'text-[#00f0ff]'}`} />
+          </div>
+
+          {/* How it works note */}
+          <div className="p-4 bg-[#00f0ff]/5 border border-[#00f0ff]/20 rounded-lg mb-6">
+            <p className="text-sm text-slate-300">
+              {c.howItWorks || 'Generate 3D models for free from any product photo. Preview the result, then use 1 credit to unlock downloading, sharing AR links, and QR codes.'}
+            </p>
+          </div>
+
+          {/* Buy Credits */}
+          <div className="space-y-3 mb-4">
+            <p className="text-sm font-medium text-slate-300">{c.buyCredits || 'Buy Credits'}</p>
+            {creditPacks.map((pack, i) => (
+              <button
+                key={i}
+                onClick={() => handleBuyCredits(i)}
+                disabled={loadingAction !== null}
+                className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                  i === 1
+                    ? 'border-[#00f0ff]/50 bg-[#00f0ff]/5 hover:bg-[#00f0ff]/10'
+                    : 'border-[#1e293b] bg-[#0a0f1c] hover:border-[#00f0ff]/30'
+                }`}
+              >
+                <div className="text-left">
+                  <span className="text-white font-bold">
+                    {pack.credits} {pack.credits === 1 ? 'Credit' : 'Credits'}
+                  </span>
+                  {i === 1 && (
+                    <span className="ml-2 text-xs font-bold bg-[#00f0ff] text-[#050a14] px-2 py-0.5 rounded-full">
+                      Best Value
+                    </span>
+                  )}
+                  <p className="text-xs text-slate-400 mt-0.5">{pack.perUnit}</p>
+                </div>
+                <div>
+                  {loadingAction === `credit-${i}` ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-[#00f0ff]" />
+                  ) : (
+                    <span className="text-xl font-bold text-white">{pack.price}</span>
+                  )}
+                </div>
+              </button>
+            ))}
           </div>
         </div>
-
-        {/* How it works note */}
-        <div className="p-4 bg-[#00f0ff]/5 border border-[#00f0ff]/20 rounded-lg mb-6">
-          <p className="text-sm text-slate-300">
-            {c.howItWorks || 'Generate 3D models for free from any product photo. Preview the result, then use 1 credit to unlock downloading, sharing AR links, and QR codes.'}
-          </p>
-        </div>
-
-        {/* Buy Credits */}
-        <div className="space-y-3 mb-4">
-          <p className="text-sm font-medium text-slate-300">{c.buyCredits || 'Buy Credits'}</p>
-          {creditPacks.map((pack, i) => (
-            <button
-              key={i}
-              onClick={() => handleBuyCredits(i)}
-              disabled={loadingAction !== null}
-              className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                i === 1
-                  ? 'border-[#00f0ff]/50 bg-[#00f0ff]/5 hover:bg-[#00f0ff]/10'
-                  : 'border-[#1e293b] bg-[#0a0f1c] hover:border-[#00f0ff]/30'
-              }`}
-            >
-              <div className="text-left">
-                <span className="text-white font-bold">
-                  {pack.credits} {pack.credits === 1 ? 'Credit' : 'Credits'}
-                </span>
-                {i === 1 && (
-                  <span className="ml-2 text-xs font-bold bg-[#00f0ff] text-[#050a14] px-2 py-0.5 rounded-full">
-                    Best Value
-                  </span>
-                )}
-                <p className="text-xs text-slate-400 mt-0.5">{pack.perUnit}</p>
-              </div>
-              <div>
-                {loadingAction === `credit-${i}` ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-[#00f0ff]" />
-                ) : (
-                  <span className="text-xl font-bold text-white">{pack.price}</span>
-                )}
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* Preferences */}
       <div className="bg-[#0f172a] border border-[#1e293b] rounded-xl p-6">

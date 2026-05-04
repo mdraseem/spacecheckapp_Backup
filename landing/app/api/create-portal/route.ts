@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { createClient } from '@/utils/supabase/server';
+import {
+  isShopifyMerchant,
+  STRIPE_BLOCKED_FOR_SHOPIFY_ERROR,
+} from '@/utils/billing-source';
 
+/**
+ * Stripe billing portal — only available for direct (non-Shopify) users.
+ * Shopify merchants manage their subscription through the Shopify admin.
+ */
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
@@ -9,6 +17,11 @@ export async function POST(req: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Shopify-installed merchants manage billing through Shopify Admin, not Stripe.
+    if (await isShopifyMerchant(supabase, user.id)) {
+      return NextResponse.json(STRIPE_BLOCKED_FOR_SHOPIFY_ERROR, { status: 403 });
     }
 
     // Get Stripe customer ID

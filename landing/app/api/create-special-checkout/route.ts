@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe, PRICE_IDS } from '@/lib/stripe';
 import { createClient } from '@/utils/supabase/server';
+import {
+  isShopifyMerchant,
+  STRIPE_BLOCKED_FOR_SHOPIFY_ERROR,
+} from '@/utils/billing-source';
 
 /**
  * Special checkout endpoint for VIP customers with extended trials
  * Use query param: ?trial_days=60 for 2 months free
+ *
+ * NOTE: Per Shopify App Store rule 1.2.1, Shopify-installed merchants are
+ * blocked from this endpoint and must use Shopify Managed Pricing.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +20,11 @@ export async function POST(req: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Shopify-installed merchants must use Shopify Managed Pricing.
+    if (await isShopifyMerchant(supabase, user.id)) {
+      return NextResponse.json(STRIPE_BLOCKED_FOR_SHOPIFY_ERROR, { status: 403 });
     }
 
     const body = await req.json();

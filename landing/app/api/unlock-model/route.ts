@@ -43,8 +43,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Model is not ready yet' }, { status: 400 })
     }
 
-    // Check if user has credits
-    const { allowed, creditBalance } = await canUnlockModel(serviceSupabase, user.id)
+    // Check if user has credits (or an active Shopify subscription that
+    // bypasses the credit system entirely).
+    const { allowed, creditBalance, bypassCredit } = await canUnlockModel(
+      serviceSupabase,
+      user.id
+    )
 
     if (!allowed) {
       return NextResponse.json(
@@ -57,8 +61,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Deduct 1 credit
-    const newBalance = await deductCredit(serviceSupabase, user.id)
+    // Deduct 1 credit only for direct (Stripe) users. Shopify-billed
+    // subscribers consume nothing — their plan covers usage.
+    const newBalance = bypassCredit
+      ? creditBalance
+      : await deductCredit(serviceSupabase, user.id)
 
     // Unlock the model
     await unlockModel(serviceSupabase, generationId)
@@ -73,14 +80,20 @@ export async function POST(req: NextRequest) {
           generation_id: generationId,
           model_name: generation.name,
           credit_balance_after: newBalance,
+          billing_source: bypassCredit ? 'shopify' : 'stripe',
+          bypass_credit: !!bypassCredit,
         },
       })
 
-    console.log(`Model unlocked via credit: ${generationId} for user ${user.id} (balance: ${newBalance})`)
+    console.log(
+      `Model unlocked: ${generationId} for user ${user.id} ` +
+      `(${bypassCredit ? 'shopify-subscription' : `credit, balance: ${newBalance}`})`
+    )
 
     return NextResponse.json({
       success: true,
       newCreditBalance: newBalance,
+      bypassCredit: !!bypassCredit,
     })
   } catch (error: any) {
     console.error('Unlock model error:', error)

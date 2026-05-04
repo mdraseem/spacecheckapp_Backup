@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe, CREDIT_PRICE_IDS } from '@/lib/stripe';
 import { createClient } from '@/utils/supabase/server';
+import {
+  isShopifyMerchant,
+  STRIPE_BLOCKED_FOR_SHOPIFY_ERROR,
+} from '@/utils/billing-source';
 
 /**
  * Creates a Stripe Checkout session for one-time credit pack purchases.
  * Expects: { priceId: string } (one of the CREDIT_PRICE_IDS values)
+ *
+ * NOTE: Per Shopify App Store rule 1.2.1, Shopify-installed merchants are
+ * blocked from using Stripe. They get an unlimited usage allowance bundled
+ * into their Shopify-billed plan instead of buying one-time credits.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +21,11 @@ export async function POST(req: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Shopify-installed merchants must use Shopify Managed Pricing.
+    if (await isShopifyMerchant(supabase, user.id)) {
+      return NextResponse.json(STRIPE_BLOCKED_FOR_SHOPIFY_ERROR, { status: 403 });
     }
 
     const body = await req.json();
