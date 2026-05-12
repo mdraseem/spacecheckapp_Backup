@@ -20,10 +20,13 @@ export async function GET(request: Request) {
   const installUrl = buildInstallUrl(shop, nonce)
 
   const response = NextResponse.redirect(installUrl)
+  // Use SameSite=None so cookies survive the cross-origin redirect from Shopify
+  // back to our callback. SameSite=Lax can drop the cookie in some browsers
+  // when the redirect originates from a different domain.
   response.cookies.set('shopify_nonce', nonce, {
     httpOnly: true,
     secure: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     maxAge: 600, // 10 minutes
     path: '/',
   })
@@ -31,7 +34,7 @@ export async function GET(request: Request) {
   response.cookies.set('shopify_shop', shop, {
     httpOnly: true,
     secure: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     maxAge: 600,
     path: '/',
   })

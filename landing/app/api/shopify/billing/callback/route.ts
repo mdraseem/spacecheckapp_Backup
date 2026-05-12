@@ -28,7 +28,9 @@ export async function GET(request: Request) {
   )
 
   try {
-    // Check the actual subscription status from Shopify
+    // Check the actual subscription status from Shopify.
+    // getActiveShopifySubscription returns null when the store is
+    // disconnected rather than throwing, so a null result is safe.
     const subscription = await getActiveShopifySubscription(userId)
 
     if (subscription && (subscription.status === 'ACTIVE' || subscription.status === 'active')) {
@@ -57,14 +59,15 @@ export async function GET(request: Request) {
         `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?success=true&billing=shopify`
       )
     } else {
-      // Merchant declined or subscription not found
-      // Keep them on starter plan
+      // Merchant declined, subscription not found, or store disconnected.
+      // Keep them on starter plan.
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/settings?billing=declined`
       )
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Shopify billing callback error:', error)
+    // Gracefully redirect instead of returning 500
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/settings?billing=error&reason=callback_failed`
     )

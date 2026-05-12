@@ -119,9 +119,14 @@ export async function getShopCredentials(
 
   if (!store) return null
 
-  return {
-    shop: store.shop_domain,
-    accessToken: decryptToken(store.access_token_encrypted),
+  try {
+    return {
+      shop: store.shop_domain,
+      accessToken: decryptToken(store.access_token_encrypted),
+    }
+  } catch (error) {
+    console.error('Failed to decrypt Shopify access token for user', userId, error)
+    return null
   }
 }
 

@@ -12,6 +12,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_hmac: 'Request signature invalid. Please try again.',
   db_error: 'Failed to save connection. Please try again.',
   token_exchange_failed: 'Failed to connect to Shopify. Please try again.',
+  session_expired: 'Your session expired before the connection could complete. Please try again.',
+  not_connected: 'No Shopify store connected. Please connect your store below.',
 }
 
 export default function ConnectPage() {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, Suspense } from 'react'
 import { Store, Search, Box, CheckCircle, X, Image as ImageIcon, RefreshCw, CheckSquare, Square, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -29,6 +29,20 @@ interface ShopifyProduct {
 }
 
 export default function ShopifyPage() {
+  return (
+    <Suspense fallback={
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={i} className="aspect-[4/5] bg-[#0f172a] rounded-xl animate-pulse border border-[#1e293b]" />
+        ))}
+      </div>
+    }>
+      <ShopifyPageContent />
+    </Suspense>
+  )
+}
+
+function ShopifyPageContent() {
   const { dict } = useDashboardLanguage()
   const searchParams = useSearchParams()
   const router = useRouter()

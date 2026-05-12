@@ -56,9 +56,10 @@ export async function GET(request: Request) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      // User is not logged in - store shop info in cookie and redirect to login
-      // After login they will be redirected back to connect the store
-      const response = NextResponse.redirect(`${siteUrl}/login?redirect=/connect&shop=${shop}`)
+      // User is not logged in — store shop info in cookies and redirect to login.
+      // After login the user is sent to /api/shopify/complete-connection which
+      // reads these cookies and persists the store to the DB.
+      const response = NextResponse.redirect(`${siteUrl}/login?redirect=${encodeURIComponent('/api/shopify/complete-connection')}`)
       response.cookies.set('shopify_pending_token', encryptToken(access_token), {
         httpOnly: true,
         secure: true,

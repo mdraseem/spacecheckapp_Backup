@@ -17,6 +17,12 @@ export default function LoginPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  // Honour ?redirect= param so OAuth flows (Shopify etc.) resume after login
+  const searchParams = new URLSearchParams(
+    typeof window !== 'undefined' ? window.location.search : ''
+  )
+  const redirectAfterLogin = searchParams.get('redirect') || '/dashboard'
+
   // Track page view
   useEffect(() => {
     trackPageView('login', { action: 'viewed' });
@@ -41,7 +47,7 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
-        router.push('/dashboard')
+        router.push(redirectAfterLogin)
         router.refresh()
       }
     } catch (err) {
@@ -102,7 +108,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectAfterLogin)}`,
         },
       })
 
