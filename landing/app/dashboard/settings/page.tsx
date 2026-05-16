@@ -36,12 +36,13 @@ export default function SettingsPage() {
 
         setProfile(profileData)
 
-        // Check if user has a connected Shopify store
+        // Check if user has a connected Shopify store (may have multiple)
         const { data: storeData } = await supabase
           .from('shopify_stores')
           .select('shop_domain')
           .eq('user_id', user.id)
-          .single()
+          .limit(1)
+          .maybeSingle()
 
         setHasShopifyStore(!!storeData)
       }

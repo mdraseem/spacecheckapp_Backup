@@ -64,12 +64,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: 'no_glb_url' })
     }
 
-    // Get the Shopify store credentials
+    // Get the Shopify store credentials (most recent install for this shop)
     const { data: store } = await serviceSupabase
       .from('shopify_stores')
       .select('*')
       .eq('shop_domain', syncRecord.shop_domain)
-      .single()
+      .order('installed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
     if (!store) {
       console.log(`[shopify-auto-sync] No store found for ${syncRecord.shop_domain}`)

@@ -4,7 +4,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // Mock @supabase/supabase-js
 // ---------------------------------------------------------------------------
 const mockSingle = vi.fn()
-const mockEq = vi.fn(() => ({ single: mockSingle }))
+// Support both: .eq().single() AND .eq().order().limit().maybeSingle()
+const mockLimit = vi.fn(() => ({ maybeSingle: mockSingle }))
+const mockOrder = vi.fn(() => ({ limit: mockLimit }))
+const mockEq = vi.fn(() => ({
+  single: mockSingle,
+  maybeSingle: mockSingle,
+  order: mockOrder,
+  limit: mockLimit,
+}))
 const mockSelect = vi.fn(() => ({ eq: mockEq }))
 const mockFrom = vi.fn(() => ({ select: mockSelect }))
 const mockUpsert = vi.fn(() => ({ error: null }))
@@ -78,7 +86,7 @@ describe('getShopCredentials', () => {
   })
 
   it('returns null when no store is found', async () => {
-    mockSingle.mockResolvedValue({ data: null, error: { message: 'not found' } })
+    mockSingle.mockResolvedValue({ data: null, error: null })
 
     const result = await getShopCredentials('user-no-store')
 

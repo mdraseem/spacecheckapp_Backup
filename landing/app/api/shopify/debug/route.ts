@@ -41,13 +41,15 @@ export async function GET() {
 
   let myStore: unknown = null
   let myStoreError: string | undefined
+  let myStoresCount = 0
   if (user) {
-    const { data, error } = await serviceSupabase
+    const { data: allMyStores, error } = await serviceSupabase
       .from('shopify_stores')
       .select('*')
       .eq('user_id', user.id)
-      .maybeSingle()
-    myStore = data
+      .order('installed_at', { ascending: false })
+    myStore = allMyStores && allMyStores.length > 0 ? allMyStores[0] : null
+    myStoresCount = allMyStores?.length ?? 0
     myStoreError = error?.message
   }
 
@@ -74,6 +76,7 @@ export async function GET() {
         ? { id: user.id, email: user.email }
         : null,
       myStore,
+      myStoresCount,
       myStoreError,
       allStores,
       allStoresError: allStoresError?.message,

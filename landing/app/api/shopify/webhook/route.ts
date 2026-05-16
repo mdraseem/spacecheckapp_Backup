@@ -85,12 +85,14 @@ export async function POST(request: Request) {
         const status = payload?.app_subscription?.status
 
         if (subscriptionId && status) {
-          // Find the user associated with this shop
+          // Find the user associated with this shop (most recent install)
           const { data: store } = await serviceSupabase
             .from('shopify_stores')
             .select('user_id')
             .eq('shop_domain', shopDomain)
-            .single()
+            .order('installed_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
 
           if (store?.user_id) {
             const isActive = status === 'active' || status === 'ACTIVE'

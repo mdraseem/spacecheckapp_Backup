@@ -56,7 +56,9 @@ export async function POST(request: Request) {
     .from('shopify_stores')
     .select('*')
     .eq('user_id', user.id)
-    .single()
+    .order('installed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   if (storeError || !store) {
     return NextResponse.json(

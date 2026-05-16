@@ -206,7 +206,9 @@ export async function getShopifyConnection() {
     .from('shopify_stores')
     .select('shop_domain, installed_at')
     .eq('user_id', user.id)
-    .single()
+    .order('installed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   return store
 }
@@ -241,7 +243,9 @@ export async function bulkCreateGenerationsFromShopify(
     .from('shopify_stores')
     .select('shop_domain')
     .eq('user_id', user.id)
-    .single()
+    .order('installed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   const apiUrl = process.env.NEXT_PUBLIC_SITE_URL
     ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/generate`
@@ -366,12 +370,14 @@ export async function createGenerationFromShopify(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // Get shop domain
+  // Get shop domain (most recently installed if multiple)
   const { data: store } = await serviceSupabase
     .from('shopify_stores')
     .select('shop_domain')
     .eq('user_id', user.id)
-    .single()
+    .order('installed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   if (store) {
     const { error: syncError } = await serviceSupabase.from('shopify_syncs').insert({

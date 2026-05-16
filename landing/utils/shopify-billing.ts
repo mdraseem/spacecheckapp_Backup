@@ -111,11 +111,15 @@ export async function getShopCredentials(
 ): Promise<{ shop: string; accessToken: string } | null> {
   const supabase = getServiceSupabase()
 
+  // Most recently installed store. .maybeSingle() with .limit(1) is safe
+  // even when the user has multiple stores in the table.
   const { data: store } = await supabase
     .from('shopify_stores')
     .select('shop_domain, access_token_encrypted')
     .eq('user_id', userId)
-    .single()
+    .order('installed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   if (!store) return null
 

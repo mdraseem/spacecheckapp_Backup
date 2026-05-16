@@ -20,11 +20,16 @@ export async function GET(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
+  // Take the most recently installed store. The DB schema allows multiple
+  // stores per user (UNIQUE on user_id+shop_domain) so we cannot use .single()
+  // — it throws when more than one row is returned.
   const { data: store, error: storeError } = await serviceSupabase
     .from('shopify_stores')
     .select('*')
     .eq('user_id', user.id)
-    .single()
+    .order('installed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   if (storeError || !store) {
     // Debug: log auth user vs what's in shopify_stores so we can diagnose
