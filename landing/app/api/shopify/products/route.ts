@@ -27,6 +27,21 @@ export async function GET(request: Request) {
     .single()
 
   if (storeError || !store) {
+    // Debug: log auth user vs what's in shopify_stores so we can diagnose
+    // user_id mismatch issues (e.g. callback saved on a different account).
+    const { data: allStores } = await serviceSupabase
+      .from('shopify_stores')
+      .select('user_id, shop_domain, installed_at')
+      .order('installed_at', { ascending: false })
+      .limit(5)
+
+    console.log('[shopify/products] No store for user', {
+      authUserId: user.id,
+      authUserEmail: user.email,
+      storeError: storeError?.message,
+      recentStores: allStores,
+    })
+
     return NextResponse.json(
       { error: 'No Shopify store connected' },
       { status: 404 }
