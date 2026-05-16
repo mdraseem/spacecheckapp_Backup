@@ -53,11 +53,24 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
   
-  // If user is logged in and tries to access login, redirect to dashboard
+  // If user is logged in and tries to access login, honor ?redirect= param
+  // (used by Shopify OAuth flow: callback → /login?redirect=/api/shopify/complete-connection).
+  // Otherwise redirect to dashboard.
   if (request.nextUrl.pathname.startsWith('/login') && user) {
-      const dashboardUrl = request.nextUrl.clone()
-      dashboardUrl.pathname = '/dashboard'
-      return NextResponse.redirect(dashboardUrl)
+      const redirectParam = request.nextUrl.searchParams.get('redirect')
+      const targetUrl = request.nextUrl.clone()
+
+      if (redirectParam && redirectParam.startsWith('/') && !redirectParam.startsWith('//')) {
+          // Honor the redirect parameter (must be a relative path to prevent open redirect)
+          const [path, query] = redirectParam.split('?')
+          targetUrl.pathname = path
+          targetUrl.search = query ? `?${query}` : ''
+      } else {
+          targetUrl.pathname = '/dashboard'
+          targetUrl.search = ''
+      }
+
+      return NextResponse.redirect(targetUrl)
   }
 
   return supabaseResponse

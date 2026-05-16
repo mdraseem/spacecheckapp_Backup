@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Store, ArrowRight, Box, Wand2, Sparkles, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -24,25 +24,51 @@ export default function ConnectPage() {
   )
 }
 
+function normalizeShopDomain(input: string): string {
+  let domain = input.trim().toLowerCase()
+  domain = domain.replace(/^https?:\/\//, '')
+  domain = domain.split('/')[0]
+  if (!domain.endsWith('.myshopify.com')) {
+    domain = `${domain}.myshopify.com`
+  }
+  return domain
+}
+
+function isValidShopDomain(shop: string): boolean {
+  return /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(shop)
+}
+
 function ConnectPageContent() {
   const searchParams = useSearchParams()
   const errorCode = searchParams.get('error')
-  const [shopDomain, setShopDomain] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+
+  // Compute initial values synchronously from URL so we don't trigger
+  // cascading renders from inside useEffect.
+  const shopParam = searchParams.get('shop')
+  const normalizedFromUrl = shopParam ? normalizeShopDomain(shopParam) : null
+  const shouldAutoRedirect = !!normalizedFromUrl && isValidShopDomain(normalizedFromUrl)
+
+  const initialDomain = shouldAutoRedirect
+    ? normalizedFromUrl!.replace('.myshopify.com', '')
+    : (shopParam ?? '')
+
+  const [shopDomain, setShopDomain] = useState(initialDomain)
+  const [isLoading, setIsLoading] = useState(shouldAutoRedirect)
+  const [autoRedirecting] = useState(shouldAutoRedirect)
+
+  // Auto-redirect to /api/shopify/install when shop param is present & valid.
+  // Side-effect only (navigation), no setState inside the effect.
+  useEffect(() => {
+    if (shouldAutoRedirect && normalizedFromUrl) {
+      window.location.href = `/api/shopify/install?shop=${encodeURIComponent(normalizedFromUrl)}`
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleConnect = () => {
     if (!shopDomain.trim()) return
-
     setIsLoading(true)
-
-    // Normalize: strip https://, trailing paths, append .myshopify.com if needed
-    let domain = shopDomain.trim().toLowerCase()
-    domain = domain.replace(/^https?:\/\//, '')
-    domain = domain.split('/')[0]
-    if (!domain.endsWith('.myshopify.com')) {
-      domain = `${domain}.myshopify.com`
-    }
-
+    const domain = normalizeShopDomain(shopDomain)
     window.location.href = `/api/shopify/install?shop=${encodeURIComponent(domain)}`
   }
 
@@ -79,6 +105,15 @@ function ConnectPageContent() {
             Your customers see it in AR on the product page.
           </p>
         </div>
+
+        {/* Auto-redirect notice */}
+        {autoRedirecting && (
+          <div className="max-w-lg mx-auto mb-8 p-4 bg-[#00f0ff]/10 border border-[#00f0ff]/20 rounded-xl text-center">
+            <p className="text-[#00f0ff] text-sm">
+              Detected your store — redirecting to Shopify...
+            </p>
+          </div>
+        )}
 
         {/* Error message */}
         {errorCode && (

@@ -56,28 +56,34 @@ export async function GET(request: Request) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      // User is not logged in — store shop info in cookies and redirect to login.
-      // After login the user is sent to /api/shopify/complete-connection which
-      // reads these cookies and persists the store to the DB.
-      const response = NextResponse.redirect(`${siteUrl}/login?redirect=${encodeURIComponent('/api/shopify/complete-connection')}`)
+      // Supabase auth cookies are not always sent on this cross-site request
+      // (browser came from shopify.com → spacecheck.app). Store credentials in
+      // short-lived cookies and redirect to /api/shopify/complete-connection
+      // — that endpoint is same-origin so Supabase cookies WILL be sent and
+      // the user will be recognized as authenticated. If they truly aren't
+      // logged in, complete-connection will redirect to /login.
+      //
+      // SameSite=none is required because this Set-Cookie comes from a
+      // cross-site navigation (Shopify → us). Lax can drop these cookies.
+      const response = NextResponse.redirect(`${siteUrl}/api/shopify/complete-connection`)
       response.cookies.set('shopify_pending_token', encryptToken(access_token), {
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         maxAge: 600, // 10 minutes
         path: '/',
       })
       response.cookies.set('shopify_pending_shop', shop, {
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         maxAge: 600,
         path: '/',
       })
       response.cookies.set('shopify_pending_scopes', scope, {
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         maxAge: 600,
         path: '/',
       })
