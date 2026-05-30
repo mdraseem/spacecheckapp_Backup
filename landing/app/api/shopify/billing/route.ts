@@ -1,21 +1,23 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
-import { getManagedPricingUrl } from '@/utils/billing-source'
+import { createShopifySubscription } from '@/utils/shopify-billing'
 
 /**
  * POST /api/shopify/billing
  *
- * Returns the Shopify Managed Pricing URL for the merchant's store. The
- * front-end should open this URL so the merchant picks a plan on Shopify's
- * own pricing page (which Shopify renders from the plans you configured in
- * the Partner Dashboard → Distribution → Managed Pricing).
+ * Creates a Shopify app subscription via the Shopify Billing API
+ * (appSubscriptionCreate GraphQL mutation) and returns the merchant-facing
+ * confirmation URL. The merchant is redirected to that URL where Shopify
+ * shows the standard Approve / Decline screen for the recurring charge.
  *
- * This replaces the previous in-app `appSubscriptionCreate` GraphQL flow.
- * Both Managed Pricing and the Billing API are acceptable per Shopify rule
- * 1.2.1; Managed Pricing is simpler and the recommended path.
- *
- * The actual subscription state still flows back into our DB via the
+ * After approval/decline Shopify redirects the merchant to the returnUrl,
+ * which is /api/shopify/billing/callback (handled separately). The actual
+ * subscription state also flows back into our DB via the
  * `app_subscriptions/update` webhook handler in /api/shopify/webhook.
+ *
+ * This satisfies Shopify rule 1.2.1 (apps must use Managed Pricing or the
+ * Shopify Billing API for charges; off-platform billing is not allowed for
+ * Shopify-installed merchants).
  */
 export async function POST() {
   try {
@@ -28,7 +30,9 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Look up the merchant's connected Shopify store.
+    // Confirm the user actually has a connected Shopify store before
+    // attempting to create a subscription. createShopifySubscription will
+    // also throw if none is found, but this gives a cleaner error message.
     const { data: store } = await supabase
       .from('shopify_stores')
       .select('shop_domain')
@@ -43,14 +47,24 @@ export async function POST() {
       )
     }
 
-    const url = getManagedPricingUrl(store.shop_domain)
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || ''
+    // Shopify will redirect the merchant here after they Approve/Decline.
+    // We pass user_id so the callback can look up which user just transacted.
+    const returnUrl = `${siteUrl}/api/shopify/billing/callback?user_id=${encodeURIComponent(
+      user.id
+    )}`
+
+    const { confirmationUrl, subscriptionId } = await createShopifySubscription(
+      user.id,
+      returnUrl
+    )
 
     return NextResponse.json({
-      url,
-      // Keep the legacy field name for client compatibility — clients used to
-      // open `confirmationUrl` returned by the AppSubscriptionCreate mutation.
-      confirmationUrl: url,
-      managed: true,
+      // New canonical field — the URL the front-end should redirect to.
+      confirmationUrl,
+      // Backwards-compatible alias used elsewhere in the codebase.
+      url: confirmationUrl,
+      subscriptionId,
     })
   } catch (error: unknown) {
     const message =
@@ -63,8 +77,8 @@ export async function POST() {
 /**
  * GET /api/shopify/billing
  *
- * Convenience: redirect the merchant straight to the Managed Pricing URL.
- * Useful for "Manage subscription on Shopify" buttons that just need an href.
+ * Convenience: trigger subscription creation directly from an HTML link and
+ * redirect the merchant straight to Shopify's Approve/Decline screen.
  */
 export async function GET() {
   const supabase = await createClient()
@@ -72,8 +86,9 @@ export async function GET() {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || ''
+
   if (!user) {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || ''
     return NextResponse.redirect(`${siteUrl}/login`)
   }
 
@@ -85,9 +100,19 @@ export async function GET() {
     .maybeSingle()
 
   if (!store?.shop_domain) {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || ''
     return NextResponse.redirect(`${siteUrl}/connect?error=not_connected`)
   }
 
-  return NextResponse.redirect(getManagedPricingUrl(store.shop_domain))
+  try {
+    const returnUrl = `${siteUrl}/api/shopify/billing/callback?user_id=${encodeURIComponent(
+      user.id
+    )}`
+    const { confirmationUrl } = await createShopifySubscription(user.id, returnUrl)
+    return NextResponse.redirect(confirmationUrl)
+  } catch (error: unknown) {
+    console.error('Shopify billing GET error:', error)
+    return NextResponse.redirect(
+      `${siteUrl}/dashboard/settings?billing=error&reason=create_failed`
+    )
+  }
 }
