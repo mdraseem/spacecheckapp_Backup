@@ -17,6 +17,7 @@ export type LandingEvent =
   | 'cta_view_demo_clicked'
   | 'cta_contact_clicked'
   | 'pricing_cta_clicked'
+  | 'shopify_app_store_clicked'
 
   // Feature exploration
   | 'feature_card_viewed'

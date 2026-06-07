@@ -46,6 +46,25 @@ export default function Hero({ dict, lang }: { dict: any, lang: string }) {
             </Link>
           </div>
           <p className="mt-6 text-sm text-gray-500">{dict.hero.disclaimer}</p>
+
+          {/* Shopify App Store Badge */}
+          <div className="mt-8 flex justify-center">
+            <a
+              href="https://apps.shopify.com/spacecheck"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackLandingEvent('shopify_app_store_clicked', { position: 'hero' })}
+              className="group inline-flex items-center gap-3 bg-white border border-gray-200 px-5 py-2.5 rounded-full shadow-sm hover:shadow-md hover:border-gray-300 transition-all"
+            >
+              <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M15.337 3.18c-.09-.007-.197.02-.27.045-.01.003-.21.064-.54.166-.32-.92-.886-1.766-1.88-1.766h-.087c-.283-.367-.633-.527-.936-.527-2.31 0-3.414 2.89-3.76 4.358-.898.278-1.536.476-1.617.502-.502.157-.518.173-.583.646-.05.357-1.363 10.51-1.363 10.51L13.07 22l5.553-1.2S15.428 3.45 15.337 3.18zm-3.21 1.04c-.518.16-1.083.336-1.692.524.342-1.32.983-1.957 1.543-2.198.143.366.21.886.21 1.674h-.06zm-1.05-2.01c.1 0 .2.034.295.1-.736.346-1.526 1.22-1.86 2.965-.487.15-.963.298-1.404.435.392-1.335 1.31-3.5 2.97-3.5zm.47 9.43s-.59-.314-1.31-.314c-1.057 0-1.11.663-1.11.83 0 .91 2.374 1.26 2.374 3.394 0 1.68-1.064 2.76-2.5 2.76-1.722 0-2.6-1.072-2.6-1.072l.46-1.524s.903.776 1.665.776c.498 0 .7-.392.7-.678 0-1.187-1.947-1.24-1.947-3.193 0-1.643 1.18-3.234 3.56-3.234 1.92 0 2.025 1.07 2.025 1.07l-.69 1.5z" fill="#95BF47"/>
+                <path d="M15.337 3.18c-.09-.007-.197.02-.27.045-.01.003-.21.064-.54.166-.32-.92-.886-1.766-1.88-1.766h-.087c-.283-.367-.633-.527-.936-.527L13.07 22l5.553-1.2S15.428 3.45 15.337 3.18z" fill="#5E8E3E"/>
+                <path d="M13.082 7.503l-.69 1.5s-.59-.314-1.31-.314c-1.057 0-1.11.663-1.11.83 0 .91 2.374 1.26 2.374 3.394 0 1.68-1.064 2.76-2.5 2.76-1.722 0-2.6-1.072-2.6-1.072l.46-1.524s.903.776 1.665.776c.498 0 .7-.392.7-.678 0-1.187-1.947-1.24-1.947-3.193 0-1.643 1.18-3.234 3.56-3.234 1.92 0 2.025 1.07 2.025 1.07z" fill="#fff"/>
+              </svg>
+              <span className="text-sm font-semibold text-gray-700 group-hover:text-gray-900">{dict.hero.shopifyBadge}</span>
+              <ArrowRight size={16} className="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-transform" />
+            </a>
+          </div>
         </div>
 
         {/* Hero Visual */}
