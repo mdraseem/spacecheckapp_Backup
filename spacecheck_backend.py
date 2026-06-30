@@ -23,6 +23,9 @@ image = (
         "xz-utils",
         "git"
     )
+    .pip_install(
+        "numpy"
+    )
     .run_commands(
         "wget https://download.blender.org/release/Blender3.6/blender-3.6.5-linux-x64.tar.xz",
         "tar -xvf blender-3.6.5-linux-x64.tar.xz",
