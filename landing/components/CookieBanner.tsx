@@ -40,18 +40,13 @@ export default function CookieBanner({ lang }: CookieBannerProps) {
 
   if (!isVisible) return null;
 
-  const content = lang === 'pl' ? {
-    title: 'Ta strona używa plików cookie',
-    description: 'Używamy niezbędnych plików cookie do uwierzytelniania oraz plików cookie analitycznych do śledzenia korzystania z AR. Nie używamy plików cookie reklamowych ani śledzenia stron trzecich.',
-    accept: 'Akceptuj wszystkie',
-    reject: 'Odrzuć opcjonalne',
-    learnMore: 'Dowiedz się więcej',
-  } : {
+  const content = {
     title: 'This website uses cookies',
-    description: 'We use essential cookies for authentication and analytics cookies to track AR usage. We do not use advertising cookies or third-party tracking.',
+    description: 'We use essential cookies for authentication and analytics cookies to track AR usage. We do not use advertising cookies or third‑party tracking.',
     accept: 'Accept all',
     reject: 'Reject optional',
     learnMore: 'Learn more',
+    privacyHref: '/privacy',
   };
 
   return (

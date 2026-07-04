@@ -115,49 +115,49 @@ export default function SettingsPage() {
   ]
 
   return (
-    <div className="max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">{s.title}</h1>
-        <p className="text-slate-400">{s.subtitle}</p>
+    <div className="max-w-4xl space-y-8 animate-fade-in">
+      <div className="border-b border-[#1e293b]/40 pb-6">
+        <h1 className="font-display text-3xl font-black text-white">{s.title}</h1>
+        <p className="text-sm text-slate-400 mt-1">{s.subtitle}</p>
       </div>
 
       {/* Account Information */}
-      <div className="bg-[#0f172a] border border-[#1e293b] rounded-xl p-6 mb-6">
-        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-          <User size={20} className="text-[#00f0ff]" />
+      <div className="glass-card-dark border border-[#1e293b]/60 rounded-2xl p-6 shadow-xl">
+        <h2 className="font-display font-bold text-white text-base mb-6 flex items-center gap-2.5">
+          <span className="w-1.5 h-5 bg-[#00f0ff] rounded-full shadow-[0_0_8px_#00f0ff]"></span>
           {s.accountInfo}
         </h2>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-4 p-4 bg-[#0a0f1c] rounded-lg border border-[#1e293b]">
-            <div className="w-12 h-12 rounded-full bg-[#00f0ff]/10 flex items-center justify-center">
-              <Mail size={20} className="text-[#00f0ff]" />
+          <div className="flex items-center gap-4 p-4 bg-[#070b16] rounded-xl border border-[#1e293b]/30">
+            <div className="w-10 h-10 rounded-xl bg-[#00f0ff]/5 border border-[#00f0ff]/10 flex items-center justify-center flex-shrink-0">
+              <Mail size={16} className="text-[#00f0ff]" />
             </div>
-            <div className="flex-1">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{s.email}</p>
-              <p className="text-white font-medium">{user?.email}</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-0.5">{s.email}</p>
+              <p className="text-sm text-white font-semibold truncate leading-tight">{user?.email}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 p-4 bg-[#0a0f1c] rounded-lg border border-[#1e293b]">
-            <div className="w-12 h-12 rounded-full bg-[#00f0ff]/10 flex items-center justify-center">
-              <Calendar size={20} className="text-[#00f0ff]" />
+          <div className="flex items-center gap-4 p-4 bg-[#070b16] rounded-xl border border-[#1e293b]/30">
+            <div className="w-10 h-10 rounded-xl bg-[#00f0ff]/5 border border-[#00f0ff]/10 flex items-center justify-center flex-shrink-0">
+              <Calendar size={16} className="text-[#00f0ff]" />
             </div>
-            <div className="flex-1">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{s.memberSince}</p>
-              <p className="text-white font-medium">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-0.5">{s.memberSince}</p>
+              <p className="text-sm text-white font-semibold leading-tight">
                 {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 p-4 bg-[#0a0f1c] rounded-lg border border-[#1e293b]">
-            <div className="w-12 h-12 rounded-full bg-[#00f0ff]/10 flex items-center justify-center">
-              <Shield size={20} className="text-[#00f0ff]" />
+          <div className="flex items-center gap-4 p-4 bg-[#070b16] rounded-xl border border-[#1e293b]/30">
+            <div className="w-10 h-10 rounded-xl bg-[#00f0ff]/5 border border-[#00f0ff]/10 flex items-center justify-center flex-shrink-0">
+              <Shield size={16} className="text-[#00f0ff]" />
             </div>
-            <div className="flex-1">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{s.userId}</p>
-              <p className="text-white font-mono text-sm">{user?.id}</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-0.5">{s.userId}</p>
+              <p className="text-xs text-slate-300 font-mono leading-tight truncate">{user?.id}</p>
             </div>
           </div>
         </div>
@@ -166,18 +166,18 @@ export default function SettingsPage() {
       {/* Billing Section — Shopify merchants get Managed Pricing only.
           Direct (non-Shopify) users see Stripe credit packs. */}
       {hasShopifyStore ? (
-        <div className="bg-[#0f172a] border border-[#1e293b] rounded-xl p-6 mb-6">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Store size={20} className="text-[#00f0ff]" />
+        <div className="glass-card-dark border border-[#1e293b]/60 rounded-2xl p-6 shadow-xl">
+          <h2 className="font-display font-bold text-white text-base mb-6 flex items-center gap-2.5">
+            <span className="w-1.5 h-5 bg-[#00f0ff] rounded-full shadow-[0_0_8px_#00f0ff]"></span>
             {s.shopifyBillingTitle || 'Subscription'}
           </h2>
 
-          <div className="p-4 bg-[#0a0f1c] rounded-lg border border-[#1e293b] mb-4">
-            <p className="text-sm text-slate-300 mb-2">
+          <div className="p-4 bg-[#070b16] rounded-xl border border-[#1e293b]/30 mb-6">
+            <p className="text-xs text-slate-400 leading-relaxed mb-3">
               {s.shopifyBillingDesc ||
                 'Your subscription is managed by Shopify. Plans, billing details, and cancellation are handled in your Shopify admin.'}
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs font-semibold text-slate-500">
               {profile?.shopify_subscription_status
                 ? `${s.shopifyStatusLabel || 'Status'}: ${profile.shopify_subscription_status}`
                 : (s.shopifyNoActivePlan || 'No active plan yet — pick one to unlock model downloads, AR links, and QR codes.')}
@@ -187,78 +187,78 @@ export default function SettingsPage() {
           <button
             onClick={handleManageShopifyBilling}
             disabled={loadingAction !== null}
-            className="w-full flex items-center justify-center gap-2 bg-[#00f0ff] text-[#050a14] px-4 py-3 rounded-lg font-bold hover:bg-[#00f0ff]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="glow-btn w-full flex items-center justify-center gap-2 bg-[#00f0ff] text-[#050a14] px-5 py-3.5 rounded-xl font-bold hover:bg-[#00f0ff]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs uppercase tracking-wide"
           >
             {loadingAction === 'shopify-billing' ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <Store className="w-5 h-5" />
+              <Store className="w-4 h-4" />
             )}
             {s.manageOnShopify || 'Manage subscription on Shopify'}
           </button>
         </div>
       ) : (
-        <div className="bg-[#0f172a] border border-[#1e293b] rounded-xl p-6 mb-6">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Zap size={20} className="text-[#00f0ff]" />
+        <div className="glass-card-dark border border-[#1e293b]/60 rounded-2xl p-6 shadow-xl">
+          <h2 className="font-display font-bold text-white text-base mb-6 flex items-center gap-2.5">
+            <span className="w-1.5 h-5 bg-[#00f0ff] rounded-full shadow-[0_0_8px_#00f0ff]"></span>
             {c.title || 'Credits'}
           </h2>
 
           {/* Current Balance */}
-          <div className={`p-4 rounded-lg border mb-6 ${
+          <div className={`p-5 rounded-xl border mb-6 transition-colors ${
             creditBalance <= 0
-              ? 'bg-red-500/10 border-red-500/30'
-              : 'bg-[#0a0f1c] border-[#1e293b]'
+              ? 'bg-red-500/5 border-red-500/20 shadow-[0_10px_30px_rgba(239,68,68,0.02)]'
+              : 'bg-[#070b16] border-[#1e293b]/30'
           }`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{c.creditsAvailable || 'Credits Available'}</p>
-                <p className={`text-3xl font-bold ${creditBalance <= 0 ? 'text-red-400' : 'text-white'}`}>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">{c.creditsAvailable || 'Credits Available'}</p>
+                <p className={`text-4xl font-black font-display ${creditBalance <= 0 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
                   {creditBalance}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">{c.creditsDesc || 'Each credit unlocks one 3D model for download & sharing'}</p>
+                <p className="text-xs text-slate-400 mt-2 font-medium">{c.creditsDesc || 'Each credit unlocks one 3D model for download & sharing'}</p>
               </div>
               <Zap className={`w-8 h-8 ${creditBalance <= 0 ? 'text-red-400' : 'text-[#00f0ff]'}`} />
             </div>
           </div>
 
           {/* How it works note */}
-          <div className="p-4 bg-[#00f0ff]/5 border border-[#00f0ff]/20 rounded-lg mb-6">
-            <p className="text-sm text-slate-300">
+          <div className="p-4 bg-[#00f0ff]/5 border border-[#00f0ff]/15 rounded-xl mb-6">
+            <p className="text-xs text-slate-350 leading-relaxed font-semibold">
               {c.howItWorks || 'Generate 3D models for free from any product photo. Preview the result, then use 1 credit to unlock downloading, sharing AR links, and QR codes.'}
             </p>
           </div>
 
           {/* Buy Credits */}
-          <div className="space-y-3 mb-4">
-            <p className="text-sm font-medium text-slate-300">{c.buyCredits || 'Buy Credits'}</p>
+          <div className="space-y-3.5 mb-4">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{c.buyCredits || 'Buy Credits'}</p>
             {creditPacks.map((pack, i) => (
               <button
                 key={i}
                 onClick={() => handleBuyCredits(i)}
                 disabled={loadingAction !== null}
-                className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                   i === 1
                     ? 'border-[#00f0ff]/50 bg-[#00f0ff]/5 hover:bg-[#00f0ff]/10'
-                    : 'border-[#1e293b] bg-[#0a0f1c] hover:border-[#00f0ff]/30'
+                    : 'border-[#1e293b]/40 bg-[#070b16] hover:border-[#00f0ff]/30'
                 }`}
               >
                 <div className="text-left">
-                  <span className="text-white font-bold">
+                  <span className="text-white font-bold text-sm flex items-center gap-2">
                     {pack.credits} {pack.credits === 1 ? 'Credit' : 'Credits'}
+                    {i === 1 && (
+                      <span className="text-[9px] font-bold bg-[#00f0ff] text-[#050a14] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        Best Value
+                      </span>
+                    )}
                   </span>
-                  {i === 1 && (
-                    <span className="ml-2 text-xs font-bold bg-[#00f0ff] text-[#050a14] px-2 py-0.5 rounded-full">
-                      Best Value
-                    </span>
-                  )}
-                  <p className="text-xs text-slate-400 mt-0.5">{pack.perUnit}</p>
+                  <p className="text-xs text-slate-500 font-semibold mt-0.5">{pack.perUnit}</p>
                 </div>
                 <div>
                   {loadingAction === `credit-${i}` ? (
                     <Loader2 className="w-5 h-5 animate-spin text-[#00f0ff]" />
                   ) : (
-                    <span className="text-xl font-bold text-white">{pack.price}</span>
+                    <span className="text-lg font-black text-white">{pack.price}</span>
                   )}
                 </div>
               </button>
@@ -268,35 +268,35 @@ export default function SettingsPage() {
       )}
 
       {/* Preferences */}
-      <div className="bg-[#0f172a] border border-[#1e293b] rounded-xl p-6">
-        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-          <Shield size={20} className="text-[#00f0ff]" />
+      <div className="glass-card-dark border border-[#1e293b]/60 rounded-2xl p-6 shadow-xl">
+        <h2 className="font-display font-bold text-white text-base mb-6 flex items-center gap-2.5">
+          <span className="w-1.5 h-5 bg-[#00f0ff] rounded-full shadow-[0_0_8px_#00f0ff]"></span>
           {s.preferences}
         </h2>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-[#0a0f1c] rounded-lg border border-[#1e293b]">
+          <div className="flex items-center justify-between p-4 bg-[#070b16] rounded-xl border border-[#1e293b]/30">
             <div>
-              <p className="text-white font-medium mb-1">{s.language}</p>
-              <p className="text-slate-400 text-sm">{s.languageDesc}</p>
+              <p className="text-white text-sm font-semibold mb-0.5">{s.language}</p>
+              <p className="text-slate-400 text-xs">{s.languageDesc}</p>
             </div>
-            <div className="text-slate-300 text-sm">
+            <div className="text-slate-350 text-xs font-semibold">
               {s.languageNote}
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-[#0a0f1c] rounded-lg border border-[#1e293b]">
+          <div className="flex items-center justify-between p-4 bg-[#070b16] rounded-xl border border-[#1e293b]/30">
             <div>
-              <p className="text-white font-medium mb-1">{s.emailVerified}</p>
-              <p className="text-slate-400 text-sm">{s.emailVerifiedDesc}</p>
+              <p className="text-white text-sm font-semibold mb-0.5">{s.emailVerified}</p>
+              <p className="text-slate-400 text-xs">{s.emailVerifiedDesc}</p>
             </div>
             <div>
               {user?.email_confirmed_at ? (
-                <span className="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm font-medium">
+                <span className="px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-xs font-bold uppercase tracking-wider">
                   {s.verified}
                 </span>
               ) : (
-                <span className="px-3 py-1 bg-yellow-500/10 text-yellow-400 rounded-full text-sm font-medium">
+                <span className="px-3 py-1 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-full text-xs font-bold uppercase tracking-wider">
                   {s.notVerified}
                 </span>
               )}
@@ -306,13 +306,15 @@ export default function SettingsPage() {
       </div>
 
       {/* Info Box */}
-      <div className="mt-6 p-4 bg-[#00f0ff]/5 border border-[#00f0ff]/20 rounded-lg">
-        <p className="text-slate-300 text-sm mb-3">
-          {s.supportNote}
-        </p>
+      <div className="p-5 bg-[#00f0ff]/5 border border-[#00f0ff]/15 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-4">
+        <div>
+          <p className="text-slate-300 text-xs leading-relaxed font-semibold">
+            {s.supportNote || 'Need help or have custom requests? Contact our flight crew directly.'}
+          </p>
+        </div>
         <Link
           href="/contact"
-          className="inline-flex items-center gap-2 bg-[#00f0ff] text-[#050a14] px-4 py-2 rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-all text-sm"
+          className="bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] text-xs font-bold px-4 py-2.5 rounded-xl uppercase tracking-wider text-center flex-shrink-0 transition-colors"
         >
           Contact Support
         </Link>

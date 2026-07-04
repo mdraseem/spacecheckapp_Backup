@@ -188,28 +188,26 @@ export default function CreatePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto pb-20">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">{dict.create.title}</h1>
-        <p className="text-slate-400">{dict.create.subtitle}</p>
+    <div className="max-w-4xl mx-auto pb-20 space-y-8 animate-fade-in">
+      <div className="border-b border-[#1e293b]/40 pb-6">
+        <h1 className="font-display text-3xl font-black text-white">{dict.create.title}</h1>
+        <p className="text-sm text-slate-400 mt-1">{dict.create.subtitle}</p>
       </div>
 
       {/* Usage Badge */}
-      <div className="mb-8">
-        <UsageBadge />
-      </div>
+      <UsageBadge />
 
       {/* Shopify context banner */}
       {isShopifyMode && (
-        <div className="mb-8 p-4 bg-[#00f0ff]/5 border border-[#00f0ff]/20 rounded-xl flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#00f0ff]/10 rounded-full flex items-center justify-center flex-shrink-0">
+        <div className="p-4 bg-[#00f0ff]/5 border border-[#00f0ff]/15 rounded-2xl flex items-center gap-3.5 shadow-md">
+          <div className="w-10 h-10 bg-[#00f0ff]/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-[#00f0ff]/10">
             <Store className="w-5 h-5 text-[#00f0ff]" />
           </div>
           <div>
-            <p className="text-[#00f0ff] font-semibold text-sm">
+            <p className="text-[#00f0ff] font-bold text-sm">
               Generating for Shopify product
             </p>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-400 text-xs mt-0.5">
               {shopifyProductTitle} — The 3D model will be linked to this product after generation.
             </p>
           </div>
@@ -222,7 +220,7 @@ export default function CreatePage() {
             className={`relative border-2 border-dashed rounded-2xl p-8 transition-all duration-300 ease-in-out flex flex-col items-center justify-center min-h-[400px] overflow-hidden ${
             isDragging
                 ? 'border-[#00f0ff] bg-[#00f0ff]/5'
-                : 'border-[#1e293b] bg-[#0f172a]/50 hover:border-[#00f0ff]/50'
+                : 'border-[#1e293b] bg-[#0c1426]/30 hover:border-[#00f0ff]/40'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -238,30 +236,30 @@ export default function CreatePage() {
             />
 
             {isUploading ? (
-            <div className="text-center z-10">
-                <Loader2 className="w-16 h-16 text-[#00f0ff] animate-spin mb-4 mx-auto" />
-                <p className="text-xl font-medium text-[#00f0ff]">{dict.create.uploadingProcessing}</p>
-                <p className="text-slate-400 mt-2">{dict.create.quantumScan}</p>
+            <div className="text-center z-10 space-y-4">
+                <Loader2 className="w-12 h-12 text-[#00f0ff] animate-spin mx-auto" />
+                <h3 className="text-lg font-bold text-[#00f0ff]">{dict.create.uploadingProcessing}</h3>
+                <p className="text-slate-500 text-xs">{dict.create.quantumScan}</p>
             </div>
             ) : (file || isShopifyMode) && previewUrl ? (
             <div className="text-center z-10 flex flex-col items-center w-full h-full py-4">
-                <div className="relative w-full aspect-square max-w-[300px] mb-6 rounded-xl overflow-hidden border border-[#00f0ff]/30 shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+                <div className="relative w-full aspect-square max-w-[260px] mb-6 rounded-2xl overflow-hidden border border-[#00f0ff]/30 shadow-[0_0_30px_rgba(0,240,255,0.08)]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={previewUrl}
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover animate-fade-in"
                 />
                 </div>
                 <div className="pointer-events-none">
                     {file ? (
                       <>
-                        <p className="text-lg font-medium text-white mb-1">{file.name}</p>
-                        <p className="text-sm text-slate-400 mb-4">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <p className="text-sm font-semibold text-white mb-1">{file.name}</p>
+                        <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-4">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                       </>
                     ) : isShopifyMode ? (
-                      <p className="text-lg font-medium text-white mb-1 flex items-center gap-2 justify-center">
-                        <Store size={16} className="text-[#00f0ff]" />
+                      <p className="text-sm font-semibold text-white mb-4 flex items-center gap-2 justify-center">
+                        <Store size={14} className="text-[#00f0ff]" />
                         Shopify product image
                       </p>
                     ) : null}
@@ -269,7 +267,7 @@ export default function CreatePage() {
                 {!isShopifyMode && (
                   <div className="z-30 pointer-events-auto">
                       <button
-                      className="px-6 py-2 bg-[#1e293b] text-slate-300 rounded-full text-xs border border-slate-700 hover:border-[#00f0ff]/50 hover:text-[#00f0ff] transition-all"
+                      className="px-5 py-2 bg-slate-900/80 text-slate-300 rounded-full text-xs border border-slate-800 hover:border-[#00f0ff]/40 hover:text-white transition-all font-semibold"
                       >
                       {dict.create.changeImage}
                       </button>
@@ -278,16 +276,16 @@ export default function CreatePage() {
             </div>
             ) : (
             <div className="text-center pointer-events-none">
-                <div className="w-20 h-20 bg-[#1e293b] rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                <UploadCloud className="w-10 h-10 text-slate-400 group-hover:text-[#00f0ff]" />
+                <div className="w-16 h-16 bg-[#121a2f] border border-slate-800/80 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-transform">
+                <UploadCloud className="w-8 h-8 text-slate-400" />
                 </div>
-                <h3 className="text-xl font-medium text-white mb-2">
+                <h3 className="font-display font-bold text-white text-lg mb-2">
                 {dict.create.dragDrop}
                 </h3>
-                <p className="text-slate-400 mb-6 max-w-sm mx-auto">
+                <p className="text-slate-400 text-xs mb-6 max-w-xs mx-auto leading-relaxed">
                 {dict.create.supports}
                 </p>
-                <span className="px-6 py-3 bg-[#00f0ff] text-[#050a14] font-bold rounded-lg hover:bg-[#00f0ff]/90 transition-colors uppercase tracking-wide text-sm">
+                <span className="px-5 py-2.5 bg-[#12192c] border border-slate-850 text-slate-300 font-bold rounded-lg text-xs tracking-wider uppercase">
                 {dict.create.browseFiles}
                 </span>
             </div>
@@ -296,51 +294,51 @@ export default function CreatePage() {
 
         {/* Right Col: Dimensions & Actions */}
         <div className="flex flex-col justify-center space-y-6">
-            <div className="bg-[#0f172a]/50 p-6 rounded-2xl border border-[#1e293b]">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <span className="w-1 h-6 bg-[#00f0ff] rounded-full"></span>
+            <div className="glass-card-dark border border-[#1e293b]/60 p-6 rounded-2xl shadow-xl">
+                <h3 className="font-display font-bold text-white mb-5 flex items-center gap-2.5 text-base">
+                    <span className="w-1 h-5 bg-[#00f0ff] rounded-full shadow-[0_0_8px_#00f0ff]"></span>
                     {dict.create.productDetails}
                 </h3>
 
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{dict.create.productName}</label>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">{dict.create.productName}</label>
                         <input
                             type="text"
                             value={productName}
                             onChange={(e) => setProductName(e.target.value)}
                             placeholder={dict.create.productNamePlaceholder}
-                            className="w-full bg-[#0a0f1c] border border-[#1e293b] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#00f0ff] transition-colors"
+                            className="w-full bg-[#070b16] border border-[#1e293b] rounded-xl px-4 py-3.5 text-white text-sm focus:outline-none focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff]/20 transition-all placeholder-slate-650"
                         />
                     </div>
                 </div>
             </div>
 
-            <div className="bg-[#0f172a]/50 p-6 rounded-2xl border border-[#1e293b]">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                        <span className="w-1 h-6 bg-[#00f0ff] rounded-full"></span>
+            <div className="glass-card-dark border border-[#1e293b]/60 p-6 rounded-2xl shadow-xl">
+                <div className="flex items-center justify-between mb-5">
+                    <h3 className="font-display font-bold text-white flex items-center gap-2.5 text-base">
+                        <span className="w-1 h-5 bg-[#00f0ff] rounded-full shadow-[0_0_8px_#00f0ff]"></span>
                         {dict.create.dimensions}
                     </h3>
                     {/* Unit Toggle */}
                     <button
                         onClick={toggleUnitSystem}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-[#1e293b] hover:bg-[#2d3b55] border border-[#00f0ff]/20 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                        className="flex items-center gap-2.5 px-3 py-1.5 bg-[#0b0f1a] hover:bg-[#12192d] border border-slate-800 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all"
                         type="button"
                     >
-                        <span className={unitSystem === 'metric' ? 'text-[#00f0ff]' : 'text-slate-500'}>cm</span>
-                        <span className="text-slate-600">/</span>
-                        <span className={unitSystem === 'imperial' ? 'text-[#00f0ff]' : 'text-slate-500'}>in</span>
+                        <span className={unitSystem === 'metric' ? 'text-[#00f0ff]' : 'text-slate-600'}>cm</span>
+                        <span className="text-slate-700">/</span>
+                        <span className={unitSystem === 'imperial' ? 'text-[#00f0ff]' : 'text-slate-600'}>in</span>
                     </button>
                 </div>
-                <p className="text-slate-400 text-sm mb-6">
+                <p className="text-slate-400 text-xs mb-6 leading-relaxed">
                     {dict.create.dimensionsDesc}
                 </p>
 
-                <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                            {dict.create.width} ({unitSystem === 'metric' ? 'cm' : 'inches'})
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            {dict.create.width}
                         </label>
                         <input
                             type="number"
@@ -349,12 +347,12 @@ export default function CreatePage() {
                             onChange={handleDimensionChange}
                             placeholder={unitSystem === 'metric' ? dict.create.widthPlaceholder : 'e.g. 78.7'}
                             step="0.01"
-                            className="w-full bg-[#0a0f1c] border border-[#1e293b] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#00f0ff] transition-colors"
+                            className="w-full bg-[#070b16] border border-[#1e293b] rounded-xl px-3 py-3 text-center text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-all placeholder-slate-650"
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                            {dict.create.height} ({unitSystem === 'metric' ? 'cm' : 'inches'})
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            {dict.create.height}
                         </label>
                         <input
                             type="number"
@@ -363,12 +361,12 @@ export default function CreatePage() {
                             onChange={handleDimensionChange}
                             placeholder={unitSystem === 'metric' ? dict.create.heightPlaceholder : 'e.g. 33.5'}
                             step="0.01"
-                            className="w-full bg-[#0a0f1c] border border-[#1e293b] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#00f0ff] transition-colors"
+                            className="w-full bg-[#070b16] border border-[#1e293b] rounded-xl px-3 py-3 text-center text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-all placeholder-slate-650"
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                            {dict.create.depth} ({unitSystem === 'metric' ? 'cm' : 'inches'})
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            {dict.create.depth}
                         </label>
                         <input
                             type="number"
@@ -377,7 +375,7 @@ export default function CreatePage() {
                             onChange={handleDimensionChange}
                             placeholder={unitSystem === 'metric' ? dict.create.depthPlaceholder : 'e.g. 37.4'}
                             step="0.01"
-                            className="w-full bg-[#0a0f1c] border border-[#1e293b] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#00f0ff] transition-colors"
+                            className="w-full bg-[#070b16] border border-[#1e293b] rounded-xl px-3 py-3 text-center text-white text-sm focus:outline-none focus:border-[#00f0ff] transition-all placeholder-slate-650"
                         />
                     </div>
                 </div>
@@ -387,16 +385,16 @@ export default function CreatePage() {
                 <button
                     onClick={handleUpload}
                     disabled={isUploading}
-                    className="w-full py-4 bg-[#00f0ff] text-[#050a14] font-bold rounded-xl hover:bg-[#00f0ff]/90 transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_30px_rgba(0,240,255,0.5)] uppercase tracking-wide flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="glow-btn w-full py-4 bg-[#00f0ff] text-[#050a14] font-bold rounded-xl hover:bg-[#00f0ff]/90 transition-all shadow-md shadow-[#00f0ff]/15 hover:shadow-[#00f0ff]/35 uppercase tracking-wide flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
                 >
                     {isUploading ? (
                         <>
-                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <Loader2 className="w-4 h-4 animate-spin" />
                             {dict.create.processing}
                         </>
                     ) : (
                         <>
-                            <UploadCloud className="w-5 h-5" />
+                            <UploadCloud className="w-4 h-4" />
                             {dict.create.generateAR}
                         </>
                     )}

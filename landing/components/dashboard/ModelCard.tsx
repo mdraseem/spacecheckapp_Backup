@@ -191,7 +191,7 @@ export function ModelCard({ model }: { model: Generation }) {
 
   return (
     <>
-      <div className="bg-[#0f172a] border border-[#1e293b] rounded-xl overflow-hidden hover:border-[#00f0ff]/30 transition-all group">
+      <div className="glass-card-dark border border-[#1e293b]/60 rounded-2xl overflow-hidden hover:border-[#00f0ff]/40 hover:shadow-[0_15px_40px_rgba(0,240,255,0.04)] transition-all duration-300 group flex flex-col justify-between h-full">
         {/* Image / Preview Area */}
         <div className="relative aspect-square bg-[#050a14] overflow-hidden">
           {model.input_image_url && (
@@ -201,34 +201,34 @@ export function ModelCard({ model }: { model: Generation }) {
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               priority={isProcessing}
-              className={`object-cover transition-opacity duration-500 ${
-                isProcessing ? 'opacity-50' : 'opacity-100'
+              className={`object-cover transition-all duration-700 group-hover:scale-105 ${
+                isProcessing ? 'opacity-40 blur-sm' : 'opacity-100'
               }`}
             />
           )}
 
           {/* Status Overlays */}
           {(isProcessing || isRetrying) && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
-              <Loader2 className="w-10 h-10 text-[#00f0ff] animate-spin mb-3" />
-              <span className="text-white text-sm font-medium">
-                {isRetrying ? 'Restarting generation...' : progressMessage}
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-center">
+              <Loader2 className="w-8 h-8 text-[#00f0ff] animate-spin mb-3" />
+              <span className="text-white text-xs font-semibold tracking-wide">
+                {isRetrying ? 'Restarting...' : progressMessage}
               </span>
             </div>
           )}
 
           {model.status === 'failed' && !isRetrying && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-900/20 backdrop-blur-sm">
-              <AlertCircle className="w-10 h-10 text-red-400 mb-2" />
-              <span className="text-red-400 text-sm font-medium">{dict.modelCard.generationFailed}</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-950/30 backdrop-blur-sm p-4 text-center">
+              <AlertCircle className="w-8 h-8 text-red-400 mb-2" />
+              <span className="text-red-400 text-xs font-semibold">{dict.modelCard.generationFailed}</span>
             </div>
           )}
 
           {/* Unlocked badge */}
           {isCompleted && isUnlocked && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="flex items-center gap-1 bg-[#00f0ff] text-[#050a14] text-xs font-bold px-2 py-1 rounded">
-                <Unlock size={12} />
+            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <span className="flex items-center gap-1 bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/20 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded-lg">
+                <Unlock size={10} />
                 {dict.modelCard.ready}
               </span>
             </div>
@@ -236,9 +236,9 @@ export function ModelCard({ model }: { model: Generation }) {
 
           {/* Locked badge */}
           {isCompleted && !isUnlocked && (
-            <div className="absolute top-2 right-2">
-              <span className="flex items-center gap-1 bg-amber-500/90 text-white text-xs font-bold px-2 py-1 rounded">
-                <Lock size={12} />
+            <div className="absolute top-3 right-3">
+              <span className="flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded-lg">
+                <Lock size={10} />
                 {dict.modelCard.locked || 'Locked'}
               </span>
             </div>
@@ -246,7 +246,7 @@ export function ModelCard({ model }: { model: Generation }) {
         </div>
 
         {/* Info / Actions */}
-        <div className="p-4">
+        <div className="p-5 flex-1 flex flex-col justify-between">
           <div className="mb-4 flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               {isEditingName ? (
@@ -263,18 +263,18 @@ export function ModelCard({ model }: { model: Generation }) {
                     }
                   }}
                   autoFocus
-                  className="w-full bg-[#0a0f1c] border border-[#00f0ff] rounded px-2 py-1 text-slate-200 text-sm focus:outline-none"
+                  className="w-full bg-[#0a0f1c] border border-[#00f0ff] rounded-lg px-2.5 py-1.5 text-slate-200 text-xs focus:outline-none"
                 />
               ) : (
-                <h3 className="font-medium text-slate-200 text-sm truncate" title={model.name || `Generation #${model.id.slice(0, 6)}`}>
+                <h3 className="font-display font-bold text-slate-200 text-sm truncate" title={model.name || `Generation #${model.id.slice(0, 6)}`}>
                   {model.name || `Generation #${model.id.slice(0, 6)}`}
                 </h3>
               )}
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mt-1">
                 {new Date(model.created_at).toLocaleDateString()}
               </p>
               {shopifySyncStatus && (
-                <div className="mt-1.5">
+                <div className="mt-2">
                   <ShopifyStatusBadge status={shopifySyncStatus} />
                 </div>
               )}
@@ -284,21 +284,22 @@ export function ModelCard({ model }: { model: Generation }) {
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="p-1 text-slate-400 hover:text-white hover:bg-[#1e293b] rounded transition-colors"
+                className="p-1.5 text-slate-400 hover:text-white hover:bg-[#1e293b]/60 border border-transparent hover:border-slate-800 rounded-lg transition-colors"
+                aria-label="More actions"
               >
-                <MoreVertical size={18} />
+                <MoreVertical size={16} />
               </button>
 
               {showMenu && (
-                <div className="absolute right-0 top-8 bg-[#0f172a] border border-[#1e293b] rounded-lg shadow-xl z-20 min-w-[160px] overflow-hidden">
+                <div className="absolute right-0 top-8 bg-[#0b0f19] border border-[#1e293b]/80 rounded-xl shadow-2xl z-20 min-w-[160px] overflow-hidden">
                   <button
                     onClick={() => {
                       setIsEditingName(true)
                       setShowMenu(false)
                     }}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-slate-300 hover:bg-[#1e293b] hover:text-white transition-colors"
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-[#121a2f] hover:text-white transition-colors"
                   >
-                    <Edit2 size={14} />
+                    <Edit2 size={12} className="text-slate-400" />
                     {dict.modelCard.editName}
                   </button>
                   {isCompleted && isUnlocked && (
@@ -307,17 +308,17 @@ export function ModelCard({ model }: { model: Generation }) {
                         setShowShopifyPicker(true)
                         setShowMenu(false)
                       }}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-slate-300 hover:bg-[#1e293b] hover:text-white transition-colors"
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-[#121a2f] hover:text-white transition-colors"
                     >
-                      <Store size={14} />
+                      <Store size={12} className="text-slate-400" />
                       {dict.shopify?.pushToShopify || 'Push to Shopify'}
                     </button>
                   )}
                   <button
                     onClick={handleDelete}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-colors"
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-950/20 hover:text-red-300 transition-colors"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={12} />
                     {dict.modelCard.delete}
                   </button>
                 </div>
@@ -328,59 +329,59 @@ export function ModelCard({ model }: { model: Generation }) {
           {isCompleted ? (
             isUnlocked ? (
               /* ===== UNLOCKED MODEL: Full actions ===== */
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {/* Primary Action - View in AR */}
                 <button
                   onClick={handleViewInAR}
-                  className="w-full flex items-center justify-center gap-2 bg-[#00f0ff] hover:bg-[#00f0ff]/90 text-[#050a14] text-sm font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+                  className="glow-btn w-full flex items-center justify-center gap-2 bg-[#00f0ff] text-[#050a14] text-xs font-bold py-3.5 rounded-xl transition-all shadow-md shadow-[#00f0ff]/10 hover:shadow-[#00f0ff]/20"
                 >
-                  <Eye size={16} /> {dict.modelCard.viewInAR}
+                  <Eye size={14} /> {dict.modelCard.viewInAR}
                 </button>
 
                 {/* Secondary Actions */}
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     onClick={() => setShowQRModal(true)}
-                    className="flex flex-col items-center justify-center gap-1 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white text-xs py-2 rounded-lg transition-colors"
+                    className="flex flex-col items-center justify-center gap-1.5 bg-[#12192c]/65 border border-[#1e293b]/60 hover:bg-[#1a2542]/80 text-slate-300 hover:text-white text-[10px] font-semibold py-2.5 rounded-xl transition-colors"
                     title="Generate QR Code"
                   >
-                    <QrCode size={16} />
+                    <QrCode size={14} className="text-[#00f0ff]" />
                     <span>QR</span>
                   </button>
                   <button
                     onClick={() => setShowAnalyticsModal(true)}
-                    className="flex flex-col items-center justify-center gap-1 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white text-xs py-2 rounded-lg transition-colors"
+                    className="flex flex-col items-center justify-center gap-1.5 bg-[#12192c]/65 border border-[#1e293b]/60 hover:bg-[#1a2542]/80 text-slate-300 hover:text-white text-[10px] font-semibold py-2.5 rounded-xl transition-colors"
                     title="View Analytics"
                   >
-                    <BarChart3 size={16} />
+                    <BarChart3 size={14} className="text-[#00f0ff]" />
                     <span>Stats</span>
                   </button>
                   <button
                     onClick={() => window.open(model.glb_url!, '_blank')}
-                    className="flex flex-col items-center justify-center gap-1 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white text-xs py-2 rounded-lg transition-colors"
+                    className="flex flex-col items-center justify-center gap-1.5 bg-[#12192c]/65 border border-[#1e293b]/60 hover:bg-[#1a2542]/80 text-slate-300 hover:text-white text-[10px] font-semibold py-2.5 rounded-xl transition-colors"
                     title="Download GLB"
                   >
-                    <Download size={16} />
+                    <Download size={14} className="text-[#00f0ff]" />
                     <span>GLB</span>
                   </button>
                 </div>
               </div>
             ) : (
               /* ===== LOCKED MODEL: Show unlock CTA ===== */
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {/* Preview button — user can see the model but it's not shareable */}
                 <button
                   onClick={handleViewInAR}
-                  className="w-full flex items-center justify-center gap-2 bg-[#1e293b] hover:bg-[#2d3b55] text-slate-300 hover:text-white text-sm font-medium py-2.5 rounded-lg transition-all border border-[#1e293b]"
+                  className="w-full flex items-center justify-center gap-2 bg-[#12192c]/80 hover:bg-[#1b2640] text-slate-300 hover:text-white text-xs font-semibold py-2.5 rounded-xl transition-all border border-[#1e293b]/60"
                 >
-                  <Eye size={16} /> {dict.modelCard.preview || 'Preview'}
+                  <Eye size={14} /> {dict.modelCard.preview || 'Preview'}
                 </button>
 
                 {/* Unlock CTA */}
                 <button
                   onClick={handleUnlockModel}
                   disabled={isUnlocking}
-                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-sm font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-bold py-3.5 rounded-xl transition-all shadow-md shadow-orange-500/15 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isUnlocking ? (
                     <>
@@ -389,17 +390,17 @@ export function ModelCard({ model }: { model: Generation }) {
                     </>
                   ) : (
                     <>
-                      <Unlock size={16} />
+                      <Unlock size={14} />
                       {dict.modelCard.unlockModel || 'Unlock for $5'}
                     </>
                   )}
                 </button>
 
                 {/* Locked features hint */}
-                <div className="flex items-center justify-center gap-3 text-xs text-slate-500 pt-1">
-                  <span className="flex items-center gap-1"><QrCode size={12} /> QR</span>
-                  <span className="flex items-center gap-1"><Download size={12} /> GLB</span>
-                  <span className="flex items-center gap-1"><BarChart3 size={12} /> Stats</span>
+                <div className="flex items-center justify-center gap-4 text-[10px] text-slate-500 font-bold tracking-wider pt-1 uppercase">
+                  <span className="flex items-center gap-1"><QrCode size={11} /> QR</span>
+                  <span className="flex items-center gap-1"><Download size={11} /> GLB</span>
+                  <span className="flex items-center gap-1"><BarChart3 size={11} /> Stats</span>
                 </div>
               </div>
             )
@@ -407,7 +408,7 @@ export function ModelCard({ model }: { model: Generation }) {
             <button
               onClick={handleRetry}
               disabled={isRetrying}
-              className="w-full flex items-center justify-center gap-2 text-sm font-medium bg-red-900/20 hover:bg-red-900/30 text-red-400 hover:text-red-300 py-3 rounded-lg border border-red-800/50 hover:border-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 text-xs font-bold bg-red-950/20 hover:bg-red-950/30 text-red-400 hover:text-red-300 py-3.5 rounded-xl border border-red-900/40 hover:border-red-700/60 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isRetrying ? (
                 <>
@@ -422,9 +423,9 @@ export function ModelCard({ model }: { model: Generation }) {
               )}
             </button>
           ) : (
-            <div className="flex items-center justify-center text-xs text-slate-400 italic bg-[#1e293b]/50 py-3 rounded-lg border border-dashed border-[#1e293b]">
+            <div className="flex items-center justify-center text-xs text-slate-400 italic bg-[#1e293b]/20 py-3 rounded-xl border border-dashed border-[#1e293b]/40">
               <span className="flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
                 {dict.modelCard.processing}
               </span>
             </div>

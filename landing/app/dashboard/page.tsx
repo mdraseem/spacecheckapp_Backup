@@ -62,54 +62,67 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="aspect-[4/5] bg-[#0f172a] rounded-xl animate-pulse border border-[#1e293b]" />
-        ))}
+      <div className="space-y-8 animate-pulse">
+        <div className="h-12 w-64 bg-[#0f172a] rounded-xl border border-[#1e293b]/50" />
+        <div className="h-20 bg-[#0f172a] rounded-2xl border border-[#1e293b]/50" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="aspect-[4/5] bg-[#0f172a] rounded-2xl border border-[#1e293b]/50 flex flex-col justify-between p-4">
+              <div className="aspect-square bg-[#0c1322] rounded-xl" />
+              <div className="space-y-2 mt-4">
+                <div className="h-4 bg-[#0c1322] rounded-full w-2/3" />
+                <div className="h-3 bg-[#0c1322] rounded-full w-1/3" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
 
   if (!generations || generations.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-        <div className="w-24 h-24 bg-[#1e293b] rounded-full flex items-center justify-center mb-6">
-            <Box className="w-12 h-12 text-slate-500" />
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <div className="glass-card-dark rounded-3xl p-12 max-w-md w-full border border-[#1e293b]/40 shadow-2xl relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#00f0ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          <div className="w-20 h-20 bg-slate-900/80 border border-[#1e293b] rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-inner group-hover:scale-105 transition-transform duration-300">
+              <Box className="w-10 h-10 text-slate-500 group-hover:text-[#00f0ff] transition-colors duration-300" />
+          </div>
+          <h2 className="font-display text-2xl font-bold text-white mb-3">{dict.dashboard.noModels}</h2>
+          <p className="text-sm text-slate-400 mb-8 leading-relaxed max-w-sm mx-auto">
+            {dict.dashboard.noModelsDesc}
+          </p>
+          <Link
+              href="/dashboard/create"
+              className="glow-btn flex items-center justify-center gap-2 px-6 py-3.5 bg-[#00f0ff] text-[#050a14] font-bold rounded-xl hover:bg-[#00f0ff]/90 transition-all uppercase tracking-wide text-xs shadow-lg shadow-[#00f0ff]/15"
+          >
+              <PlusCircle size={16} />
+              {dict.dashboard.createFirst}
+          </Link>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">{dict.dashboard.noModels}</h2>
-        <p className="text-slate-400 mb-8 max-w-md">
-          {dict.dashboard.noModelsDesc}
-        </p>
-        <Link
-            href="/dashboard/create"
-            className="flex items-center gap-2 px-6 py-3 bg-[#00f0ff] text-[#050a14] font-bold rounded-lg hover:bg-[#00f0ff]/90 transition-colors uppercase tracking-wide"
-        >
-            <PlusCircle size={20} />
-            {dict.dashboard.createFirst}
-        </Link>
       </div>
     )
   }
 
   return (
-    <div>
+    <div className="space-y-8">
       {/* Success Message */}
       {showSuccessMessage && (
-        <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+        <div className="p-4 bg-green-500/5 border border-green-500/10 rounded-2xl backdrop-blur-md flex items-center justify-between shadow-xl">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-center">
               {showSuccessMessage === 'credits' ? (
-                <Zap className="w-5 h-5 text-green-400" />
+                <Zap className="w-4 h-4 text-green-400" />
               ) : showSuccessMessage === 'hosting' ? (
-                <Server className="w-5 h-5 text-green-400" />
+                <Server className="w-4 h-4 text-green-400" />
               ) : showSuccessMessage === 'unlock' ? (
-                <Unlock className="w-5 h-5 text-green-400" />
+                <Unlock className="w-4 h-4 text-green-400" />
               ) : (
-                <CheckCircle className="w-5 h-5 text-green-400" />
+                <CheckCircle className="w-4 h-4 text-green-400" />
               )}
             </div>
             <div>
-              <p className="text-green-400 font-semibold">
+              <p className="text-green-400 text-sm font-bold">
                 {showSuccessMessage === 'credits'
                   ? (c.creditsPurchased || 'Credits Added!')
                   : showSuccessMessage === 'hosting'
@@ -118,7 +131,7 @@ export default function DashboardPage() {
                   ? (c.modelUnlocked || 'Model Unlocked!')
                   : 'Payment Successful!'}
               </p>
-              <p className="text-green-400/80 text-sm">
+              <p className="text-slate-400 text-xs mt-0.5">
                 {showSuccessMessage === 'credits'
                   ? (c.creditsPurchasedDesc || 'Your credits have been added to your account. You can now generate new models.')
                   : showSuccessMessage === 'hosting'
@@ -129,43 +142,45 @@ export default function DashboardPage() {
               </p>
             </div>
           </div>
-          <button onClick={() => setShowSuccessMessage(null)} className="text-green-400 hover:text-green-300">
-            <X size={20} />
+          <button onClick={() => setShowSuccessMessage(null)} className="text-slate-400 hover:text-white hover:bg-slate-800/40 p-1.5 rounded-lg transition-all">
+            <X size={16} />
           </button>
         </div>
       )}
 
       {/* Canceled Message */}
       {showCanceledMessage && (
-        <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-center justify-between">
+        <div className="p-4 bg-yellow-500/5 border border-yellow-500/10 rounded-2xl backdrop-blur-md flex items-center justify-between shadow-xl">
           <div className="flex items-center gap-3">
-            <p className="text-yellow-400 text-sm">Payment was canceled. You can try again anytime.</p>
+            <p className="text-yellow-400 text-xs font-semibold">Payment was canceled. You can try again anytime.</p>
           </div>
-          <button onClick={() => setShowCanceledMessage(false)} className="text-yellow-400 hover:text-yellow-300">
-            <X size={20} />
+          <button onClick={() => setShowCanceledMessage(false)} className="text-slate-400 hover:text-white hover:bg-slate-800/40 p-1.5 rounded-lg transition-all">
+            <X size={16} />
           </button>
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-6">
+      {/* Header bar */}
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-[#1e293b]/40 pb-6">
         <div>
-            <h1 className="text-3xl font-bold text-white">{dict.dashboard.title}</h1>
-            <p className="text-slate-400">{dict.dashboard.subtitle}</p>
+            <h1 className="font-display text-3xl font-black tracking-tight text-white">{dict.dashboard.title}</h1>
+            <p className="text-sm text-slate-400 mt-1">{dict.dashboard.subtitle}</p>
         </div>
         <Link
             href="/dashboard/create"
-            className="hidden md:flex items-center gap-2 px-4 py-2 bg-[#1e293b] text-slate-300 hover:text-white border border-[#1e293b] hover:border-[#00f0ff]/50 rounded-lg transition-all text-sm font-medium"
+            className="glow-btn inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-900 border border-[#1e293b] hover:border-[#00f0ff]/50 rounded-xl text-xs font-bold text-slate-200 hover:text-[#00f0ff] transition-all"
         >
-            <PlusCircle size={16} />
+            <PlusCircle size={14} />
             {dict.dashboard.newScan}
         </Link>
       </div>
 
       {/* Usage Badge */}
-      <div className="mb-8">
+      <div className="p-0 border border-transparent">
         <UsageBadge />
       </div>
 
+      {/* Models Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {generations.map((model) => (
           // @ts-ignore

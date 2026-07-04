@@ -13,7 +13,7 @@ export default async function RootLayout({
   return (
     <html lang={lang || 'en'}>
       <head />
-      <body className="antialiased">
+      <body className="antialiased dark">
         <GoogleAnalytics />
         {children}
       </body>
