@@ -1,19 +1,11 @@
 import "./globals.css";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 
-export default async function RootLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ lang?: string }>;
-}) {
-  const { lang } = await params;
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={lang || 'en'}>
+    <html lang="en">
       <head />
-      <body className="antialiased dark">
+      <body className="antialiated dark">
         <GoogleAnalytics />
         {children}
       </body>
