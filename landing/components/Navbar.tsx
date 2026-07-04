@@ -43,7 +43,7 @@ export default function Navbar({ dict, lang }: { dict: any, lang: string }) {
       >
         <div className="px-6 flex justify-between items-center">
           <div className="flex items-center">
-            <Link href={`/${lang}`} className="font-display font-black text-2xl tracking-tight text-slate-900 flex items-center gap-1 group"><span>spacecheck.app</span></Link>
+            <Link href={`/${lang}`} className="font-display font-black text-2xl tracking-tight text-slate-900 flex items-center gap-1 group"><span className="text-primary">spacecheck</span><span className="text-secondary">.app</span></Link>
           </div>
 
           {/* Desktop navigation */}

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Facebook, Instagram, Youtube } from 'lucide-react';
 
 export default function Footer({ dict, lang }: { dict: any, lang: string }) {
   return (
@@ -8,29 +8,20 @@ export default function Footer({ dict, lang }: { dict: any, lang: string }) {
         <div className="grid md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-2 space-y-6">
             <Link href={`/${lang}`} className="font-display font-black text-2xl tracking-tight text-slate-900 flex items-center gap-0.5 group">
-              <span>spacecheck.app</span>
+              <span className="text-primary">spacecheck</span><span className="text-secondary">.app</span>
             </Link>
             <p className="text-slate-500 text-sm max-w-sm leading-relaxed">
               {dict.footer.description}
             </p>
             <div className="flex space-x-3">
               <a 
-                href="https://twitter.com/spacecheck" 
+                href="https://facebook.com/spacecheck" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-9 h-9 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-secondary hover:border-secondary/30 flex items-center justify-center transition-all shadow-sm"
-                aria-label="Twitter"
+                className="w-9 h-9 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-primary hover:border-primary/30 flex items-center justify-center transition-all shadow-sm"
+                aria-label="Facebook"
               >
-                <Twitter size={16} />
-              </a>
-              <a 
-                href="https://linkedin.com/company/spacecheck" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="w-9 h-9 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-secondary hover:border-secondary/30 flex items-center justify-center transition-all shadow-sm"
-                aria-label="LinkedIn"
-              >
-                <Linkedin size={16} />
+                <Facebook size={16} />
               </a>
               <a 
                 href="https://instagram.com/spacecheck" 
@@ -40,6 +31,15 @@ export default function Footer({ dict, lang }: { dict: any, lang: string }) {
                 aria-label="Instagram"
               >
                 <Instagram size={16} />
+              </a>
+              <a 
+                href="https://youtube.com/spacecheck" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-9 h-9 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-primary hover:border-primary/30 flex items-center justify-center transition-all shadow-sm"
+                aria-label="YouTube"
+              >
+                <Youtube size={16} />
               </a>
             </div>
           </div>
